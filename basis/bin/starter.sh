@@ -14,8 +14,7 @@ else
   if [ -f $APP_SRC_DIR/terraform.tfvars ]; then
     export TERRAFORM_TFVARS="$APP_SRC_DIR/terraform.tfvars"
   else
-    echo "ERROR: terraform.tfvars file not found. (in $PROJECT_DIR or in $APP_SRC_DIR)"
-    exit 1
+    echo "WARNING: terraform.tfvars file not found. (in $PROJECT_DIR or in $APP_SRC_DIR)"
   fi
 fi
 
