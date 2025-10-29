@@ -7,8 +7,8 @@ if [ "$PROJECT_DIR" == "" ]; then
 fi
 
 # AppMode
-if [ -f $TERRAFORM_TFVARS ]; then
-  export TERRAFORM_TFVARS="$TERRAFORM_TFVARS"
+if [ -f $PROJECT_DIR/terraform.tfvars ]; then
+  export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
 else
   export APP_SRC_DIR=`pwd`
   if [ -f $APP_SRC_DIR/terraform.tfvars ]; then
