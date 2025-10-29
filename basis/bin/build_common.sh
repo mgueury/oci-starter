@@ -24,4 +24,7 @@ fi
 
 if [ "$APP_SRC_DIR" == "" ]; then
   export APP_SRC_DIR="src"
+  export APP_TARGET_DIR="target"
+else 
+  export APP_TARGET_DIR="${APP_SRC_DIR}/target"
 fi 

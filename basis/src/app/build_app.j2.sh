@@ -17,7 +17,7 @@ if is_deploy_compute; then
   mkdir -p $TARGET_DIR/compute/$APP_DIR
   rsync -av --progress $APP_SRC_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
   # Replace the user and password in the start file
-  replace_db_user_password_in_file ../../target/compute/$APP_DIR/start.sh
+  replace_db_user_password_in_file $TARGET_DIR/compute/$APP_DIR/start.sh
   if [ -f $TARGET_DIR/compute/$APP_DIR/env.sh ]; then 
     file_replace_variables $TARGET_DIR/compute/$APP_DIR/env.sh
   fi 
