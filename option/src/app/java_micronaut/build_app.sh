@@ -22,7 +22,7 @@ exit_on_error
 if is_deploy_compute; then
   cp start.sh install.sh target/.
 
-  mkdir -p ../../target/compute/$APP_DIR
+  mkdir -p $TARGET_DIR/compute/$APP_DIR
   rsync -av --progress $APP_TARGET_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
   # Replace the user and password in the start file
   replace_db_user_password_in_file $TARGET_DIR/compute/$APP_DIR/start.sh  

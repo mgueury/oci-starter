@@ -35,7 +35,7 @@ if is_deploy_compute; then
   fi
   exit_on_error  
   cp start.sh install.sh target/.
-  mkdir -p ../../target/compute/$APP_DIR
+  mkdir -p $TARGET_DIR/compute/$APP_DIR
   rsync -av --progress $APP_TARGET_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
 else
   docker image rm ${TF_VAR_prefix}-app:latest
