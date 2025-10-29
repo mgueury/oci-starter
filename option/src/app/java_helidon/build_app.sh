@@ -33,8 +33,8 @@ if is_deploy_compute; then
   fi
   exit_on_error "mvn package"
   cp start.sh install.sh target/.
-  mkdir -p $TARGET_DIR/compute/$APP_DIR
-  rsync -av --progress $APP_SRC_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+  mkdir -p ../../target/compute/$APP_DIR
+  cp -r target/* ../../target/compute/$APP_DIR/.
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then
@@ -44,4 +44,4 @@ else
   fi
   exit_on_error "docker build"  
 fi  
-rsync -av --progress $APP_SRC_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+
