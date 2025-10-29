@@ -1311,16 +1311,16 @@ if params['app_mode'] == 'app':
         src_path = f
         dst_path = os.path.join("starter", f)
         output_move(src_path, dst_path)    
-    output_copy_tree( output_dir + "/starter/app/src", "." )
+    output_copy_tree( output_dir + "/starter/src/app/src", "." )
     output_move( "src/terraform.tfvars", "." )
 
     # Unlike the terraform mode, keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         output_remove('start.sh')
         output_remove('install.sh')
-        output_copy( "starter/app/src/Dockerfile", "." )
+        output_copy( "starter/src/app/Dockerfile", "." )
         if params.get('deploy_type') in ["kubernetes"]:
-           output_copy( "starter/app/src/app.yaml", "." )
+           output_copy( "starter/src/app/app.yaml", "." )
 
     
 # -- Post Creation -----------------------------------------------------------
