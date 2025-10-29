@@ -7,17 +7,17 @@ if [ "$PROJECT_DIR" == "" ]; then
 fi
 
 # AppMode
-echo "APP_SRC_DIR=$APP_SRC_DIR"
-if [ "$APP_SRC_DIR" != "" ]; then
-  export TERRAFORM_TFVARS="$APP_SRC_DIR/terraform.tfvars"
+echo "TF_VAR_app_src_dir=$TF_VAR_app_src_dir"
+if [ "$TF_VAR_app_src_dir" != "" ]; then
+  export TERRAFORM_TFVARS="$TF_VAR_app_src_dir/terraform.tfvars"
 elif [ -f $PROJECT_DIR/terraform.tfvars ]; then
   export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
 else
-  export APP_SRC_DIR=$CURRENT_DIR
-  if [ -f $APP_SRC_DIR/terraform.tfvars ]; then
-    export TERRAFORM_TFVARS="$APP_SRC_DIR/terraform.tfvars"
+  export TF_VAR_app_src_dir=$CURRENT_DIR
+  if [ -f $TF_VAR_app_src_dir/terraform.tfvars ]; then
+    export TERRAFORM_TFVARS="$TF_VAR_app_src_dir/terraform.tfvars"
   else
-    echo "WARNING: terraform.tfvars file not found. (in $PROJECT_DIR or in $APP_SRC_DIR)"
+    echo "WARNING: terraform.tfvars file not found. (in $PROJECT_DIR or in $TF_VAR_app_src_dir)"
   fi
 fi
 

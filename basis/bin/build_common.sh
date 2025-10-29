@@ -22,9 +22,9 @@ if [ -f $PROJECT_DIR/before_build.sh ]; then
   . $PROJECT_DIR/before_build.sh
 fi 
 
-if [ "$APP_SRC_DIR" == "" ]; then
-  export APP_SRC_DIR="src"
+if [ "$TF_VAR_app_src_dir" == "" ]; then
+  export TF_VAR_app_src_dir="src"
   export APP_TARGET_DIR="target"
 else 
-  export APP_TARGET_DIR="${APP_SRC_DIR}/target"
+  export APP_TARGET_DIR="${TF_VAR_app_src_dir}/target"
 fi 

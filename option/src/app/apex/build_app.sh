@@ -16,7 +16,7 @@ if is_deploy_compute; then
   ORDS_HOST=`basename $(dirname $ORDS_URL)`
   sed -i "s&##ORDS_HOST##&$ORDS_HOST&" ../../target/compute/compute/nginx_app.locations
   mkdir -p $TARGET_DIR/compute/$APP_DIR
-  rsync -av --progress $APP_SRC_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+  rsync -av --progress $TF_VAR_app_src_dir $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
 else
   echo "No docker image needed"
 fi  

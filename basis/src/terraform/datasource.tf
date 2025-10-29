@@ -98,6 +98,12 @@ data "oci_core_shapes" "shapes" {
   }  
 }
 
+# App_mode=app -> Directory with the App
+variable app_src_dir {
+  default=null
+  description="Directory with the App"
+}
+
 # 1. Retrieve all Availability Domains
 data "oci_identity_availability_domains" "ads" {
   compartment_id = var.tenancy_ocid

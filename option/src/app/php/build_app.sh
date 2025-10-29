@@ -15,7 +15,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if is_deploy_compute; then
   mkdir -p $TARGET_DIR/compute/$APP_DIR
-  rsync -av --progress $APP_SRC_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+  rsync -av --progress $TF_VAR_app_src_dir $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
   # Replace the user and password in the start file
   replace_db_user_password_in_file ../../target/compute/$APP_DIR/php.ini.append
 else
