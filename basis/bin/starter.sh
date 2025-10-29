@@ -7,7 +7,10 @@ if [ "$PROJECT_DIR" == "" ]; then
 fi
 
 # AppMode
-if [ -f $PROJECT_DIR/terraform.tfvars ]; then
+echo "APP_SRC_DIR=$APP_SRC_DIR"
+if [ "$APP_SRC_DIR" != "" ]; then
+  export TERRAFORM_TFVARS="$APP_SRC_DIR/terraform.tfvars"
+elif [ -f $PROJECT_DIR/terraform.tfvars ]; then
   export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
 else
   export APP_SRC_DIR=$CURRENT_DIR
