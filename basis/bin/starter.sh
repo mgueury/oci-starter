@@ -10,7 +10,7 @@ fi
 if [ -f $PROJECT_DIR/terraform.tfvars ]; then
   export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
 else
-  export APP_SRC_DIR=`pwd`
+  export APP_SRC_DIR=$CURRENT_DIR
   if [ -f $APP_SRC_DIR/terraform.tfvars ]; then
     export TERRAFORM_TFVARS="$APP_SRC_DIR/terraform.tfvars"
   else

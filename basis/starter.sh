@@ -5,6 +5,7 @@
 # - or in $PATH
 #
 export PROJECT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export CURRENT_DIR=`pwd`
 
 if [ -f $PROJECT_DIR/bin/starter.sh ]; then
   export PATH=$PROJECT_DIR/bin:$PATH
