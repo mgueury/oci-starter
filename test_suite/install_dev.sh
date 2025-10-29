@@ -33,17 +33,16 @@ oci setup repair-file-permissions --file $HOME/.oci/oci_api_key.pem
 
 
 # Java
-sudo dnf install -y graalvm22-ee-17-jdk 
-sudo dnf install -y graalvm-21-jdk
-sudo update-alternatives --set java /usr/lib64/graalvm/graalvm22-ee-java17/bin/java
-echo "export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java17" >> $HOME/.bashrc
+sudo dnf install -y graalvm-25-jdk
+sudo update-alternatives --set java /usr/lib64/graalvm/graalvm-java25/bin/java
+echo "export JAVA_HOME=/usr/lib64/graalvm/graalvm-java25" >> $HOME/.bashrc
+
+# Maven
+sudo dnf install -y maven
 
 # Node (JET/Angular/ReactJS)
 sudo dnf module enable -y nodejs:18
 sudo dnf install -y nodejs
-
-# Maven
-sudo dnf install -y maven
 
 # Terraform
 sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo

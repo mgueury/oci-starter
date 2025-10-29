@@ -30,7 +30,7 @@ if declare -p | grep -q "__TO_FILL__"; then
 
   store_terraform_tfvars() {
     echo "$1=$2"            
-    sed -i "s&$1=\"__TO_FILL__\"&$1=\"$2\"&" $PROJECT_DIR/terraform.tfvars              
+    sed -i "s&$1=\"__TO_FILL__\"&$1=\"$2\"&" $TERRAFORM_TFVARS              
     echo "$1 stored in terraform.tfvars"            
     echo       
   }
@@ -222,8 +222,8 @@ if declare -p | grep -q "__TO_FILL__"; then
     export REQUEST="Create a new vault ? (<No> will ask for the ocid of an existing one) ?"
     if accept_request; then  
       # Comment the 2 lines. The vault will be created.
-      sed -i "s/^[ ]*vault_ocid/# vault_ocid/" $PROJECT_DIR/terraform.tfvars     
-      sed -i "s/^[ ]*vault_key_ocid/# vault_key_ocid/" $PROJECT_DIR/terraform.tfvars        
+      sed -i "s/^[ ]*vault_ocid/# vault_ocid/" $TERRAFORM_TFVARS     
+      sed -i "s/^[ ]*vault_key_ocid/# vault_key_ocid/" $TERRAFORM_TFVARS        
       unset TF_VAR_vault_ocid
       unset TF_VAR_vault_key_ocid
     else
@@ -263,7 +263,7 @@ if declare -p | grep -q "__TO_FILL__"; then
     declare -p | grep __TO_FILL__
     echo
     echo "Edit the file terraform.tfvars. Some variables needs to be filled:" 
-    cat terraform.tfvars | grep __TO_FILL__
+    cat $TERRAFORM_TFVARS | grep __TO_FILL__
     error_exit "Missing environment variables."
   fi 
 fi 

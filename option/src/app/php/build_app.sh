@@ -14,7 +14,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ## XXXXX Check Language version
 
 if is_deploy_compute; then
-  mkdir -p ../../target/compute/$APP_DIR
+  mkdir -p $TARGET_DIR/compute/$APP_DIR
   cp -r src/* ../../target/compute/$APP_DIR/.
   # Replace the user and password in the start file
   replace_db_user_password_in_file ../../target/compute/$APP_DIR/php.ini.append

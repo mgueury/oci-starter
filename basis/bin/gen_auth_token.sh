@@ -8,7 +8,7 @@ cd $PROJECT_DIR
 # Shared BASH Functions
 . $BIN_DIR/shared_bash_function.sh
 
-if grep -q 'auth_token="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
+if grep -q 'auth_token="__TO_FILL__"' $TERRAFORM_TFVARS; then
   get_user_details
   echo "TF_VAR_tenancy_ocid=$TF_VAR_tenancy_ocid"
   export TF_VAR_home_region_key=`oci iam tenancy get --tenancy-id $TF_VAR_tenancy_ocid | jq -r '.data["home-region-key"]'`
@@ -34,7 +34,7 @@ if grep -q 'auth_token="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
   export TF_VAR_auth_token=`cat auth_token.log | jq -r '.data.token'`
   rm auth_token.log
   if [ "$TF_VAR_auth_token" != "" ]; then
-    sed -i "s&auth_token=\"__TO_FILL__\"&auth_token=\"$TF_VAR_auth_token\"&" $PROJECT_DIR/terraform.tfvars
+    sed -i "s&auth_token=\"__TO_FILL__\"&auth_token=\"$TF_VAR_auth_token\"&" $TERRAFORM_TFVARS
     echo "AUTH_TOKEN stored in terraform.tfvars"
     echo "> auth_token=$TF_VAR_auth_token"
   fi  

@@ -2,13 +2,23 @@
 
 # Set project_dir and bin_dir when not called from starter.sh
 if [ "$PROJECT_DIR" == "" ]; then
-  if [ -f env.sh ]; then
-    export PROJECT_DIR="$(pwd)"
-  else 
-    echo "ERROR: env.sh file not found."
+  echo "ERROR: PROJECT_DIR not set"
+  exit 1
+fi
+
+# AppMode
+if [ -f $TERRAFORM_TFVARS ]; then
+  export TERRAFORM_TFVARS="$TERRAFORM_TFVARS"
+else
+  export APP_SRC_DIR=`pwd`
+  if [ -f $APP_SRC_DIR/terraform.tfvars ]; then
+    export TERRAFORM_TFVARS="$APP_SRC_DIR/terraform.tfvars"
+  else
+    echo "ERROR: terraform.tfvars file not found. (in $PROJECT_DIR or in $APP_SRC_DIR)"
     exit 1
   fi
 fi
+
 if [ "$BIN_DIR" == "" ]; then
   export BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 fi

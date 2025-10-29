@@ -77,6 +77,7 @@ default_options = {
     '-ui_type': 'html',
     '-db_type': 'atp',
     '-license_model': 'LICENSE_INCLUDED',
+    '-app_mode': 'terraform',
     '-mode': CLI,
     '-infra_as_code': 'terraform_local',
     '-output_dir' : 'output',
@@ -117,6 +118,7 @@ allowed_values = {
     'db_type': {'atp', 'autonomous', 'database', 'dbsystem', 'rac', 'db_free', 'pluggable', 'pdb', 'mysql', 'psql', 'opensearch', 'nosql', 'none'},
     'license_model': {'LICENSE_INCLUDED', 'BRING_YOUR_OWN_LICENSE'},
     'infra_as_code': {'terraform_local', 'terraform_object_storage', 'resource_manager','from_resource_manager'},
+    'app_mode': {'terraform','app'},
     'mode': {CLI, GIT, ZIP},
     'shape': {'amd','freetier_amd','ampere','arm'},
     'db_install': {'default', 'kubernetes'},
@@ -667,6 +669,9 @@ def output_copy_tree(src, target):
 def output_move(src, target):
     shutil.move(output_dir + os.sep + src, output_dir + os.sep + target)
 
+def output_copy(src, target):
+    shutil.copy(output_dir + os.sep + src, output_dir + os.sep + target)
+
 def output_mkdir(src):
     file_path = output_dir+ os.sep + src
     if not os.path.exists(file_path):
@@ -961,7 +966,6 @@ def create_output_dir():
             dst_path = os.path.join("src/db", f)
             output_move(src_path, dst_path)
         os.rmdir(output_dir + "/src/app/db")
-
 
 #----------------------------------------------------------------------------
 # Create group_common Directory
@@ -1293,6 +1297,32 @@ if 'deploy_type' in params:
 title("Done")
 print("Directory "+output_dir+" created.")
 
+
+# -- App Mode ----------------------------------------------------------------
+
+if params['app_mode'] == 'app':
+    # Change the structure of the application to App Mode
+    # - ex: app.py
+    # -     > starter
+    allfiles = os.listdir(output_dir)
+    output_mkdir( "starter" )
+    # iterate on all files to move them to destination folder
+    for f in allfiles:
+        src_path = f
+        dst_path = os.path.join("starter", f)
+        output_move(src_path, dst_path)    
+    output_copy_tree( output_dir + "/starter/app/src", "." )
+    output_move( "src/terraform.tfvars", "." )
+
+    # Unlike the terraform mode, keep the minimum number of deployment files in the main app directory 
+    if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
+        output_remove('start.sh')
+        output_remove('install.sh')
+        output_copy( "starter/app/src/Dockerfile", "." )
+        if params.get('deploy_type') in ["kubernetes"]:
+           output_copy( "starter/app/src/app.yaml", "." )
+
+    
 # -- Post Creation -----------------------------------------------------------
 
 if mode == GIT:
