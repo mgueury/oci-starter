@@ -1312,7 +1312,7 @@ if params['app_mode'] == 'app':
         dst_path = os.path.join("starter", f)
         output_move(src_path, dst_path)    
     output_copy_tree( output_dir + "/starter/src/app/src", "." )
-    output_move( "src/terraform.tfvars", "." )
+    output_move( "starter/terraform.tfvars", "." )
 
     # Unlike the terraform mode, keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
