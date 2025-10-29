@@ -165,7 +165,3 @@ output "ssh_key_private" {
   value = var.ssh_public_key != null ? "target/ssh_key_starter" : "See Stack Details / Stack Resources / tls_private_key[0] / attributes / private_key_pem"
 }
 
-variable app_src_dir {
-  default=null
-  description="Application Source Directory"
-}
