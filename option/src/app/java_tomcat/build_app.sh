@@ -16,8 +16,7 @@ mvn package
 exit_on_error
 
 if is_deploy_compute; then
-  cp src/start.sh target/.
-  cp src/install.sh target/.
+  cp src/install.sh src/env.sh src/start.sh target/.
 
   mkdir -p $TARGET_DIR/compute/$APP_DIR
   cp nginx_app.locations ../../target/compute/compute

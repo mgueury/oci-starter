@@ -20,7 +20,7 @@ fi
 exit_on_error  
 
 if is_deploy_compute; then
-  cp start.sh install.sh target/.
+  cp src/install.sh src/env.sh src/start.sh target/.
 
   mkdir -p $TARGET_DIR/compute/$APP_DIR
   rsync -av --progress $APP_TARGET_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
