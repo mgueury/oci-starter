@@ -88,8 +88,6 @@ _starter_completions()
 }
 complete -F _starter_completions ./starter.sh
 
-
-
 # Check the SHAPE
 unset MISMATCH_PLATFORM
 if [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
@@ -128,6 +126,13 @@ if [ "$MISMATCH_PLATFORM" != "" ]; then
   exit 1
 fi
 
+if ! command -v jq &> /dev/null; then
+  error_exit "Unix command jq not found. Please install it."
+fi
+
+if ! command -v rsync &> /dev/null; then
+  error_exit "Unix command rsync not found. Please install it."
+fi
 
 # Enable BASH history for Stack Trace.
 # - Do not store in HISTFILE 
@@ -161,10 +166,6 @@ fi
 
 # CONFIG.SH
 . $BIN_DIR/config.sh
-
-if ! command -v jq &> /dev/null; then
-  error_exit "Unix command jq not found. Please install it."
-fi
 
 #-- PRE terraform ----------------------------------------------------------
 # Combination of tvars variables and fixed variables

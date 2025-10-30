@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
-# Set project_dir and bin_dir when not called from starter.sh
+# Should be called from starter.sh
 if [ "$PROJECT_DIR" == "" ]; then
   echo "ERROR: PROJECT_DIR not set"
   exit 1
 fi
 
-# AppMode
+# APP Directory in src/app or not ?
 echo "TF_VAR_app_src_dir=$TF_VAR_app_src_dir"
 if [ "$TF_VAR_app_src_dir" != "" ]; then
+  # Called from terraform
   export TERRAFORM_TFVARS="$TF_VAR_app_src_dir/terraform.tfvars"
 elif [ -f $PROJECT_DIR/terraform.tfvars ]; then
+  # app_mode=terraform
   export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
 else
+  # app_mode=app
   export TF_VAR_app_src_dir=$CURRENT_DIR
   if [ -f $TF_VAR_app_src_dir/terraform.tfvars ]; then
     export TERRAFORM_TFVARS="$TF_VAR_app_src_dir/terraform.tfvars"
