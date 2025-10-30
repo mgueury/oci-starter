@@ -85,7 +85,7 @@ Date: 21-Feb-2025
 Date 7-Apr-2025
 - ./starter build request to approve change in the second build.
 - ./starter destroy remove the .terraform cache after destroy ( 250Mb big...)
-- file_replace_variables for ##XXX## app/env.sh and compute (not used yet per default)
+- file_replace_variables for ##xxx## app/env.sh and compute (not used yet per default)
 - upgrade.sh improved
 - default Oracle Linux in case of no access to images list : Oracle-Linux-8.10-2025.03.18-0
 - ords fix using not the ADMIN schema anymore
