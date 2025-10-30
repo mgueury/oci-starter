@@ -16,8 +16,8 @@ export JDBC_URL="##JDBC_URL##"
 export JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL=$JDBC_URL
 {%- endif %}
 {%- else -%}
-export DB_USER="##DB_USER##"
-export DB_PASSWORD="##DB_PASSWORD##"
+export DB_USER="##TF_VAR_db_user##"
+export DB_PASSWORD="##TF_VAR_db_user##"
 export DB_URL="##DB_URL##"
 {%- endif %}
 {%- endmacro -%}
