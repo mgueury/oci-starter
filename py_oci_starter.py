@@ -670,7 +670,7 @@ def output_move(src, target):
     shutil.move(output_dir + os.sep + src, output_dir + os.sep + target)
 
 def output_copy(src, target):
-    shutil.copy(output_dir + os.sep + src, output_dir + os.sep + target)
+    shutil.copy(src, output_dir + os.sep + target)
 
 def output_mkdir(src):
     file_path = output_dir+ os.sep + src
@@ -1313,16 +1313,16 @@ if params['app_mode'] == 'app':
         output_move(src_path, dst_path)    
     output_copy_tree( output_dir + "/starter/src/app/src", "." )
     output_move( "starter/terraform.tfvars", "." )
-    output_move( "starter/starter.sh", "." )
     output_move( "starter/README.md", "." )
+    output_copy( "option/mode/app/starter.sh", "." )
 
     # Unlike the terraform mode, keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         output_remove('start.sh')
         output_remove('install.sh')
-        output_copy( "starter/src/app/Dockerfile", "." )
+        output_copy( output_dir + os.sep + "starter/src/app/Dockerfile", "." )
         if params.get('deploy_type') in ["kubernetes"]:
-           output_copy( "starter/src/app/app.yaml", "." )
+           output_copy( output_dir + os.sep + "starter/src/app/app.yaml", "." )
 
     
 # -- Post Creation -----------------------------------------------------------
