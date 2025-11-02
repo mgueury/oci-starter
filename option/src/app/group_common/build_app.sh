@@ -2,7 +2,8 @@
 # Build_app.sh
 #
 # Build the group_common_env.sh file.
-. ../../bin/build_common.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $SCRIPT_DIR/../../bin/build_common.sh
 
 append () {
    echo "$1" >> ../../../group_common_env.sh

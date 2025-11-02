@@ -7,7 +7,8 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-. ../../bin/build_common.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $SCRIPT_DIR/../../bin/build_common.sh
 
 if is_deploy_compute; then
   sed "s&##ORDS_URL##&$ORDS_URL&" nginx_app.locations > $TARGET_DIR/compute/compute/nginx_app.locations

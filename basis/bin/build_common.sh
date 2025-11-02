@@ -1,10 +1,3 @@
-# Called from a build script
-if [ "${BASH_SOURCE[1]}" =="" ]; then
-  echo "build_common.sh should be called only from a build script via <<. build_common.sh>>"
-  exit 1
-fi
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[1]}" )" &> /dev/null && pwd )
 . $SCRIPT_DIR/../../starter.sh env -no-auto
 
 # Build_common.sh

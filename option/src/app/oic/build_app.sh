@@ -7,7 +7,8 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-. ../../bin/build_common.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $SCRIPT_DIR/../../bin/build_common.sh
 
 curl -X PUT -H 'Authorization: Bearer access_token' -H "Accept:application/json" -F file=@myIntegration.iar -F type=application/octet-stream https://integration.us.oraclecloud.com/ic/api/integration/v1/integrations/archive
 

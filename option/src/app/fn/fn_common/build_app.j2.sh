@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-. ../../bin/build_common.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $SCRIPT_DIR/../../bin/build_common.sh
+
 # FN uses more variable like OCIR_HOST that are not available with ./env.sh -no-auto
 . $SCRIPT_DIR/../../starter.sh env 
 

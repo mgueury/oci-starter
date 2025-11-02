@@ -7,7 +7,9 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-. ../../bin/build_common.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $SCRIPT_DIR/../../bin/build_common.sh
+
 java_build_common
 
 mkdir src/main/resources
