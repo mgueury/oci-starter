@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. ../../bin/build_common.sh
 # FN uses more variable like OCIR_HOST that are not available with ./env.sh -no-auto
 . $SCRIPT_DIR/../../starter.sh env 
-. $BIN_DIR/build_common.sh
 
 # fn -v deploy --app ${TF_VAR_prefix}-fn-application
 # fn invoke ${TF_VAR_prefix}-fn-application ${TF_VAR_prefix}-fn-function

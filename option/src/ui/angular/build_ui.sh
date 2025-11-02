@@ -7,9 +7,7 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../starter.sh env -no-auto
-. $BIN_DIR/build_common.sh
+. ../../bin/build_common.sh
 
 cd src
 npm install

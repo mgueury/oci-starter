@@ -7,9 +7,7 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../starter.sh env -no-auto
-. $BIN_DIR/build_common.sh
+. ../../bin/build_common.sh
 java_build_common
 
 mkdir src/main/resources
@@ -26,12 +24,7 @@ if is_deploy_compute; then
   fi
   exit_on_error
 
-  # Replace the user and password
-  cp src/install.sh src/env.sh src/start.sh target/.
-
-  mkdir -p $TARGET_DIR/compute/$APP_DIR
-  rsync -av --progress $APP_TARGET_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
-  replace_db_user_password_in_file $TARGET_DIR/compute/$APP_DIR/start.sh  
+  build_rsync $APP_TARGET_DIR
 else
   docker image rm ${TF_VAR_prefix}-app:latest
  

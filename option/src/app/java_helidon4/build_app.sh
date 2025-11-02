@@ -7,9 +7,7 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../starter.sh env -no-auto
-. $BIN_DIR/build_common.sh
+. ../../bin/build_common.sh
 
 java_find_version 21
 exit_on_error
@@ -34,9 +32,7 @@ if is_deploy_compute; then
     mvn package -DskipTests
   fi
   exit_on_error  
-  cp src/install.sh src/env.sh src/start.sh target/.
-  mkdir -p $TARGET_DIR/compute/$APP_DIR
-  rsync -av --progress $APP_TARGET_DIR $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+  build_rsync $APP_TARGET_DIR
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then

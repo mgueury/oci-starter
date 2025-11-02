@@ -41,7 +41,7 @@ echo "export JAVA_HOME=/usr/lib64/graalvm/graalvm-java25" >> $HOME/.bashrc
 sudo dnf install -y maven
 
 # Node (JET/Angular/ReactJS)
-sudo dnf module enable -y nodejs:18
+sudo dnf module enable -y nodejs:20
 sudo dnf install -y nodejs
 
 # Terraform
