@@ -1326,8 +1326,9 @@ if params['app_mode'] == 'app':
     for f in allfiles:
         src_path = f
         dst_path = os.path.join("starter", f)
-        output_move(src_path, dst_path)    
-    output_copy_tree( output_dir + "/starter/src/app", "." )
+        output_move(src_path, dst_path)   
+    # copy_tree(utput_dir + "/starter/src/app", output_dir)         
+    copy_tree( output_dir + "/starter/src/app", "." )
     output_copy( "starter/terraform.tfvars", "." )
     output_copy( "option/mode/app/starter.sh", "." )
 
