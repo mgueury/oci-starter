@@ -32,7 +32,7 @@ if [ "$UI_URL" != "" ]; then
   export APIGW_URL=https://${APIGW_HOSTNAME}/${TF_VAR_prefix}  
   append_done "- API Gateway URL : $APIGW_URL/app/dept" 
   {%- endif %}     
-  {%- if language=="java" && java_framework="springboot" && ui_type=="html" && db_subtype=="rac" %}
+  {%- if language=="java" && java_framework=="springboot" && ui_type=="html" && db_subtype=="rac" %}
   append_done "- RAC Page        : $UI_URL/rac.html"
   {%- endif %}     
   {%- if language == "apex" %}
