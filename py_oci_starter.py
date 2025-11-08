@@ -978,8 +978,10 @@ def create_output_dir():
         output_remove('starter/src/app/Dockerfile.native')
         output_remove('starter/src/app/Dockerfile.jlink')
     # Remove starter/src/app/src is empty
-    if len(os.listdir(output_dir + "/starter/src/app/src")) == 0:
-        os.remove(output_dir + "/starter/src/app/src")
+    app_src_dir= output_dir + "/starter/src/app/src"
+    if os.path.exists(app_src_dir):
+        if len(os.listdir(app_src_dir)) == 0:
+            os.remove(app_src_dir)
 
 #----------------------------------------------------------------------------
 # Create group_common Directory
