@@ -24,9 +24,5 @@ if [ -f $PROJECT_DIR/before_build.sh ]; then
   . $PROJECT_DIR/before_build.sh
 fi 
 
-if [ "$TF_VAR_app_src_dir" == "" ]; then
-  export TF_VAR_app_src_dir="src"
-  export APP_TARGET_DIR="target"
-else 
-  export APP_TARGET_DIR="${TF_VAR_app_src_dir}/target"
-fi 
+export APP_TARGET_DIR="target"
+

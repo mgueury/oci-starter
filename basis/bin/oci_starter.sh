@@ -6,23 +6,7 @@ if [ "$PROJECT_DIR" == "" ]; then
   exit 1
 fi
 
-# APP Directory in src/app or not ?
-echo "TF_VAR_app_src_dir=$TF_VAR_app_src_dir"
-if [ "$TF_VAR_app_src_dir" != "" ]; then
-  # Called from terraform
-  export TERRAFORM_TFVARS="$TF_VAR_app_src_dir/terraform.tfvars"
-elif [ -f $PROJECT_DIR/terraform.tfvars ]; then
-  # app_mode=terraform
-  export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
-else
-  # app_mode=app
-  export TF_VAR_app_src_dir=$CURRENT_DIR
-  if [ -f $TF_VAR_app_src_dir/terraform.tfvars ]; then
-    export TERRAFORM_TFVARS="$TF_VAR_app_src_dir/terraform.tfvars"
-  else
-    echo "WARNING: terraform.tfvars file not found. (in $PROJECT_DIR or in $TF_VAR_app_src_dir)"
-  fi
-fi
+export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
 
 if [ "$BIN_DIR" == "" ]; then
   export BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

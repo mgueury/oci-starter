@@ -162,12 +162,8 @@ resource "null_resource" "after_build" {
 
         $BIN_DIR/add_api_portal.sh
 
-        # Custom code after build
-        if [ -f $PROJECT_DIR/src/after_build.sh ]; then
-            $PROJECT_DIR/src/after_build.sh
-        fi
         title "Done"
-        $BIN_DIR/done.sh          
+        $PROJECT_DIR/src/done.sh          
         EOT
   }
   depends_on = [

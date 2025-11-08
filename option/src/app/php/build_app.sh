@@ -13,7 +13,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ## XXXXX Check Language version
 
 if is_deploy_compute; then
-  build_rsync $TF_VAR_app_src_dir
+  build_rsync src
   # Replace the user and password in the start file
   replace_db_user_password_in_file $TARGET_DIR/compute/$APP_DIR/php.ini.append
 else

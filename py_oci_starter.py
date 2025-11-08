@@ -912,10 +912,6 @@ def create_output_dir():
         if params.get('deploy_type') == 'kubernetes' and params.get('tls') != 'new_http_01':
             cp_terraform_apigw("apigw_kubernetes_tls_part2.tf")
 
-    if os.path.exists(output_dir + "/src/app/openapi_spec_append.yaml"):
-        append_file( output_dir + "/src/app/openapi_spec.yaml", output_dir + "/src/app/openapi_spec_append.yaml")
-        os.remove( output_dir + "/src/app/openapi_spec_append.yaml" )
-
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         cp_terraform("repository.j2.tf")
 
@@ -966,6 +962,22 @@ def create_output_dir():
             dst_path = os.path.join("src/db", f)
             output_move(src_path, dst_path)
         os.rmdir(output_dir + "/src/app/db")
+
+    # CleanUp - Keep the minimum number of deployment files in the main app directory 
+    if params.get('deploy_type')!="kubernetes":
+        output_remove('starter/src/app/app.yaml')
+        output_remove('starter/src/ui/ui.yaml')
+    if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
+        output_remove('starter/src/app/src/start.sh')
+        output_remove('starter/src/app/src/install.sh')
+        output_remove('starter/src/app/src/env.sh')
+    else:         
+        output_remove('starter/src/app/Dockerfile')
+        output_remove('starter/src/app/Dockerfile.native')
+        output_remove('starter/src/app/Dockerfile.jlink')
+    # Remove starter/src/app/src is empty
+    if len(os.listdir(output_dir + "starter/src/app/src")) == 0:
+        os.remove(output_dir + "starter/src/app/src")
 
 #----------------------------------------------------------------------------
 # Create group_common Directory
@@ -1315,14 +1327,6 @@ if params['app_mode'] == 'app':
     output_move( "starter/terraform.tfvars", "." )
     output_move( "starter/README.md", "." )
     output_copy( "option/mode/app/starter.sh", "." )
-
-    # Unlike the terraform mode, keep the minimum number of deployment files in the main app directory 
-    if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
-        output_remove('start.sh')
-        output_remove('install.sh')
-        output_copy( output_dir + os.sep + "starter/src/app/Dockerfile", "." )
-        if params.get('deploy_type') in ["kubernetes"]:
-           output_copy( output_dir + os.sep + "starter/src/app/app.yaml", "." )
 
     
 # -- Post Creation -----------------------------------------------------------
