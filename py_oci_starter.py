@@ -664,7 +664,7 @@ def cp_terraform_existing( param_name, file1, file2=None, file3=None):
         append_file( output_dir + "/src/terraform/"+file_name, "option/terraform/"+file3 )
 
 def output_copy_tree(src, target):
-    shutil.copytree(src, output_dir + os.sep + target)
+    copy_tree(src, output_dir + os.sep + target)
 
 def output_move(src, target):
     shutil.move(output_dir + os.sep + src, output_dir + os.sep + target)
@@ -1328,7 +1328,7 @@ if params['app_mode'] == 'app':
         dst_path = os.path.join("starter", f)
         output_move(src_path, dst_path)   
     # copy_tree(utput_dir + "/starter/src/app", output_dir)         
-    copy_tree( output_dir + "/starter/src/app", output_dir )
+    shutil.copytree( output_dir + "/starter/src/app", output_dir )
     output_copy( "starter/terraform.tfvars", "." )
     output_copy( "option/mode/app/starter.sh", "." )
 
