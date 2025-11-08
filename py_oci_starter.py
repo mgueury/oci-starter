@@ -1322,14 +1322,14 @@ if params['app_mode'] == 'app':
     # - ex: app.py
     # -     > starter
     allfiles = os.listdir(output_dir)
-    output_mkdir( "starter" )
+    output_mkdir( ".starter" )
     # iterate on all files to move them to destination folder
     for f in allfiles:
         src_path = f
-        dst_path = os.path.join("starter", f)
+        dst_path = os.path.join(".starter", f)
         output_move(src_path, dst_path)   
     # copy_tree(utput_dir + "/starter/src/app", output_dir)         
-    shutil.copytree( output_dir + "/starter/src/app", output_dir + "/app" )
+    shutil.copytree( output_dir + "/starter/src/app/src", output_dir + "/src" )
     output_copy( output_dir + "/starter/terraform.tfvars", "." )
     output_move( "starter/README.md", "." )
     output_copy( "option/mode/app/starter.sh", "." )
