@@ -21,7 +21,7 @@ if [ "$UI_URL" != "" ]; then
   for APP_DIR in `app_dir_list`; do
     append_done "- REST: $UI_URL/$APP_DIR/dept"
     append_done "- REST: $UI_URL/$APP_DIR/info"    
-    {%- if language=="java" and java_framework="tomcat" %}
+    {%- if language=="java" and java_framework=="tomcat" %}
     append_done "- REST: $UI_URL/$APP_DIR/index.jsp"
     {%- endif %}    
     {%- if language=="php" %}
