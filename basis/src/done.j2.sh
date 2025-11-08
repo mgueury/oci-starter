@@ -21,14 +21,14 @@ if [ "$UI_URL" != "" ]; then
   for APP_DIR in `app_dir_list`; do
     append_done "- REST: $UI_URL/$APP_DIR/dept"
     append_done "- REST: $UI_URL/$APP_DIR/info"    
-    {%- if language=="java" && java_framework="tomcat" %}
+    {%- if language=="java" and java_framework="tomcat" %}
     append_done "- REST: $UI_URL/$APP_DIR/index.jsp"
     {%- endif %}    
     {%- if language=="php" %}
     append_done "- REST: $UI_URL/$APP_DIR/index.php"
     {%- endif %}        
   done 
-  {%- if (deploy_type=="public_compute") || (deploy_type=="private_compute" && ui_type=="api") %}
+  {%- if (deploy_type=="public_compute") or (deploy_type=="private_compute" and ui_type=="api") %}
   export APIGW_URL=https://${APIGW_HOSTNAME}/${TF_VAR_prefix}  
   append_done "- API Gateway URL : $APIGW_URL/app/dept" 
   {%- endif %}     
