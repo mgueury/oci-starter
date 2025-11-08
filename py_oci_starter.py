@@ -1330,7 +1330,7 @@ if params['app_mode'] == 'app':
     # copy_tree(utput_dir + "/starter/src/app", output_dir)         
     shutil.copytree( output_dir + "/starter/src/app", output_dir + "/app" )
     output_copy( output_dir + "/starter/terraform.tfvars", "." )
-    output_move( output_dir + "/starter/README.md", "." )
+    output_move( "starter/README.md", "." )
     output_copy( "option/mode/app/starter.sh", "." )
     
 # -- Post Creation -----------------------------------------------------------
