@@ -967,16 +967,16 @@ def create_output_dir():
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
-        output_remove('starter/src/app/app.j2.yaml')
-        output_remove('starter/src/ui/ui.j2.yaml')
+        output_remove('src/app/app.j2.yaml')
+        output_remove('src/ui/ui.j2.yaml')
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
-        output_remove('starter/src/app/src/start.j2.sh')
-        output_remove('starter/src/app/src/install.sh')
-        output_remove('starter/src/app/src/env.j2.sh')
+        output_remove('src/app/src/start.j2.sh')
+        output_remove('src/app/src/install.sh')
+        output_remove('src/app/src/env.j2.sh')
     else:         
-        output_remove('starter/src/app/Dockerfile')
-        output_remove('starter/src/app/Dockerfile.native')
-        output_remove('starter/src/app/Dockerfile.jlink')
+        output_remove('src/app/Dockerfile')
+        output_remove('src/app/Dockerfile.native')
+        output_remove('src/app/Dockerfile.jlink')
     # Remove starter/src/app/src is empty
     app_src_dir= output_dir + "/starter/src/app/src"
     if os.path.exists(app_src_dir):
