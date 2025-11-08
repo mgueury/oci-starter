@@ -1327,7 +1327,7 @@ if params['app_mode'] == 'app':
         src_path = f
         dst_path = os.path.join("starter", f)
         output_move(src_path, dst_path)    
-    output_copy_tree( output_dir + "/starter/src/app/", "." )
+    output_copy_tree( output_dir + "/starter/src/app", "." )
     output_copy( "starter/terraform.tfvars", "." )
     output_copy( "option/mode/app/starter.sh", "." )
 
