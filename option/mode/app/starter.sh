@@ -2,20 +2,21 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR/..
 
-if [ -f starter/starter.sh ]; then
+STARTER_DIR=".starter"
+if [ -f $STARTER_DIR/starter.sh ]; then
   echo "Copying the source files to: starter"
-  rsync app -av starter/src/app/ .
+  rsync app -av $STARTER_DIR/src/app/ .
   if [ -d db ]; then
-    rsync db -av starter/src/db/ .
+    rsync db -av $STARTER_DIR/src/db/ .
   fi
   if [ -f terraform.tfvars ]; then
-    cp terraform.tfvars starter/.
+    cp terraform.tfvars $STARTER_DIR
   fi
   if [ -f done.sh ]; then
-    cp done.sh starter/.
+    cp done.sh $STARTER_DIR
   fi
   # cp done.txt starter/.
-  starter/starter.sh $@
+  $STARTER_DIR/starter.sh $@
 else
   echo "Error: starter directory not present"
 fi  
