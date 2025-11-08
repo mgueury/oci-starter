@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR/..
+
 if [ -f starter/starter.sh ]; then
   echo "Copying the source files to: starter"
-  rsync app -av starter/src/app
+  rsync app -av starter/src/app/ .
   if [ -d db ]; then
-    rsync db -av starter/src/db
+    rsync db -av starter/src/db/ .
   fi
   if [ -f terraform.tfvars ]; then
     cp terraform.tfvars starter/.
