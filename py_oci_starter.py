@@ -975,10 +975,11 @@ def create_output_dir():
         output_remove('src/app/src/env.j2.sh')
     else:         
         output_remove('src/app/Dockerfile')
+        output_remove('src/app/Dockerfile.j2')
         output_remove('src/app/Dockerfile.native')
         output_remove('src/app/Dockerfile.jlink')
     # Remove starter/src/app/src is empty
-    app_src_dir= output_dir + "/starter/src/app/src"
+    app_src_dir= output_dir + "src/app/src"
     if os.path.exists(app_src_dir):
         if len(os.listdir(app_src_dir)) == 0:
             os.remove(app_src_dir)
