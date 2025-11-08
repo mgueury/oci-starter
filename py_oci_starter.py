@@ -678,7 +678,9 @@ def output_mkdir(src):
        os.mkdir(file_path)
 
 def output_remove(src):
-    os.remove(output_dir + os.sep + src)
+    file_path = output_dir+ os.sep + src
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 def output_rm_tree(src):
     shutil.rmtree(output_dir + os.sep + src)
@@ -965,12 +967,12 @@ def create_output_dir():
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
-        output_remove('starter/src/app/app.yaml')
-        output_remove('starter/src/ui/ui.yaml')
+        output_remove('starter/src/app/app.j2.yaml')
+        output_remove('starter/src/ui/ui.j2.yaml')
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
-        output_remove('starter/src/app/src/start.sh')
+        output_remove('starter/src/app/src/start.j2.sh')
         output_remove('starter/src/app/src/install.sh')
-        output_remove('starter/src/app/src/env.sh')
+        output_remove('starter/src/app/src/env.j2.sh')
     else:         
         output_remove('starter/src/app/Dockerfile')
         output_remove('starter/src/app/Dockerfile.native')
