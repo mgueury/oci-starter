@@ -4,7 +4,7 @@ cd $SCRIPT_DIR/..
 
 STARTER_DIR=".starter"
 if [ -f $STARTER_DIR/starter.sh ]; then
-  echo "Synchronizing the source files with directory $STARTER_DIR"
+  echo "-- Synchronizing the source files with directory $STARTER_DIR --"
   if [ -d app ]; then
     rsync -av app $STARTER_DIR/src/app
   fi
