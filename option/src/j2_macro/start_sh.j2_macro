@@ -5,11 +5,11 @@ export TF_VAR_compartment_ocid=`cat /tmp/instance.json | jq -r .compartmentId`
 export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`
 {% if language == "java" -%}
 export TF_VAR_java_vm=##TF_VAR_java_vm##
-{%- endif %}
+{% endif %}
 
-{%- if db_family == "none" %}
+{% if db_family == "none" -%}
 # No database
-{%- else -%}
+{% else -%}
 # Database
 {% if db_family == "nosql" %}
 export regionDomain=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`
