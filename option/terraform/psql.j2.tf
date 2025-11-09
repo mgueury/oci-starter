@@ -25,7 +25,7 @@ resource "oci_psql_db_system" "starter_psql" {
   shape = "PostgreSQL.VM.Standard.E5.Flex"
   instance_ocpu_count = 1
   storage_details {
-    is_regionally_durable = true
+    is_regionally_durable = length(data.oci_identity_availability_domains.ads.availability_domains)>1?true:false
     # availability_domain = local.availability_domain_name
     system_type = "OCI_OPTIMIZED_STORAGE"
   }
