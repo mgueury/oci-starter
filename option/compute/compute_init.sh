@@ -134,9 +134,9 @@ EOT
       sudo systemctl enable $APP_NAME.service
       echo "sudo systemctl restart $APP_NAME" >> $APP_DIR/restart.sh 
     done  
-    chmod +x $APP_DIR/restart.sh  
-    $APP_DIR/restart.sh
   fi  
+  chmod +x $APP_DIR/restart.sh  
+  $APP_DIR/restart.sh
 done 
 
 # -- Helper --------------------------------------------------------------------
