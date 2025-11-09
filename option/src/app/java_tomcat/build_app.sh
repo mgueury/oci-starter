@@ -17,7 +17,7 @@ exit_on_error
 
 if is_deploy_compute; then
   cp nginx_app.locations $TARGET_DIR/compute/compute
-  build_rsync $APP_TARGET_DIR
+  build_rsync target
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   docker build -t ${TF_VAR_prefix}-app:latest .

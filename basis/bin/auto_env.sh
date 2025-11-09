@@ -42,7 +42,7 @@ read_terraform_tfvars() {
         # echo "export TF_VAR_${key}=\"${value}\""
       fi
     fi
-  done < "$TERRAFORM_TFVARS"
+  done < "$PROJECT_DIR/terraform.tfvars"
   unset value
 }
 

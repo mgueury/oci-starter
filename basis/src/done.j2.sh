@@ -28,7 +28,7 @@ if [ "$UI_URL" != "" ]; then
     append_done "- REST: $UI_URL/$APP_DIR/index.php"
     {%- endif %}        
   done 
-  {%- if (deploy_type=="public_compute") or (deploy_type=="private_compute" and ui_type=="api") %}
+  {%- if (deploy_type=="public_compute" or deploy_type=="private_compute") and ui_type=="api" %}
   export APIGW_URL=https://${APIGW_HOSTNAME}/${TF_VAR_prefix}  
   append_done "- API Gateway URL : $APIGW_URL/app/dept" 
   {%- endif %}     

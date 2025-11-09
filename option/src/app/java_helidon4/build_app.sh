@@ -33,7 +33,7 @@ if is_deploy_compute; then
     mvn package -DskipTests
   fi
   exit_on_error  
-  build_rsync $APP_TARGET_DIR
+  build_rsync target
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then

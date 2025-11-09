@@ -23,6 +23,3 @@ fi
 if [ -f $PROJECT_DIR/before_build.sh ]; then
   . $PROJECT_DIR/before_build.sh
 fi 
-
-export APP_TARGET_DIR="target"
-

@@ -6,8 +6,6 @@ if [ "$PROJECT_DIR" == "" ]; then
   exit 1
 fi
 
-export TERRAFORM_TFVARS="$PROJECT_DIR/terraform.tfvars"
-
 if [ "$BIN_DIR" == "" ]; then
   export BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 fi
