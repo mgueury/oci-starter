@@ -15,14 +15,14 @@ export TF_VAR_java_vm=##TF_VAR_java_vm##
 export regionDomain=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`
 export TF_VAR_nosql_endpoint="nosql.${TF_VAR_region}.oci.${regionDomain}"
 {%- elif language == "java" -%}
-export DB_USER="##TF_VAR_db_user##"
+export DB_USER="##OPTIONAL/TF_VAR_db_user##"
 export DB_PASSWORD="##TF_VAR_db_password##"
 export JDBC_URL="##JDBC_URL##"
 {%- if java_framework == "helidon" or java_framework == "helidon4" %}
 export JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL=$JDBC_URL
 {%- endif %}
 {%- else -%}
-export DB_USER="##TF_VAR_db_user##"
+export DB_USER="##OPTIONAL/TF_VAR_db_user##"
 export DB_PASSWORD="##TF_VAR_db_password##"
 export DB_URL="##DB_URL##"
 {%- endif %}
