@@ -56,7 +56,7 @@ build_rsync() {
 
   # Copy all the app files in $TARGET_DIR/compute/$APP_DIR
   mkdir -p $TARGET_DIR/compute/$APP_DIR
-  rsync -av --progress $1 $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+  rsync -av --progress $1/ $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
 
   # Replace the user and password in start.sh
   if [ -f $TARGET_DIR/compute/$APP_DIR/start.sh ]; then
