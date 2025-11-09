@@ -9,16 +9,18 @@ export TOMCAT_HOME=/opt/tomcat
 sudo groupadd tomcat
 sudo useradd -g tomcat -d $TOMCAT_HOME tomcat
 
+# Download Tomcat
 sudo dnf install -y wget
-VER=10.1.10
+VER=11.0.13
 cd /tmp
 sudo mkdir -p /opt/tomcat
-wget -nv https://archive.apache.org/dist/tomcat/tomcat-10/v${VER}/bin/apache-tomcat-${VER}.tar.gz
+wget -nv https://archive.apache.org/dist/tomcat/tomcat-11/v${VER}/bin/apache-tomcat-${VER}.tar.gz
 sudo tar -xvf /tmp/apache-tomcat-$VER.tar.gz -C $TOMCAT_HOME --strip-components=1
-# XXXXXX
+
+# Copy the Application and the start script to $TOMCAT_HOME
 sudo cp /home/opc/app/starter-1.0.war $TOMCAT_HOME/webapps
-sed -i "s!##JDBC_URL##!$JDBC_URL!" /home/opc/app/start.sh
 sudo mv /home/opc/app/start.sh $TOMCAT_HOME/bin/.
+sudo mv /home/opc/app/env.sh $TOMCAT_HOME/bin/.
 
 sudo chown -R tomcat: $TOMCAT_HOME
 sudo sh -c "chmod +x $TOMCAT_HOME/bin/*.sh"
