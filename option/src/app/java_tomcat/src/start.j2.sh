@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-. ./env.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $SCRIPT_DIR/env.sh
 
 /opt/tomcat/bin/startup.sh
 # curl http://localhost:8080/starter-1.0/info
