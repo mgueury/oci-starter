@@ -86,6 +86,7 @@ for APP_DIR in `ls -d app* | sort -g`; do
   if [ -f $APP_DIR/install.sh ]; then
     echo "-- $APP_DIR: Install -----------------------------------------"
     chmod +x ${APP_DIR}/install.sh
+    chmod +x ${APP_DIR}/env.sh
     ${APP_DIR}/install.sh
   fi  
 done
