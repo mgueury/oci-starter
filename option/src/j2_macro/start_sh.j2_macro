@@ -7,6 +7,9 @@ export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`
 export TF_VAR_java_vm=##TF_VAR_java_vm##
 {%- endif %}
 
+{%- if db_family == "none" %}
+# No database
+{%- else -%}
 # Database
 {% if db_family == "nosql" %}
 export regionDomain=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`
@@ -22,6 +25,7 @@ export JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL=$JDBC_URL
 export DB_USER="##TF_VAR_db_user##"
 export DB_PASSWORD="##TF_VAR_db_password##"
 export DB_URL="##DB_URL##"
+{%- endif %}
 {%- endif %}
 
 {% endmacro %}
