@@ -44,6 +44,31 @@ build_ui() {
   fi 
 }
 
+build_rsync() {
+  if [ "$1" == "" ]; then
+    error_exit "Missing src parameter"
+  fi
+
+  # In Java, copy the src/*.sh to target 
+  if [ -d target ]; then
+    cp src/*.sh target/.
+  fi
+
+  # Copy all the app files in $TARGET_DIR/compute/$APP_DIR
+  mkdir -p $TARGET_DIR/compute/$APP_DIR
+  rsync -av --progress $1/ $TARGET_DIR/compute/$APP_DIR --exclude starter --exclude terraform.tfvars
+
+  # Replace the user and password in start.sh
+  if [ -f $TARGET_DIR/compute/$APP_DIR/start.sh ]; then
+    replace_db_user_password_in_file $TARGET_DIR/compute/$APP_DIR/start.sh
+  fi
+
+  # Replace variables in env.sh
+  if [ -f $TARGET_DIR/compute/$APP_DIR/env.sh ]; then 
+    file_replace_variables $TARGET_DIR/compute/$APP_DIR/env.sh
+  fi 
+}
+
 docker_login() {
   oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
   exit_on_error "Docker Login"
@@ -690,10 +715,10 @@ function scp_via_bastion() {
       scp -r -o StrictHostKeyChecking=no -oProxyCommand="$BASTION_PROXY_COMMAND" $1 $2
     fi  
     if [ $? -eq 0 ]; then
-      echo "-- done"
+      echo "Success - scp_via_bastion"
       break;
     elif [ "$i" == "5" ]; then
-      echo "scp_via_bastion: Maximum number of scp retries, ending."
+      echo "ERROR: scp_via_bastion: Maximum number of scp retries (5). Ending."
       error_exit
     fi
   sleep 5
@@ -701,25 +726,35 @@ function scp_via_bastion() {
   done
 }
 
-# Function to replace ##VARIABLES## in a file
+# Function to replace ##VARIABLE_NAME## in a file
+# Replace ##OPTIONAL/VARIABLE_NAME## by variables if it exists or __NOT_USED__
 file_replace_variables() {
   local file="$1"
   local temp_file=$(mktemp)
 
   echo "Replace variables in file: $1"
   while IFS= read -r line; do
-    while [[ $line =~ (.*)##(.*)##(.*) ]]; do
+    if [[ $line =~ (.*)##(.*)##(.*) ]]; then
       local var_name="${BASH_REMATCH[2]}"
       echo "- variable: ${var_name}"
-      local var_value="${!var_name}"
 
-      if [[ -z "$var_value" ]]; then
-        echo "ERROR: Environment variable '${var_name}' is not defined."
-        error_exit
+      if [ "$var_name" == "xxx" ]; then
+         var_value="##xxx##"
+      elif [[ ${var_name} =~ OPTIONAL/(.*) ]]; then
+         var_name2="${BASH_REMATCH[1]}"
+         var_value="${!var_name2}"
+         if [ "$var_value" == "" ]; then
+            var_value="__NOT_USED__"
+         fi
+      else
+        var_value="${!var_name}"       
+        if [ "$var_value" == "" ]; then
+            echo "ERROR: Environment variable '${var_name}' is not defined."
+            error_exit
+        fi
       fi
-
       line=${line/"##${var_name}##"/${var_value}}
-    done
+    fi
 
     echo "$line" >> "$temp_file"
   done < "$file"

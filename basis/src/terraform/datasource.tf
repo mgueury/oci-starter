@@ -56,6 +56,7 @@ locals {
   regex_linux = (var.instance_shape=="VM.Standard.A1.Flex")?local.regex_ampere_linux:local.regex_amd_linux
   #     Oracle-Linux-Cloud-Developer-8.5-2022.05.22-0
   #     Oracle-Linux-Cloud-Developer-8.5-aarch64-2022.05.22-0
+  #     Oracle-Autonomous-Linux-8.10-2025.06.30-0
   regex_amd_dev_linux = "^([a-zA-z]+)-([a-zA-z]+)-([a-zA-z]+)-([a-zA-z]+)-([\\.0-9]+)-([\\.0-9-]+)$"
   regex_ampere_dev_linux= "^([a-zA-z]+)-([a-zA-z]+)-([a-zA-z]+)-([a-zA-z]+)-([\\.0-9]+)-aarch64-([\\.0-9-]+)$"
   regex_dev_linux = (var.instance_shape=="VM.Standard.A1.Flex")?local.regex_ampere_dev_linux:local.regex_amd_dev_linux
@@ -139,6 +140,11 @@ resource "random_string" "id" {
   length  = 4
   special = false
   upper = false
+}
+
+output "instance_shape" {
+  value = local.shape  
+
 }
 
 ### Username (not needed anymore)

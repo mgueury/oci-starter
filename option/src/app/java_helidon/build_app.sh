@@ -8,8 +8,7 @@
 # Docker:
 # - build the image
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../starter.sh env -no-auto
-. $BIN_DIR/build_common.sh
+. $SCRIPT_DIR/../../bin/build_common.sh
 
 java_build_common
 
@@ -32,9 +31,7 @@ if is_deploy_compute; then
     mvn package -DskipTests -Dnet.bytebuddy.experimental=true
   fi
   exit_on_error "mvn package"
-  cp start.sh install.sh target/.
-  mkdir -p ../../target/compute/$APP_DIR
-  cp -r target/* ../../target/compute/$APP_DIR/.
+  build_rsync target
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then

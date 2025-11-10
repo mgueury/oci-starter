@@ -8,16 +8,14 @@
 # Docker:
 # - build the image
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../starter.sh env -no-auto
-. $BIN_DIR/build_common.sh
+. $SCRIPT_DIR/../../bin/build_common.sh
 
 ## XXXXX Check Language version
 
 if is_deploy_compute; then
-  mkdir -p ../../target/compute/$APP_DIR
-  cp -r src/* ../../target/compute/$APP_DIR/.
+  build_rsync src
   # Replace the user and password in the start file
-  replace_db_user_password_in_file ../../target/compute/$APP_DIR/php.ini.append
+  replace_db_user_password_in_file $TARGET_DIR/compute/$APP_DIR/php.ini.append
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   docker build -t ${TF_VAR_prefix}-app:latest .

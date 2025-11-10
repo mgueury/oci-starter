@@ -41,6 +41,6 @@ else
   before_terraform
   terraform $1
   title "Done"
-  $BIN_DIR/done.sh
+  $PROJECT_DIR/src/done.sh
 fi
 

@@ -86,32 +86,35 @@ for APP_DIR in `ls -d app* | sort -g`; do
   if [ -f $APP_DIR/install.sh ]; then
     echo "-- $APP_DIR: Install -----------------------------------------"
     chmod +x ${APP_DIR}/install.sh
+    chmod +x ${APP_DIR}/env.sh
     ${APP_DIR}/install.sh
   fi  
 done
 
 # -- app/start*.sh -----------------------------------------------------------
 for APP_DIR in `ls -d app* | sort -g`; do
-  echo "#!/usr/bin/env bash" > $APP_DIR/restart.sh 
-  chmod +x $APP_DIR/restart.sh  
-  for START_SH in `ls $APP_DIR/start*.sh | sort -g`; do
-    echo "-- $START_SH ---------------------------------------"
-    if [[ "$START_SH" =~ start_(.*).sh ]]; then
-      APP_NAME=$(echo "$START_SH" | sed -E 's/(.*)\/start_([a-zA-Z0-9_]+)\.sh$/\1_\2/')
-    else
-      APP_NAME=${APP_DIR}
-    fi
-    echo "APP_NAME=$APP_NAME"
-    # Hardcode the connection to the DB in the start.sh
-    if [ "$DB_URL" != "" ]; then
-      sed -i "s!##JDBC_URL##!$JDBC_URL!" $START_SH 
-      sed -i "s!##DB_URL##!$DB_URL!" $START_SH 
-    fi  
-    sed -i "s!##TF_VAR_java_vm##!$TF_VAR_java_vm!" $START_SH
-    chmod +x $START_SH
+  if [ -f $APP_DIR/restart.sh ]; then
+    echo "$APP_DIR/restart.sh exists already"
+  else
+    echo "#!/usr/bin/env bash" > $APP_DIR/restart.sh 
+    for START_SH in `ls $APP_DIR/start*.sh | sort -g`; do
+      echo "-- $START_SH ---------------------------------------"
+      if [[ "$START_SH" =~ start_(.*).sh ]]; then
+        APP_NAME=$(echo "$START_SH" | sed -E 's/(.*)\/start_([a-zA-Z0-9_]+)\.sh$/\1_\2/')
+      else
+        APP_NAME=${APP_DIR}
+      fi
+      echo "APP_NAME=$APP_NAME"
+      # Hardcode the connection to the DB in the start.sh
+      if [ "$DB_URL" != "" ]; then
+        sed -i "s!##JDBC_URL##!$JDBC_URL!" $START_SH 
+        sed -i "s!##DB_URL##!$DB_URL!" $START_SH 
+      fi  
+      sed -i "s!##TF_VAR_java_vm##!$TF_VAR_java_vm!" $START_SH
+      chmod +x $START_SH
 
-    # Create an "app.service" that starts when the machine starts.
-     cat > /tmp/$APP_NAME.service << EOT
+      # Create an "app.service" that starts when the machine starts.
+      cat > /tmp/$APP_NAME.service << EOT
 [Unit]
 Description=App
 After=network.target
@@ -125,13 +128,15 @@ User=opc
 [Install]
 WantedBy=default.target
 EOT
-    sudo cp /tmp/$APP_NAME.service /etc/systemd/system
-    sudo chmod 664 /etc/systemd/system/$APP_NAME.service
-    sudo systemctl daemon-reload
-    sudo systemctl enable $APP_NAME.service
-    sudo systemctl restart $APP_NAME.service
-    echo "sudo systemctl restart $APP_NAME" >> $APP_DIR/restart.sh 
-  done  
+      sudo cp /tmp/$APP_NAME.service /etc/systemd/system
+      sudo chmod 664 /etc/systemd/system/$APP_NAME.service
+      sudo systemctl daemon-reload
+      sudo systemctl enable $APP_NAME.service
+      echo "sudo systemctl restart $APP_NAME" >> $APP_DIR/restart.sh 
+    done  
+  fi  
+  chmod +x $APP_DIR/restart.sh  
+  $APP_DIR/restart.sh
 done 
 
 # -- Helper --------------------------------------------------------------------

@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 
-# Set project_dir and bin_dir when not called from starter.sh
+# Should be called from starter.sh
 if [ "$PROJECT_DIR" == "" ]; then
-  if [ -f env.sh ]; then
-    export PROJECT_DIR="$(pwd)"
-  else 
-    echo "ERROR: env.sh file not found."
-    exit 1
-  fi
+  echo "ERROR: PROJECT_DIR not set"
+  exit 1
 fi
+
 if [ "$BIN_DIR" == "" ]; then
   export BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 fi

@@ -77,6 +77,7 @@ default_options = {
     '-ui_type': 'html',
     '-db_type': 'atp',
     '-license_model': 'LICENSE_INCLUDED',
+    '-app_mode': 'terraform',
     '-mode': CLI,
     '-infra_as_code': 'terraform_local',
     '-output_dir' : 'output',
@@ -117,6 +118,7 @@ allowed_values = {
     'db_type': {'atp', 'autonomous', 'database', 'dbsystem', 'rac', 'db_free', 'pluggable', 'pdb', 'mysql', 'psql', 'opensearch', 'nosql', 'none'},
     'license_model': {'LICENSE_INCLUDED', 'BRING_YOUR_OWN_LICENSE'},
     'infra_as_code': {'terraform_local', 'terraform_object_storage', 'resource_manager','from_resource_manager'},
+    'app_mode': {'terraform','app'},
     'mode': {CLI, GIT, ZIP},
     'shape': {'amd','freetier_amd','ampere','arm'},
     'db_install': {'default', 'kubernetes'},
@@ -667,13 +669,18 @@ def output_copy_tree(src, target):
 def output_move(src, target):
     shutil.move(output_dir + os.sep + src, output_dir + os.sep + target)
 
+def output_copy(src, target):
+    shutil.copy(src, output_dir + os.sep + target)
+
 def output_mkdir(src):
     file_path = output_dir+ os.sep + src
     if not os.path.exists(file_path):
        os.mkdir(file_path)
 
 def output_remove(src):
-    os.remove(output_dir + os.sep + src)
+    file_path = output_dir+ os.sep + src
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 def output_rm_tree(src):
     shutil.rmtree(output_dir + os.sep + src)
@@ -811,13 +818,12 @@ def create_output_dir():
 
         if params['language'] == "java":
             # FROM container-registry.oracle.com/graalvm/jdk:21
-            # FROM openjdk:21
-            # FROM openjdk:21-jdk-slim
+            # FROM eclipse-temurin:25
             if os.path.exists(output_dir + "/src/app/Dockerfile"):
                 if params['java_vm'] == "graalvm":
-                    output_replace('##DOCKER_IMAGE##', 'container-registry.oracle.com/graalvm/jdk:21', "src/app/Dockerfile")
+                    output_replace('##DOCKER_IMAGE##', 'container-registry.oracle.com/graalvm/jdk:25', "src/app/Dockerfile")
                 else:
-                    output_replace('##DOCKER_IMAGE##', 'openjdk:21-jdk-slim', "src/app/Dockerfile")
+                    output_replace('##DOCKER_IMAGE##', 'eclipse-temurin:25', "src/app/Dockerfile")
 
     # -- User Interface -----------------------------------------------------
     if params.get('ui_type') == "none":
@@ -907,10 +913,6 @@ def create_output_dir():
         if params.get('deploy_type') == 'kubernetes' and params.get('tls') != 'new_http_01':
             cp_terraform_apigw("apigw_kubernetes_tls_part2.tf")
 
-    if os.path.exists(output_dir + "/src/app/openapi_spec_append.yaml"):
-        append_file( output_dir + "/src/app/openapi_spec.yaml", output_dir + "/src/app/openapi_spec_append.yaml")
-        os.remove( output_dir + "/src/app/openapi_spec_append.yaml" )
-
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         cp_terraform("repository.j2.tf")
 
@@ -962,6 +964,24 @@ def create_output_dir():
             output_move(src_path, dst_path)
         os.rmdir(output_dir + "/src/app/db")
 
+    # CleanUp - Keep the minimum number of deployment files in the main app directory 
+    if params.get('deploy_type')!="kubernetes":
+        output_remove('src/app/app.j2.yaml')
+        output_remove('src/ui/ui.j2.yaml')
+    if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
+        output_remove('src/app/src/start.j2.sh')
+        output_remove('src/app/src/install.sh')
+        output_remove('src/app/src/env.j2.sh')
+    else:         
+        output_remove('src/app/Dockerfile')
+        output_remove('src/app/Dockerfile.j2')
+        output_remove('src/app/Dockerfile.native')
+        output_remove('src/app/Dockerfile.jlink')
+    # Remove starter/src/app/src is empty
+    app_src_dir= output_dir + "src/app/src"
+    if os.path.exists(app_src_dir):
+        if len(os.listdir(app_src_dir)) == 0:
+            os.remove(app_src_dir)
 
 #----------------------------------------------------------------------------
 # Create group_common Directory
@@ -1293,6 +1313,27 @@ if 'deploy_type' in params:
 title("Done")
 print("Directory "+output_dir+" created.")
 
+
+# -- App Mode ----------------------------------------------------------------
+
+if params['app_mode'] == 'app':
+    # Change the structure of the application to App Mode
+    # - ex: app.py
+    # -     > starter
+    allfiles = os.listdir(output_dir)
+    STARTER_DIR=".starter"
+    output_mkdir( STARTER_DIR )
+    # iterate on all files to move them to destination folder
+    for f in allfiles:
+        src_path = f
+        dst_path = os.path.join(STARTER_DIR, f)
+        output_move(src_path, dst_path)   
+    # copy_tree(utput_dir + "/starter/src/app", output_dir)         
+    shutil.copytree( output_dir+"/"+STARTER_DIR + "/src/app/src", output_dir + "/src" )
+    output_copy( output_dir+"/"+STARTER_DIR+"/terraform.tfvars", "." )
+    output_move( STARTER_DIR+"/README.md", "." )
+    output_copy( "option/mode/app/starter.sh", "." )
+    
 # -- Post Creation -----------------------------------------------------------
 
 if mode == GIT:

@@ -8,22 +8,16 @@
 # Docker:
 # - build the image
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../starter.sh env -no-auto
-. $BIN_DIR/build_common.sh
+. $SCRIPT_DIR/../../bin/build_common.sh
+
 java_build_common
 
 mvn package
 exit_on_error
 
 if is_deploy_compute; then
-  cp src/start.sh target/.
-  cp src/install.sh target/.
-
-  mkdir -p ../../target/compute/$APP_DIR
-  cp nginx_app.locations ../../target/compute/compute
-  cp -r target/* ../../target/compute/$APP_DIR/.
-  # Replace the user and password in the start file
-  replace_db_user_password_in_file ../../target/compute/$APP_DIR/start.sh  
+  cp nginx_app.locations $TARGET_DIR/compute/compute
+  build_rsync target
 else
   docker image rm ${TF_VAR_prefix}-app:latest
   docker build -t ${TF_VAR_prefix}-app:latest .

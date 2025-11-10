@@ -6,7 +6,7 @@ cd $SCRIPT_DIR/..
 
 get_ui_url
 
-title "After Build"
+title "Testsuite - Done"
 if [ "$UI_URL" != "" ]; then
   echo "TEST URLs" > $FILE_DONE
   append_done "- UI URL: $UI_URL/"

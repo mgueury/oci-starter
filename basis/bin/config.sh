@@ -263,7 +263,7 @@ if declare -p | grep -q "__TO_FILL__"; then
     declare -p | grep __TO_FILL__
     echo
     echo "Edit the file terraform.tfvars. Some variables needs to be filled:" 
-    cat terraform.tfvars | grep __TO_FILL__
+    cat $PROJECT_DIR/terraform.tfvars | grep __TO_FILL__
     error_exit "Missing environment variables."
   fi 
 fi 
