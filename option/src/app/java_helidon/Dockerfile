@@ -18,7 +18,7 @@ RUN mvn package -DskipTests
 RUN echo "done!"
 
 # 2nd stage, build the runtime image
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:25
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage

@@ -818,13 +818,12 @@ def create_output_dir():
 
         if params['language'] == "java":
             # FROM container-registry.oracle.com/graalvm/jdk:21
-            # FROM openjdk:21
-            # FROM openjdk:21-jdk-slim
+            # FROM eclipse-temurin:25
             if os.path.exists(output_dir + "/src/app/Dockerfile"):
                 if params['java_vm'] == "graalvm":
-                    output_replace('##DOCKER_IMAGE##', 'container-registry.oracle.com/graalvm/jdk:21', "src/app/Dockerfile")
+                    output_replace('##DOCKER_IMAGE##', 'container-registry.oracle.com/graalvm/jdk:25', "src/app/Dockerfile")
                 else:
-                    output_replace('##DOCKER_IMAGE##', 'openjdk:21-jdk-slim', "src/app/Dockerfile")
+                    output_replace('##DOCKER_IMAGE##', 'eclipse-temurin:25', "src/app/Dockerfile")
 
     # -- User Interface -----------------------------------------------------
     if params.get('ui_type') == "none":
