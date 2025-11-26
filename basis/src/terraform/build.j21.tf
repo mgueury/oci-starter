@@ -124,6 +124,7 @@ resource "null_resource" "build_deploy" {
 {%- for key in terraform_resources %}
     {{key}},
 {%- endfor %}  
+    null_resource.custom_dependency,  
     null_resource.tf_env  
   ]
 

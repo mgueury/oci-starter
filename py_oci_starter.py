@@ -233,6 +233,9 @@ def license_rules():
     license_model = os.getenv('LICENSE_MODEL')
     if license_model is not None:
         params['license_model'] = license_model
+    # Remove license_model is not needed
+    if params['db_type'] != "autonomous" and params['db_type'] != "database" and params['deploy_type'] != "oic":
+        params.pop('license_model')
 
 def zip_rules():
     global output_dir, zip_dir
