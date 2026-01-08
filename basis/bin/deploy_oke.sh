@@ -4,6 +4,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $BIN_DIR/build_common.sh
 cd $SCRIPT_DIR/..
 
+TARGET_OKE=$TARGET/oke
+mkdir -p $TARGET_OKE
+
 function wait_ingress() {
   # Wait for the ingress deployment
   echo "Waiting for Ingress Controller Pods..."
@@ -11,7 +14,7 @@ function wait_ingress() {
   kubectl wait --namespace ingress-nginx --for=condition=Complete job/ingress-nginx-admission-patch  
 }
 
-# Call build_common to push the ${TF_VAR_prefix}-app:latest and ${TF_VAR_prefix}-ui:latest to OCIR Docker registry
+# Call build_common to push the ${TF_VAR_prefix}-${APP_NAME}:latest and ${TF_VAR_prefix}-ui:latest to OCIR Docker registry
 ocir_docker_push
 
 # One time configuration
@@ -35,20 +38,20 @@ if [ ! -f $KUBECONFIG ]; then
       wait_ingress
 
       # ccm-letsencrypt-prod.yaml
-      sed "s&##CERTIFICATE_EMAIL##&${TF_VAR_certificate_email}&" src/oke/tls/ccm-letsencrypt-prod.yaml > $TARGET_DIR/ccm-letsencrypt-prod.yaml
-      kubectl apply -f $TARGET_DIR/ccm-letsencrypt-prod.yaml --timeout=600s
-      sed "s&##CERTIFICATE_EMAIL##&${TF_VAR_certificate_email}&" src/oke/tls/ccm-letsencrypt-staging.yaml > $TARGET_DIR/ccm-letsencrypt-staging.yaml
-      kubectl apply -f $TARGET_DIR/ccm-letsencrypt-staging.yaml
+      sed "s&##CERTIFICATE_EMAIL##&${TF_VAR_certificate_email}&" src/oke/tls/ccm-letsencrypt-prod.yaml > $TARGET_OKE/ccm-letsencrypt-prod.yaml
+      kubectl apply -f $TARGET_OKE/ccm-letsencrypt-prod.yaml --timeout=600s
+      sed "s&##CERTIFICATE_EMAIL##&${TF_VAR_certificate_email}&" src/oke/tls/ccm-letsencrypt-staging.yaml > $TARGET_OKE/ccm-letsencrypt-staging.yaml
+      kubectl apply -f $TARGET_OKE/ccm-letsencrypt-staging.yaml
 
       # external-dns-config.yaml
-      sed "s&##COMPARTMENT_OCID##&${TF_VAR_compartment_ocid}&" src/oke/tls/external-dns-config.yaml > $TARGET_DIR/external-dns-config.tmp
-      sed "s&##REGION##&${TF_VAR_region}&" $TARGET_DIR/external-dns-config.tmp > $TARGET_DIR/external-dns-config.yaml
-      kubectl create secret generic external-dns-config --from-file=$TARGET_DIR/external-dns-config.yaml
+      sed "s&##COMPARTMENT_OCID##&${TF_VAR_compartment_ocid}&" src/oke/tls/external-dns-config.yaml > $TARGET_OKE/external-dns-config.tmp
+      sed "s&##REGION##&${TF_VAR_region}&" $TARGET_OKE/external-dns-config.tmp > $TARGET_OKE/external-dns-config.yaml
+      kubectl create secret generic external-dns-config --from-file=$TARGET_OKE/external-dns-config.yaml
 
       # external-dns.yaml
-      sed "s&##COMPARTMENT_OCID##&${TF_VAR_compartment_ocid}&" src/oke/tls/external-dns.yaml > $TARGET_DIR/external-dns.tmp
-      sed "s&##REGION##&${TF_VAR_region}&" $TARGET_DIR/external-dns.tmp > $TARGET_DIR/external-dns.yaml
-      kubectl apply -f $TARGET_DIR/external-dns.yaml
+      sed "s&##COMPARTMENT_OCID##&${TF_VAR_compartment_ocid}&" src/oke/tls/external-dns.yaml > $TARGET_OKE/external-dns.tmp
+      sed "s&##REGION##&${TF_VAR_region}&" $TARGET_OKE/external-dns.tmp > $TARGET_OKE/external-dns.yaml
+      kubectl apply -f $TARGET_OKE/external-dns.yaml
     else
       helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx \
       --namespace ingress-nginx \
@@ -89,34 +92,46 @@ else
   kubectl create secret docker-registry ocirsecret --docker-server=$OCIR_HOST --docker-username="$TF_VAR_namespace/$TF_VAR_username" --docker-password="$TF_VAR_auth_token" --docker-email="$TF_VAR_email"
 fi  
 
-# Using & as separator
-sed "s&##DOCKER_PREFIX##&${DOCKER_PREFIX}&" src/app/app.yaml > $TARGET_DIR/app.yaml
-sed "s&##DOCKER_PREFIX##&${DOCKER_PREFIX}&" src/ui/ui.yaml > $TARGET_DIR/ui.yaml
-cp src/oke/ingress-app.yaml $TARGET_DIR/ingress-app.yaml
-cp src/oke/ingress-ui.yaml $TARGET_DIR/ingress-ui.yaml
+# TF_ENV
+tf_env_configmap
 
+# Delete the old pod, just to be sure a new image is pulled (not the best idea in the world...XXXX)
+# Replaced by :latest in the docker image value.
+# kubectl delete pod ${TF_VAR_prefix}-ui --ignore-not-found=true
+# kubectl delete deployment ${TF_VAR_prefix}-dep --ignore-not-found=true
+# Wait to be sure that the deployment is deleted before to recreate
+# kubectl wait --for=delete deployment/${TF_VAR_prefix}-dep --timeout=30s
+
+# Kubectl apply
+# Using & as separator
+
+# APP
+for APP_NAME in `app_name_list`; do
+  APP_YAML="k8s_${APP_NAME}.yaml"
+  sed "s&##DOCKER_PREFIX##&${DOCKER_PREFIX}&" src/app/${APP_YAML} > $TARGET_OKE/${APP_YAML}
+  # If present, replace the ORDS URL
+  if [ "$ORDS_URL" != "" ]; then
+    ORDS_HOST=`basename $(dirname $ORDS_URL)`
+    sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_OKE/${APP_YAML}
+  fi 
+  kubectl apply -f $TARGET_OKE/${APP_YAML}
+done
+
+# UI
+sed "s&##DOCKER_PREFIX##&${DOCKER_PREFIX}&" src/ui/ui.yaml > $TARGET_OKE/ui.yaml
+kubectl apply -f $TARGET_OKE/ui.yaml
+
+# Ingress
+cp src/oke/ingress-app.yaml $TARGET_OKE/ingress-app.yaml
+cp src/oke/ingress-ui.yaml $TARGET_OKE/ingress-ui.yaml
 # TLS - Domain Name
 if [ "$TF_VAR_tls" == "new_http_01" ]; then
-  sed -i "s&##DNS_NAME##&$TF_VAR_dns_name&" $TARGET_DIR/ingress-app.yaml
-  sed -i "s&##DNS_NAME##&$TF_VAR_dns_name&" $TARGET_DIR/ingress-ui.yaml
+  sed -i "s&##DNS_NAME##&$TF_VAR_dns_name&" $TARGET_OKE/ingress-app.yaml
+  sed -i "s&##DNS_NAME##&$TF_VAR_dns_name&" $TARGET_OKE/ingress-ui.yaml
 fi
-
-# If present, replace the ORDS URL
 if [ "$ORDS_URL" != "" ]; then
-  ORDS_HOST=`basename $(dirname $ORDS_URL)`
-  sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_DIR/app.yaml
-  sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_DIR/ingress-app.yaml
-fi 
-
-# delete the old pod, just to be sure a new image is pulled
-kubectl delete pod ${TF_VAR_prefix}-ui --ignore-not-found=true
-kubectl delete deployment ${TF_VAR_prefix}-dep --ignore-not-found=true
-# Wait to be sure that the deployment is deleted before to recreate
-kubectl wait --for=delete deployment/${TF_VAR_prefix}-dep --timeout=30s
-
-# Create objects in Kubernetes
-kubectl apply -f $TARGET_DIR/app.yaml
-kubectl apply -f $TARGET_DIR/ui.yaml
-kubectl apply -f $TARGET_DIR/ingress-app.yaml
-kubectl apply -f $TARGET_DIR/ingress-ui.yaml
+  sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_OKE/ingress-app.yaml
+fi
+kubectl apply -f $TARGET_OKE/ingress-app.yaml
+kubectl apply -f $TARGET_OKE/ingress-ui.yaml
 

@@ -3,7 +3,7 @@
 #
 # Compute:
 # - build the code 
-# - create a $ROOT/target/compute/$APP_DIR directory with the compiled files
+# - create a $ROOT/target/compute/$APP_NAME directory with the compiled files
 # - and a start.sh to start the program
 # Docker:
 # - build the image
@@ -35,11 +35,11 @@ if is_deploy_compute; then
   exit_on_error  
   build_rsync target
 else
-  docker image rm ${TF_VAR_prefix}-app:latest
+  docker image rm ${TF_VAR_prefix}-${APP_NAME}:latest
   if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then
-    docker build -f Dockerfile.native -t ${TF_VAR_prefix}-app:latest . 
+    docker build -f Dockerfile.native -t ${TF_VAR_prefix}-${APP_NAME}:latest . 
   else
-    docker build -t ${TF_VAR_prefix}-app:latest . 
+    docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest . 
   fi
   exit_on_error  
 fi  

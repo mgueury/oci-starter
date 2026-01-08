@@ -13,6 +13,7 @@ function scp_bastion() {
   else
     scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path src/db opc@$BASTION_IP:/home/opc/.
   fi
+  scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path bin/shared_compute.sh $TARGET_DIR/tf_env.sh opc@$BASTION_IP:/home/opc/db/.
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try

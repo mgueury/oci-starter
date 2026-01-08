@@ -3,7 +3,7 @@
 #
 # Compute:
 # - build the code 
-# - create a $ROOT/target/compute/$APP_DIR directory with the compiled files
+# - create a $ROOT/target/compute/$APP_NAME directory with the compiled files
 # - and a start.sh to start the program
 # Docker:
 # - build the image
@@ -15,7 +15,7 @@ if is_deploy_compute; then
   sed "s&##ORDS_URL##&$ORDS_URL&" nginx_app.locations > $TARGET_DIR/compute/compute/nginx_app.locations
   ORDS_HOST=`basename $(dirname $ORDS_URL)`
   sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_DIR/compute/compute/nginx_app.locations
-  build_rsync src
+  build_rsync $APP_SRC_DIR
 else
   echo "No docker image needed"
 fi  

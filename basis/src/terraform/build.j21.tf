@@ -92,11 +92,11 @@ resource "null_resource" "build_deploy" {
             cp -r src/compute target/compute/.
         fi
 
-        # Build all app* directories
-        for APP_DIR in `app_dir_list`; do
-            title "Build App $APP_DIR"
-            src/$APP_DIR/build_app.sh
-            exit_on_error "Build App $APP_DIR"
+        # Build all apps
+        for APP_NAME in `app_name_list`; do
+            title "Build App $APP_NAME"
+            src/app/build_$APP_NAME.sh
+            exit_on_error "Build App $APP_NAME"
         done
 
         if [ -f src/ui/build_ui.sh ]; then

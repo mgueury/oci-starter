@@ -21,9 +21,14 @@ if [ "$APIM_HOST" != "" ]; then
   FIRST_LETTER_UPPERCASE=`echo $TF_VAR_prefix | sed -e "s/\b\(.\)/\u\1/g"`
   if [ "$TF_VAR_ui_type" == "api" ]; then
     APIGW_URL=https://${APIGW_HOSTNAME}/${TF_VAR_prefix}  
-    for APP_DIR in `app_dir_list`; do
-      if [ -f src/${APP_DIR}/openapi_spec.yaml ]; then
-         add_api_portal "endpoint_url=${APIGW_URL}/${APP_DIR}/dept&endpoint_git_path=src/terraform/apigw_existing.tf&spec_git_path=src/${APP_DIR}/openapi_spec.yaml"
+    for APP_NAME in `app_name_list`; do
+      if [ "$APP_NAME" == "app" ]; then
+        APP_OPENAPI="openapi_spec.yaml"
+      else
+        APP_OPENAPI="openapi_spec_${APP_NAME}.yaml"
+      fi 
+      if [ -f src/app/openapi_spec.yaml ]; then
+         add_api_portal "endpoint_url=${APIGW_URL}/${APP_NAME}/dept&endpoint_git_path=src/terraform/apigw_existing.tf&spec_git_path=src/app/openapi_spec.yaml"
       fi  
     done
   else
