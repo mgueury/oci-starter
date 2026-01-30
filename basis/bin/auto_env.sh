@@ -202,7 +202,7 @@ else
   auto_echo TF_VAR_region=$TF_VAR_region
 
   # DATE_POSTFIX (used for logs names)
-  DATE_POSTFIX=`'+%Y%m%d-%H%M%S'`
+  DATE_POSTFIX=`date '+%Y%m%d-%H%M%S'`
 
   # Namespace
   export TF_VAR_namespace=`oci os ns get | jq -r .data`
