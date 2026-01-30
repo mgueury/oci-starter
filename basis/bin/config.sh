@@ -228,7 +228,7 @@ if declare -p | grep -q "__TO_FILL__"; then
       unset TF_VAR_vault_key_ocid
     else
       read_ocid TF_VAR_vault_ocid "Vault" ocid1.vault
-      read_ocid TF_VAR_vault_key_ocid "Vault" ocid1.key
+      read_ocid TF_VAR_vault_key_ocid "Vault Key" ocid1.key
     fi     
   fi    
 

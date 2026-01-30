@@ -202,7 +202,7 @@ else
   auto_echo TF_VAR_region=$TF_VAR_region
 
   # DATE_POSTFIX (used for logs names)
-  DATE_POSTFIX=`date '+%Y%m%d-%H%M%S'`
+  DATE_POSTFIX='+%Y%m%d-%H%M%S'`
 
   # Namespace
   export TF_VAR_namespace=`oci os ns get | jq -r .data`
@@ -377,6 +377,10 @@ if [ -f $STATE_FILE ]; then
       fi  
       oci jms fleet generate-agent-deploy-script --file $TARGET_DIR/jms_agent_deploy.sh --fleet-id $FLEET_OCID --install-key-id $INSTALL_KEY_OCID --is-user-name-enabled true --os-family "LINUX"
     fi 
+  fi
+
+  if [ "$ORDS_URL" != "" ]; then
+    ORDS_HOST=`basename $(dirname $ORDS_URL)`
   fi
 
   # after_auto_env.sh
