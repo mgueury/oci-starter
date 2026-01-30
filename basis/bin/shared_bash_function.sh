@@ -765,7 +765,7 @@ file_replace_variables() {
       echo "- variable: ${var_name}"
 
       if [ "$var_name" == "xxx" ]; then
-         var_value="##xxx##"
+         var_value="##xxxx##"
       elif [[ ${var_name} =~ OPTIONAL/(.*) ]]; then
          var_name2="${BASH_REMATCH[1]}"
          var_value="${!var_name2}"
