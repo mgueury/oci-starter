@@ -380,7 +380,7 @@ if [ -f $STATE_FILE ]; then
   fi
 
   if [ "$ORDS_URL" != "" ]; then
-    ORDS_HOST=`basename $(dirname $ORDS_URL)`
+    export ORDS_HOST=`basename $(dirname $ORDS_URL)`
   fi
 
   # after_auto_env.sh
