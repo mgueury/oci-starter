@@ -964,7 +964,7 @@ def create_output_dir():
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
-        output_remove('src/app/app.j2.yaml')
+        output_remove('src/app/k8s_app.j2.yaml')
         output_remove('src/ui/ui.j2.yaml')
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         output_remove('src/app/src/start.j2.sh')
@@ -988,7 +988,7 @@ def create_group_common_dir():
 
     # -- APP ----------------------------------------------------------------
     output_copy_tree("option/src/app/group_common", "src/app")
-    os.remove(output_dir + "/src/app/app.j2.yaml")
+    os.remove(output_dir + "/src/app/k8s_app.j2.yaml")
 
     # -- User Interface -----------------------------------------------------
     output_rm_tree("src/ui")
