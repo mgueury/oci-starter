@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ##PREFIX##-ui-ingress
+  name: ##TF_VAR_prefix##-ui-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2   
     # nginx.ingress.kubernetes.io/affinity: "cookie"   
@@ -12,7 +12,7 @@ metadata:
     # - kubectl get certificate
     # - kubectl get certificaterequest
     # - kubectl describe issuer letsencrypt-prod   
-    external-dns.alpha.kubernetes.io/hostname: ##DNS_NAME##
+    external-dns.alpha.kubernetes.io/hostname: ##TF_VAR_dn_name##
     # Logs: kubectl logs external-dns-xxxx
 {%- endif %}    
 spec:
@@ -20,20 +20,20 @@ spec:
 {%- if tls == "new_http_01" %}     
   tls:
   - hosts:
-    - ##DNS_NAME##
-    secretName: ##PREFIX##-tls-secret  
+    - ##TF_VAR_dn_name##
+    secretName: ##TF_VAR_prefix##-tls-secret  
   rules:
-    - host: ##DNS_NAME##
+    - host: ##TF_VAR_dn_name##
       http:
 {%- else %}    
   rules:
     - http:
 {%- endif %}    
         paths:
-          - path: /##PREFIX##(/|$)(.*)
+          - path: /##TF_VAR_prefix##(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: ##PREFIX##-ui-service
+                name: ##TF_VAR_prefix##-ui-service
                 port:
                   number: 80

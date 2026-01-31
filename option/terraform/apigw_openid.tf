@@ -117,3 +117,16 @@ resource "oci_identity_domains_app" "starter_confidential_app" {
   show_in_my_apps = "false"
   trust_scope     = "Account"
 }
+
+/*
+resource "oci_identity_policy" "starter_vault_policy" {
+  provider       = oci.home    
+  name           = "${var.prefix}-vault-policy"
+  description    = "APIGW access to Vault and Secrets"
+  compartment_id = local.lz_app_cmp_ocid
+  statements = [
+    "ALLOW any-user to read secret-family in compartment id ${local.lz_app_cmp_ocid} where ALL {request.principal.type= 'ApiGateway'}"
+  ]
+  freeform_tags = local.freeform_tags
+}
+*/

@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ##PREFIX##-app-ingress
+  name: ##TF_VAR_prefix##-app-ingress
   annotations:
 {%- if language == "apex" %}     
     nginx.ingress.kubernetes.io/rewrite-target: /ords/r/apex_app/apex_app/$2
@@ -24,21 +24,21 @@ spec:
 {%- if tls == "new_http_01" %}     
   tls:
   - hosts:
-    - ##DNS_NAME##
-    secretName: ##PREFIX##-tls-secret  
+    - ##TF_VAR_dns_name##
+    secretName: ##TF_VAR_prefix##-tls-secret  
   rules:
-    - host: ##DNS_NAME##
+    - host: ##TF_VAR_dns_name##
       http:
 {%- else %}    
   rules:
     - http:
 {%- endif %} 
         paths:
-          - path: /##PREFIX##/app(/|$)(.*)
+          - path: /##TF_VAR_prefix##/app(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: ##PREFIX##-app-service
+                name: ##TF_VAR_prefix##-app-service
                 port:
 {%- if language in [ "apex", "ords" ] %}     
                   number: 443

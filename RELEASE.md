@@ -180,3 +180,14 @@ New version
 - Upgrade script
 - Fix for single availability domain regions
 - Small fix for Mysql and Postgres
+
+## 4.3
+- Simplified App_mode=app where only the source code is in the dir and starter hidden in .starter directory
+- App directory
+    - build_app.sh simplified : build_rsync
+    - splitted start.sh in start.sh + env.sh
+    - remove install.sh/start.sh/env.sh for non compute mode. / remove Docker file for non docker installation
+- Version upgrade
+    - Docker openjdk21 -> eclipse-temurin:25
+    - tomcat 10-> tomcat11
+    - node18->node20

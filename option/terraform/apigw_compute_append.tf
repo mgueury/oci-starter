@@ -146,6 +146,22 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
         type = "HTTP_BACKEND"
         url    = "http://${local.apigw_dest_private_ip}/$${request.path[pathname]}"
       }
+      # Forward the JWT access_token using Bearer
+      # To decode, and get the username  
+      # curl -X GET -H "Authorization: Bearer access_token" https://idcs-xxxxx.identity.oraclecloud.com/oauth2/v1/userinfo
+      request_policies {
+        header_transformations {
+          set_headers {
+            items {
+              if_exists = "OVERWRITE"
+              name      = "Authorization"
+              values = [
+                "Bearer $${request.auth[access_token]}",
+              ]
+            }
+          }
+        }
+      }         
     }    
 
 {%- if security == "openid" %}     

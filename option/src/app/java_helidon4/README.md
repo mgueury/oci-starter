@@ -145,9 +145,9 @@ kubectl get pods                            # Verify connectivity to cluster
 ### Deploy the application to Kubernetes
 
 ```
-kubectl create -f app.yaml                  # Deploy application
+kubectl create -f k8s_app.yaml              # Deploy application
 kubectl get pods                            # Wait for quickstart pod to be RUNNING
-kubectl get service  helidon         # Get service info
+kubectl get service  helidon                # Get service info
 ```
 
 Note the PORTs. You can now exercise the application as you did before but use the second
@@ -156,7 +156,7 @@ port number (the NodePort) instead of 8080.
 After you’re done, cleanup.
 
 ```
-kubectl delete -f app.yaml
+kubectl delete -f k8s_app.yaml
 ```
                                 
 

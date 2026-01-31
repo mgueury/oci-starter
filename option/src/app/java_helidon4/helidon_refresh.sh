@@ -10,7 +10,7 @@ rmdir helidon
 rm src/main/java/helidon/Pokemon*
 cp orig/*.sh .
 cp orig/openapi_spec.yaml 
-cp orig/app.yaml .
+cp orig/k8s_app.yaml .
 cp orig/openapi_spec.yaml .
 cp orig/microprofile-config.properties.tmpl .
 cp orig/src/main/resources/META-INF/persistence.xml src/main/resources/META-INF/.

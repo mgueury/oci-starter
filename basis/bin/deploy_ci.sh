@@ -7,7 +7,7 @@ cd $PROJECT_DIR
 . starter.sh env -no-auto
 . $BIN_DIR/build_common.sh
 
-# Call build_common to push the ${TF_VAR_prefix}-app:latest and ui:latest to OCIR Docker registry
+# Call build_common to push the ${TF_VAR_prefix}-${APP_NAME}:latest and ui:latest to OCIR Docker registry
 ocir_docker_push
 
 if [ "$CALLED_BY_TERRAFORM" == "" ]; then

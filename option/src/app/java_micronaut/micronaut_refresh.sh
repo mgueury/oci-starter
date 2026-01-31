@@ -9,7 +9,7 @@ mv demo/.* .
 rmdir demo
 cp orig/*.sh .
 cp orig/openapi_spec.yaml .
-cp orig/app.yaml .
+cp orig/k8s_app.yaml .
 cp orig/src/main/java/com/example/Dept* src/main/java/com/example/.
 cp orig/Docker* .
 cp orig/src/main/resources/application.properties src/main/resources/.

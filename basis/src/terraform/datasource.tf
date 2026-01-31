@@ -3,7 +3,7 @@
 terraform {
   required_providers {
     oci = {
-      source = "hashicorp/oci"
+      source = "oracle/oci"
       configuration_aliases = [
         oci.home
       ]
@@ -132,7 +132,7 @@ locals {
 
   # OCIR
   local_ocir_host = join("", [lower(lookup(data.oci_identity_regions.current_region.regions[0], "key")), ".ocir.io"])
-  ocir_namespace = lookup(data.oci_objectstorage_namespace.ns, "namespace") 
+  local_ocir_namespace = lookup(data.oci_objectstorage_namespace.ns, "namespace") 
 }
 
 # Random ID

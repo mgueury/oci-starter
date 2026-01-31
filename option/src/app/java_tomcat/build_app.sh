@@ -3,7 +3,7 @@
 #
 # Compute:
 # - build the code 
-# - create a $ROOT/target/compute/$APP_DIR directory with the compiled files
+# - create a $ROOT/target/compute/$APP_NAME directory with the compiled files
 # - and a start.sh to start the program
 # Docker:
 # - build the image
@@ -19,7 +19,7 @@ if is_deploy_compute; then
   cp nginx_app.locations $TARGET_DIR/compute/compute
   build_rsync target
 else
-  docker image rm ${TF_VAR_prefix}-app:latest
-  docker build -t ${TF_VAR_prefix}-app:latest .
+  docker image rm ${TF_VAR_prefix}-${APP_NAME}:latest
+  docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest .
   exit_on_error
 fi  

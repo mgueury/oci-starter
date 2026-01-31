@@ -378,4 +378,13 @@ if [ -f $STATE_FILE ]; then
       oci jms fleet generate-agent-deploy-script --file $TARGET_DIR/jms_agent_deploy.sh --fleet-id $FLEET_OCID --install-key-id $INSTALL_KEY_OCID --is-user-name-enabled true --os-family "LINUX"
     fi 
   fi
+
+  if [ "$ORDS_URL" != "" ]; then
+    export ORDS_HOST=`basename $(dirname $ORDS_URL)`
+  fi
+
+  # after_auto_env.sh
+  if [ -f $PROJECT_DIR/src/after_auto_env.sh ]; then
+    .  $PROJECT_DIR/src/after_auto_env.sh
+  fi  
 fi

@@ -233,6 +233,9 @@ def license_rules():
     license_model = os.getenv('LICENSE_MODEL')
     if license_model is not None:
         params['license_model'] = license_model
+    # Remove license_model is not needed
+    if params['db_type'] != "autonomous" and params['db_type'] != "database" and params['deploy_type'] != "oic":
+        params.pop('license_model')
 
 def zip_rules():
     global output_dir, zip_dir
@@ -864,11 +867,6 @@ def create_output_dir():
             output_mkdir("src/oke")
             output_copy_tree("option/oke", "src/oke")
 
-            output_replace('##PREFIX##', params["prefix"], "src/app/app.yaml")
-            output_replace('##PREFIX##', params["prefix"], "src/ui/ui.yaml")
-            output_replace('##PREFIX##', params["prefix"], "src/oke/ingress-app.j2.yaml")
-            output_replace('##PREFIX##', params["prefix"], "src/oke/ingress-ui.j2.yaml")
-
         elif params.get('deploy_type') == "function":
             cp_terraform_existing("fnapp_ocid", "function.j2.tf")
             if 'fnapp_ocid' not in params:
@@ -966,7 +964,7 @@ def create_output_dir():
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
-        output_remove('src/app/app.j2.yaml')
+        output_remove('src/app/k8s_app.j2.yaml')
         output_remove('src/ui/ui.j2.yaml')
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         output_remove('src/app/src/start.j2.sh')
@@ -990,7 +988,7 @@ def create_group_common_dir():
 
     # -- APP ----------------------------------------------------------------
     output_copy_tree("option/src/app/group_common", "src/app")
-    os.remove(output_dir + "/src/app/app.j2.yaml")
+    os.remove(output_dir + "/src/app/k8s_app.j2.yaml")
 
     # -- User Interface -----------------------------------------------------
     output_rm_tree("src/ui")

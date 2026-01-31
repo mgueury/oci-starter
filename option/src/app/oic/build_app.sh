@@ -3,7 +3,7 @@
 #
 # Compute:
 # - build the code 
-# - create a $ROOT/target/compute/$APP_DIR directory with the compiled files
+# - create a $ROOT/target/compute/$APP_NAME directory with the compiled files
 # - and a start.sh to start the program
 # Docker:
 # - build the image
