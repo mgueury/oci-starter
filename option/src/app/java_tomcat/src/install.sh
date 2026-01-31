@@ -22,8 +22,8 @@ LATEST_VERSION=$(curl -s "$BASE_URL/" | grep -oP 'v11\.0\.\d+/' | sort -V | tail
 
 # If version was found, build the download URL and fetch the file
 if [ -n "$LATEST_VERSION" ]; then
-    FILE_NAME="apache-tomcat-11.0.$LATEST_VERSION.tar.gz"
-    DOWNLOAD_URL="$BASE_URL/v11.0.$LATEST_VERSION/bin/$FILE_NAME"
+    FILE_NAME="apache-tomcat-$LATEST_VERSION.tar.gz"
+    DOWNLOAD_URL="$BASE_URL/v$LATEST_VERSION/bin/$FILE_NAME"
     echo "Downloading $FILE_NAME from $DOWNLOAD_URL ..."
     wget -nv "$DOWNLOAD_URL"
     echo "Download complete."
@@ -31,7 +31,7 @@ else
     echo "Could not determine the latest version."
     exit 1
 fi
-sudo tar -xvf /tmp/apache-tomcat-$VER.tar.gz -C $TOMCAT_HOME --strip-components=1
+sudo tar -xvf /tmp/apache-tomcat-$LATEST_VERSION.tar.gz -C $TOMCAT_HOME --strip-components=1
 
 # Copy the Application and the start script to $TOMCAT_HOME
 sudo cp /home/opc/app/starter-1.0.war $TOMCAT_HOME/webapps
@@ -67,3 +67,4 @@ sudo cp /tmp/tomcat.service /etc/systemd/system/tomcat.service
 
 sudo systemctl daemon-reload
 sudo systemctl enable tomcat
+sudo systemctl start tomcat
