@@ -11,10 +11,26 @@ sudo useradd -g tomcat -d $TOMCAT_HOME tomcat
 
 # Download Tomcat
 sudo dnf install -y wget
-VER=11.0.13
 cd /tmp
 sudo mkdir -p /opt/tomcat
-wget -nv https://archive.apache.org/dist/tomcat/tomcat-11/v${VER}/bin/apache-tomcat-${VER}.tar.gz
+
+# Set the base URL for Tomcat 11
+BASE_URL="https://downloads.apache.org/tomcat/tomcat-11"
+
+# Get the latest version number by parsing the HTML directory listing
+LATEST_VERSION=$(curl -s "$BASE_URL/" | grep -oP 'v11\.0\.\d+/' | sort -V | tail -n 1 | tr -d '/v')
+
+# If version was found, build the download URL and fetch the file
+if [ -n "$LATEST_VERSION" ]; then
+    FILE_NAME="apache-tomcat-11.0.$LATEST_VERSION.tar.gz"
+    DOWNLOAD_URL="$BASE_URL/v11.0.$LATEST_VERSION/bin/$FILE_NAME"
+    echo "Downloading $FILE_NAME from $DOWNLOAD_URL ..."
+    wget -nv "$DOWNLOAD_URL"
+    echo "Download complete."
+else
+    echo "Could not determine the latest version."
+    exit 1
+fi
 sudo tar -xvf /tmp/apache-tomcat-$VER.tar.gz -C $TOMCAT_HOME --strip-components=1
 
 # Copy the Application and the start script to $TOMCAT_HOME
