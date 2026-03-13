@@ -159,6 +159,13 @@ else
   unset SILENT_MODE
 fi 
 
+# Before Config (run only once)
+if [ -f $PROJECT_DIR/src/before_config.sh ]; then
+  detect_livelabs
+  . $PROJECT_DIR/src/before_config.sh
+  mv $PROJECT_DIR/src/before_config.sh $PROJECT_DIR/src/before_config.sh.done
+fi
+
 # Skip if runned from OCI Devops ?
 # if [ "$REPOSITORY_NAME" != "" ]; then
 #   return

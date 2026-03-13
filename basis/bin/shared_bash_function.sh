@@ -309,7 +309,7 @@ get_user_details() {
       export TF_VAR_region=$OCI_REGION
       # Good way to get the home_region is to get it via oci iam tenancy get --tenancy-id xxx -> home_region PREFIX (ex:FRA)
       # That needs then to be converted from prefix to name via the region list (->eu-frankfurt-1). See provider.tf.
-      # export TF_VAR_home_region=`echo $OCI_CS_HOST_OCID | awk -F[/.] '{print $4}'`
+      export TF_VAR_home_region=`echo $OCI_CS_HOST_OCID | sed "s/.*\.oc[0-9]*\.//" | sed "s/\..*//"`      
       if [[ "$OCI_CS_USER_OCID" == *"ocid1.saml2idp"* ]]; then
         # Ex: ocid1.saml2idp.oc1..aaaaaaaaexfmggau73773/user@domain.com -> oracleidentitycloudservice/user@domain.com
         # Split the string in 2 
@@ -422,9 +422,7 @@ is_deploy_compute() {
   fi
 }
 
-livelabs_green_button() {
-  # Lot of tests to be sure we are in an Green Button LiveLabs
-  # compartment_ocid still undefined ? 
+detect_livelabs() {
   if grep -q 'compartment_ocid="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
     # vnc_ocid still undefined ? 
     if [ "$TF_VAR_vcn_ocid" != "__TO_FILL__" ]; then
@@ -443,6 +441,15 @@ livelabs_green_button() {
     else
       return
     fi
+    export LIVELABS="true"
+  fi  
+}
+
+livelabs_green_button() {
+  # Lot of tests to be sure we are in an Green Button LiveLabs
+  # compartment_ocid still undefined ? 
+  detect_livelabs
+  if [ "$LIVELABS" == "true" ]; then
     get_user_details
     # OCI User name format ? 
     if [[ $TF_VAR_username =~ ^LL.*-USER$ ]]; then
