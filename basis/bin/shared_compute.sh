@@ -176,6 +176,8 @@ export -f install_instant_client
 
 create_self_signed_ip_certificate()
 {
+    mkdir -p certificate
+    cd certificate
     # IP Certificate Request      
     cat > san.cnf << EOF     
 [req]
@@ -203,8 +205,9 @@ EOF
     openssl genrsa -out server.key 2048
     openssl req -new -key server.key -out server.csr -config san.cnf
     openssl x509 -req -in server.csr -signkey server.key -out server.crt -days 365 -extensions req_ext -extfile san.cnf
+    cd -
 
-    cat > $HOME/compute/nginx_tls.conf << EOF     
+    cat > nginx_tls.conf << EOF     
 # Self Signed IP Certificate     
 server {
     server_name  $BASTION_IP; 
@@ -225,8 +228,8 @@ server {
     }
     listen [::]:443 ssl ipv6only=on; 
     listen 443 ssl; 
-    ssl_certificate /home/opc/compute/server.crt; 
-    ssl_certificate_key /home/opc/compute/server.key; 
+    ssl_certificate /home/opc/compute/certificate/server.crt; 
+    ssl_certificate_key /home/opc/compute/certificate/server.key; 
 
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
