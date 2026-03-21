@@ -42,8 +42,9 @@ resource "null_resource" "tf_env" {
 {%- for param in fixed_params %}
     echo_export "TF_VAR_{{param}}" "{{ params[param] }}"
 {%- endfor %}
+    echo "# Region" >> $ENV_FILE   
     echo "curl -s -H 'Authorization: Bearer Oracle' -L http://169.254.169.254/opc/v2/instance/ > /tmp/instance.json" >> $ENV_FILE   
-    echo_export "TF_VAR_region" "`cat /tmp/instance.json | jq -r .region`"
+    echo "export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`" >> $ENV_FILE   
     # echo_export "OCI_STARTER_CREATION_DATE" "{{ create_datetime }}"
     # echo_export "OCI_STARTER_VERSION" "4.2"
     # echo_export "OCI_STARTER_PARAMS" "{{ params["params"] }}"

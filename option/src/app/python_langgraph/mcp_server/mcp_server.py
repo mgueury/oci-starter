@@ -40,30 +40,6 @@ def get_dept() -> list[dict[str, Any]]:
     finally:
         connection.close()
 
-@mcp.tool()
-def get_emp() -> list[dict[str, Any]]:
-    """Return all rows from the EMP table."""
-    log( "<get_emp>")
-    user = os.getenv("TF_VAR_db_user")
-    password = os.getenv("TF_VAR_db_password")
-    dsn = os.getenv("DB_URL")
-
-    if not user or not password or not dsn:
-        raise ValueError("Missing DB_USER, DB_PASSWORD, or DB_URL environment variable")
-
-    connection = oracledb.connect(user=user, password=password, dsn=dsn)
-    log( "<get_emp>: connected to db")
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT EMPNO, ENAME, JOB, DEPTNO FROM EMP ORDER BY EMPNO")
-            rows = cursor.fetchall()
-            return [
-                {"empno": empno, "ename": ename, "job": job, "deptno": deptno}
-                for empno, ename, job, deptno in rows
-            ]
-    finally:
-        connection.close()
-
 if __name__ == "__main__":
     # mcp.run(transport="stdio")  # Run the server, using standard input/output for communication
     mcp.run(transport="http", host="0.0.0.0", port=2025)
