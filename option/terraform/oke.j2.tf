@@ -37,6 +37,14 @@ data "oci_containerengine_cluster_option" "starter_cluster_option" {
   cluster_option_id = "all"
 }
 
+locals {
+  oke_stable_versions = [
+    for v in data.oci_containerengine_cluster_option.starter_cluster_option.kubernetes_versions : v
+    if !endswith(v, ".0")
+  ]
+  oke_latest_stable_version=locals.oke_stable_versions[length(locals.oke_stable_versions)-1]
+}
+
 data "oci_containerengine_node_pool_option" "starter_node_pool_option" {
   node_pool_option_id = "all"
 }
@@ -357,7 +365,7 @@ resource "oci_core_subnet" "starter_pod_subnet" {
 resource "oci_containerengine_cluster" "starter_oke" {
   #Required
   compartment_id     = local.lz_app_cmp_ocid
-  kubernetes_version = data.oci_containerengine_cluster_option.starter_cluster_option.kubernetes_versions[length(data.oci_containerengine_cluster_option.starter_cluster_option.kubernetes_versions)-1]
+  kubernetes_version = local.oke_latest_stable_version
   name               = "${var.prefix}-oke"
   vcn_id             = data.oci_core_vcn.starter_vcn.id
   type               = "ENHANCED_CLUSTER"
@@ -403,7 +411,7 @@ resource "oci_containerengine_node_pool" "starter_node_pool" {
   #Required
   cluster_id         = oci_containerengine_cluster.starter_oke.id
   compartment_id     = local.lz_app_cmp_ocid
-  kubernetes_version = data.oci_containerengine_node_pool_option.starter_node_pool_option.kubernetes_versions[length(data.oci_containerengine_node_pool_option.starter_node_pool_option.kubernetes_versions)-1]
+  kubernetes_version = local.oke_latest_stable_version
   name               = "${var.prefix}-pool"
   node_shape         = local.oke_shape
   node_shape_config {
@@ -473,6 +481,7 @@ output "node_pool" {
     kubernetes_version = oci_containerengine_node_pool.starter_node_pool.kubernetes_version
     name               = oci_containerengine_node_pool.starter_node_pool.name
     subnet_ids         = oci_containerengine_node_pool.starter_node_pool.subnet_ids
+    nodes              = oci_containerengine_node_pool.starter_node_pool.nodes
   }
 }
 

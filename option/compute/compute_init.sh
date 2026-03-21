@@ -126,11 +126,13 @@ if [ -f nginx_app.locations ]; then
 fi
 
 # TLS
-if [ -f nginx_tls.conf ]; then
-  echo "Adding nginx_tls.conf"
-  sudo cp nginx_tls.conf /etc/nginx/conf.d/.
-  sudo awk -i inplace '/# HTTPS server/ && !x {print "        include conf.d/nginx_tls.conf;"; x=1} 1' /etc/nginx/nginx.conf
+if [ ! -f nginx_tls.conf ]; then
+  create_self_signed_ip_certificate  
 fi
+
+echo "Adding nginx_tls.conf"
+sudo cp nginx_tls.conf /etc/nginx/conf.d/.
+sudo awk -i inplace '/# HTTPS server/ && !x {print "        include conf.d/nginx_tls.conf;"; x=1} 1' /etc/nginx/nginx.conf
 
 # SE Linux (for proxy_pass)
 sudo setsebool -P httpd_can_network_connect 1

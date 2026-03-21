@@ -171,3 +171,70 @@ install_instant_client() {
     fi
 }
 export -f install_instant_client   
+
+create_self_signed_ip_certificate()
+{
+    # IP Certificate Request      
+    cat > san.cnf << EOF     
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[dn]
+C = US
+ST = State
+L = City
+O = Organization
+CN = $BASTION_IP
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+IP.1 = $BASTION_IP
+EOF
+
+    # Generate the key and the chain      
+    openssl genrsa -out server.key 2048
+    openssl req -new -key server.key -out server.csr -config san.cnf
+    openssl x509 -req -in server.csr -signkey server.key -out server.crt -days 365 -extensions req_ext -extfile san.cnf
+
+    cat > $HOME/compute/nginx_tls.conf << EOF     
+# Self Signed IP Certificate     
+server {
+    server_name  $BASTION_IP; 
+    root         /usr/share/nginx/html;
+
+    # Load configuration files for the default server block.
+    include /etc/nginx/default.d/*.conf;
+    location / {
+    }
+
+    include conf.d/nginx_app.locations;
+    error_page 404 /404.html;
+        location = /40x.html {
+    }
+
+    error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+    }
+    listen [::]:443 ssl ipv6only=on; 
+    listen 443 ssl; 
+    ssl_certificate /home/opc/compute/server.crt; 
+    ssl_certificate_key /home/opc/compute/server.key; 
+
+    ssl_session_cache shared:le_nginx_SSL:10m;
+    ssl_session_timeout 1440m;
+    ssl_session_tickets off;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+}
+EOF
+}
+export -f create_self_signed_ip_certificate 
