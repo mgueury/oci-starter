@@ -7,6 +7,7 @@
 # Date: 2022-11-24
 import sys
 import os
+import glob
 import shutil
 import json
 import stat
@@ -74,6 +75,7 @@ default_options = {
     '-java_framework': 'springboot',
     '-java_vm': 'graalvm',
     '-java_version': '25',
+    '-python_framework': 'fastapi',
     '-ui_type': 'html',
     '-db_type': 'atp',
     '-license_model': 'LICENSE_INCLUDED',
@@ -113,6 +115,7 @@ allowed_values = {
     'java_framework': {'springboot', 'helidon', 'helidon4', 'tomcat', 'micronaut'},
     'java_vm': {'jdk', 'graalvm', 'graalvm-native'},
     'java_version': {'8', '11', '17', '21', '25'},
+    'python_framework': {'fastapi', 'langgraph', 'openai_compatible'},
     'kubernetes': {'oke', 'docker'},
     'ui_type': {'html', 'jet', 'angular', 'reactjs', 'jsp', 'php', 'api', 'apex', 'none'},
     'db_type': {'atp', 'autonomous', 'database', 'dbsystem', 'rac', 'db_free', 'pluggable', 'pdb', 'mysql', 'psql', 'opensearch', 'nosql', 'none'},
@@ -338,9 +341,10 @@ starter.sh
    -fnapp_ocid (optional)
    -group_common (optional) atp | database | mysql | psql | opensearch | nosql | fnapp | apigw | oke | jms
    -group_name (optional)
-   -java_framework (default helidon | springboot | tomcat)
+   -java_framework (default springboot | helidon | tomcat)
    -java_version (default 25 | 21 | 17 | 11 | 8)
    -java_vm (default jdk | graalvm)
+   -python_framework (default fastapi | langgraph | openai_compatible )
    -kubernetes (default oke | docker)
    -language (mandatory) java | node | python | dotnet | ords
    -license (default included | byol )
@@ -680,10 +684,11 @@ def output_mkdir(src):
     if not os.path.exists(file_path):
        os.mkdir(file_path)
 
-def output_remove(src):
-    file_path = output_dir+ os.sep + src
-    if os.path.exists(file_path):
-        os.remove(file_path)
+def output_remove(src_pattern):
+    pattern = os.path.join(output_dir, src_pattern)
+    for file_path in glob.glob(pattern):
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 def output_rm_tree(src):
     shutil.rmtree(output_dir + os.sep + src)
@@ -805,6 +810,11 @@ def create_output_dir():
         if params.get('deploy_type') != "function" and params['language'] == "java":
             # Java Framework
             app = "java_" + params['java_framework']
+            output_copy_tree("option/src/app/"+app, "src/app")
+
+        if params.get('deploy_type') != "function" and params['language'] == "java":
+            # Python Framework
+            app = "python_" + params['python_framework']
             output_copy_tree("option/src/app/"+app, "src/app")
 
         # Overwrite the generic version (ex for mysql)
@@ -964,17 +974,14 @@ def create_output_dir():
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
-        output_remove('src/app/k8s_app.j2.yaml')
-        output_remove('src/ui/ui.j2.yaml')
+        output_remove('src/app/k8s_*')
+        output_remove('src/ui/ui*.yaml')
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         output_remove('src/app/src/start.j2.sh')
         output_remove('src/app/src/install.sh')
         output_remove('src/app/src/env.j2.sh')
     else:         
-        output_remove('src/app/Dockerfile')
-        output_remove('src/app/Dockerfile.j2')
-        output_remove('src/app/Dockerfile.native')
-        output_remove('src/app/Dockerfile.jlink')
+        output_remove('src/app/Dockerfile*')
     # Remove starter/src/app/src is empty
     app_src_dir= output_dir + "src/app/src"
     if os.path.exists(app_src_dir):

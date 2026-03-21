@@ -15,9 +15,11 @@ APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
 if [ "$APP_NAME" == "app" ]; then
   APP_SRC_DIR="src"
   APP_COMPUTE_DIR="app"
+  APP_DOCKERFILE="Dockerfile"
 else
-  APP_SRC_DIR="src_${APP_NAME}"
+  APP_SRC_DIR="${APP_NAME}"
   APP_COMPUTE_DIR="app/${APP_NAME}"
+  APP_DOCKERFILE="Dockerfile_${APP_NAME}"
 fi
 cd $SCRIPT_DIR
 
