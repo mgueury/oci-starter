@@ -13,7 +13,7 @@ import oci_openai
 
 COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
 REGION = os.getenv("TF_VAR_region")
-MCP_SERVER_URL = os.getenv("MCP_SERVER_URL") or "http://localhost:2025/"
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL") or "http://localhost:2025/mcp"
 
 # auth = oci_openai.OciInstancePrincipalAuth()
 # llm = ChatOpenAI(
@@ -100,6 +100,7 @@ prompt = """You are an agent that use the tools you got access to.
             INSTRUCTIONS:
             - Assist ONLY with research-related tasks, DO NOT do any math.
             - Respond ONLY with the results of your work, do NOT include ANY other text.
+            - Do not pass empty parameters to tools  
             """
 
 agent = asyncio.run(init("agent", prompt, None))
