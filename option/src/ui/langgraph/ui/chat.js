@@ -1,4 +1,4 @@
-let BASE_URL = '/langgraph/server';
+let BASE_URL = '/app';
 // State
 let currentAgent = 'agent';
 let currentUser = 'customer';
