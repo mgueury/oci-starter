@@ -818,7 +818,8 @@ def create_output_dir():
             # Python Framework
             if params['python_framework'] == "langgraph":
                 # LangGraph does not use build_app.sh
-                output_rm_tree( "src/app" )
+                output_rm_tree("src/app")
+                output_mkdir("src/app")
             app = "python_" + params['python_framework']
             output_copy_tree("option/src/app/"+app, "src/app")
 
