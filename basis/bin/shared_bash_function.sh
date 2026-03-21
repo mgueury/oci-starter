@@ -640,6 +640,12 @@ certificate_dns01_create () {
 }
 
 certificate_dir_before_terraform() {
+  if [ "$TF_VAR_tls" == "" && "$TF_VAR_deploy_type" == "public_compute" ]; then  
+    # No certificate planned. And public VM. Add a self-signed certicate
+    cp basis/
+    return 
+  fi
+
   if [ "$TF_VAR_dns_name" == "" ]; then
     echo "ERROR: certificate_dir_before_terraform: TF_VAR_dns_name not defined"
     exit 1
