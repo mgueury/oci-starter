@@ -1,0 +1,263 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f6f6f6;
+}
+
+#chat-container {
+    max-width: 1024px;
+    margin: 40px auto;
+    background: white;
+    padding: 16px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, .06);
+    border-radius: 8px;
+}
+
+#currentDisplay {
+    font-size: 80%;
+    color: gray;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+#messages {
+    min-height: 300px;
+    margin-bottom: 16px;
+}
+
+.message {
+    margin-bottom: 20px;
+    display: flex;
+}
+
+.human {
+    justify-content: flex-end;
+}
+
+.ai,
+.tool {
+    justify-content: flex-start;
+}
+
+.meta {
+    font-size: .9em;
+    color: #888;
+    margin-bottom: 2px;
+}
+
+.bubble {
+    max-width: 75%;
+    padding: 14px 20px;
+    border-radius: 18px;
+    background: #eee;
+    position: relative;
+    word-break: break-word;
+    box-shadow: 0 2px 6px rgba(20, 71, 151, .08);
+}
+
+.human .bubble {
+    background: #ddd;
+    color: black;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
+}
+
+.ai .bubble,
+.tool .bubble {
+    background: #ddd;
+    color: black;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
+}
+
+form {
+    display: flex;
+    gap: 8px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px lightgray solid;
+    outline: 0px #eee solid;
+}
+
+button {
+    padding: 10px 10px;
+    border-radius: 18px;
+    border: 1px lightgray solid;
+    background-color: lightgray;
+}
+
+button img {
+    height: 25px;
+}
+
+#mic-button {
+    background-color: #e0f7fa;
+    border-color: #00acc1;
+}
+
+#mic-button.recording {
+    background-color: #ff4444;
+    border-color: #cc0000;
+    animation: micPulse 1s infinite;
+}
+
+@keyframes micPulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.tool-calls {
+    background: #eef4fc;
+    padding: 8px;
+    font-size: 0.95em;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+.bubble table {
+    background: #ccc;
+    padding: 8px;
+    font-size: 0.95em;
+    border-radius: 4px;
+    margin-top: 8px;
+    min-width: 15em;
+}
+
+.bubble td {
+    padding: 0.3em;
+    max-width: 150px;
+    background: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bubble tr:hover td {
+    white-space: wrap;
+    overflow: auto;
+}
+
+.bubble th {}
+
+.citation {
+    font-size: 0.9em;
+    color: #187;
+    margin-top: 3px;
+}
+
+/* Spinner styles */
+#spinner-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    min-height: 38px;
+}
+
+#spinner {
+    margin-top: -8px;
+    margin-bottom: 8px;
+    width: 35px;
+    height: 37px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.pulse-dot {
+    margin-left: 16px;
+    width: 18px;
+    height: 18px;
+    background: #111;
+    border-radius: 50%;
+    animation: pulseAnim 1s cubic-bezier(.4, 0, .6, 1) infinite;
+}
+
+@keyframes pulseAnim {
+    0% {
+        transform: scale(1);
+        opacity: .8;
+    }
+
+    50% {
+        transform: scale(1.7);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: .8;
+    }
+}
+
+/* Hamburger Menu */
+.hamburger {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    width: 30px;
+    height: 30px;
+    padding: 4px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    z-index: 100;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border: 5px solid #f44;
+    border-radius: 18px;
+}
+.hamburger:focus {
+    outline: 1px solid #f44;
+}
+nav {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: calc(100vh - 70px);
+    width: 220px;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    transition: left .3s;
+    border-top: solid 70px black;
+}
+nav.open {
+    left: 0;
+}
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+nav .section-title {
+    font-weight: bold;
+    margin: 16px 0 4px 18px;
+    font-size: 1rem;
+    color: #005aad;
+}
+nav li {
+    padding: 12px 20px;
+    cursor: pointer;
+}
+nav li:focus,
+nav li:hover {
+    background: #efefef;
+    outline: none;
+}
+#reset {
+    position: fixed;
+    top: 10px;
+    right: 10px;    
+}
+#reset:hover {
+    background: #fff;
+}

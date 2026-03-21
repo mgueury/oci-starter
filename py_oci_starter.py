@@ -224,6 +224,8 @@ def ui_rules():
         params['language'] = 'php'
     elif params.get('ui_type') == 'ruby':
         params['language'] = 'ruby'
+    elif params.get('python_framework') == 'langgraph':
+        params['ui_type'] = 'langgraph'
 
 
 def compartment_rules():

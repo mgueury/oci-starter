@@ -13,7 +13,7 @@ import oci_openai
 
 COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
 REGION = os.getenv("TF_VAR_region")
-MCP_SERVER_URL = os.getenv("MCP_SERVER_URL")
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL") or "http://localhost:2025/"
 
 # auth = oci_openai.OciInstancePrincipalAuth()
 # llm = ChatOpenAI(
@@ -76,13 +76,6 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
             tools = await client.get_tools()
             print( "-- tools ------------------------------------------------------------")
             pprint.pprint( tools )
-            # Filter tools.
-            tools_filtered = []
-            for tool in tools:
-                if tools_list==None or tool.name in tools_list:
-                    tools_filtered.append( tool )
-            print( "-- tools_filtered ---------------------------------------------------")
-            pprint.pprint( tools_filtered )
             break
         except Exception as e:
             print(f"Connection failed {attempt}: {e}")            
@@ -95,7 +88,7 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
 
     agent = create_react_agent(
         model=llm,
-        tools=tools_filtered,
+        tools=tools,
         prompt=prompt,
         name=agent_name
     ) 
