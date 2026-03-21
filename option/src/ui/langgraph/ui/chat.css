@@ -214,7 +214,6 @@ button img {
         #fff;
     border: 1px solid #bbb;
     border-radius: 6px;
-    border: none;
     cursor: pointer;
 }
 .hamburger:focus {
