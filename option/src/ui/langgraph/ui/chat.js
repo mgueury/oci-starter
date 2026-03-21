@@ -1,5 +1,11 @@
+// -- Import  --------------------------------------------------------------- 
+
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+mermaid.initialize({ startOnLoad: false });
+
+// -- Variables ----------------------------------------------------------------- 
+
 let BASE_URL = '/app';
-// State
 let currentAgent = 'agent';
 let currentUser = 'customer';
 const users = ['employee', 'customer'];
@@ -15,11 +21,27 @@ const micButton = document.getElementById('mic-button');
 // See https://docs.oracle.com/en-us/iaas/Content/APIGateway/Tasks/apigatewayusingjwttokens.htm#Using_JSON_Web_Tokens_JWTs_to_Add_Authentication_and_Authorization_to_API_Deployments__section_csrf_protection
 let csrfToken = "";
 
+ // -- Code -----------------------------------------------------------------
+
 // Utility: safely parse JSON
 function safeParse(json) {
     try { return JSON.parse(json); }
     catch (e) { return {}; }
 }
+
+async function renderContent(input) 
+{
+    const MERMAID_FENCE_RE = /```(?:\s*)mermaid\s*\n([\s\S]*?)\n```/i;
+    if (MERMAID_FENCE_RE.test(input)) {
+        const m = input.match(/```mermaid\s*([\s\S]*?)\s*```/i);
+        const m2 = m[1].trim();
+        const value = await mermaid.render("diagram",m2);
+        return value.svg;
+    } else {
+       return renderMarkdown(input);
+    }
+}
+
 function renderMarkdown(md) {
     return marked.parse(md || "");
 }
@@ -61,7 +83,7 @@ function renderJsTable(data) {
     return html;
 }
 
-function renderMessage(msgObj) {
+async function renderMessage(msgObj) {
     const el = document.createElement('div');
     el.classList.add('message');
     el.classList.add(msgObj.type || 'ai');
@@ -71,7 +93,7 @@ function renderMessage(msgObj) {
         innerHTML = `<div class="bubble"><div class="meta">You</div>${renderMarkdown(msgObj.content)}</div>`;
     } else if (msgObj.type === 'ai') {
         if (msgObj.content) {
-            innerHTML = `<div class="bubble"><div class="meta">AI</div>${renderMarkdown(msgObj.content)}`;
+            innerHTML = `<div class="bubble"><div class="meta">AI</div>${await renderContent(msgObj.content)}`;
             if (msgObj.tool_calls && msgObj.tool_calls.length > 0) {
                 let tools = msgObj.tool_calls.map(t =>
                     `<div><b>${t.name}</b> &rarr; <code>${JSON.stringify(t.args)}</code></div>`
@@ -183,11 +205,11 @@ async function getThreadId() {
     }
 }
 
-function addMessage(msgObj) {
+async function addMessage(msgObj) {
     renderMessage(msgObj);
 }
 
-chatForm.addEventListener('submit', function (e) {
+chatForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     const msg = chatInput.value.trim();
     if (!msg) return;
