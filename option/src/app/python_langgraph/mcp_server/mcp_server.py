@@ -9,12 +9,16 @@ mcp = FastMCP("MCP Server")  # Initialize an MCP server instance with a descript
 def log( s ): 
     print( s, flush=True )
 
-@mcp.tool()  # Register a function as a callable tool for the model
-def add(a: int, b: int) -> int:
-    """Add two numbers and return the result."""
-    log( "<add>")
-    return a + b  # Simple arithmetic logic
+@mcp.tool()
+def send_email(to: str, subject: str, body: str) -> dict[str, str]:
+    """Email sender tool"""
+    log("<send_email>")
+    log(f"<send_email>: to={to}, subject={subject}")
 
+    return {
+        "status": "sent",
+        "message": f"Email sent to {to} with subject '{subject}'",
+    }
 
 @mcp.tool()
 def get_dept() -> list[dict[str, Any]]:
