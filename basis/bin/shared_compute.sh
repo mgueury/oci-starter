@@ -1,3 +1,5 @@
+. ./tf_env.sh
+
 # -- Shared Compute Functions ------------------------------------------------
 
 title() {
