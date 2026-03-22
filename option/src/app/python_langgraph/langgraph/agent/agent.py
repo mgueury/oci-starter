@@ -100,7 +100,8 @@ prompt = """You are an agent that use the tools you got access to.
             INSTRUCTIONS:
             - Assist ONLY with research-related tasks, DO NOT do any math.
             - Respond ONLY with the results of your work, do NOT include ANY other text.
-            - Do not pass empty parameters to tools  
+            - Never pass empty parameters name to MCP tools like ""
+            - To draw a diagram, use mermaid   
             """
 
 agent = asyncio.run(init("agent", prompt, None))
