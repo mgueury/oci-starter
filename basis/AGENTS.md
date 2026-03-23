@@ -1,6 +1,6 @@
 # Rules documentation index
 
-Rules are split into two documents:
+As requested, rules are split into two documents:
 
 - **Generic implementation details (syntax/conventions):** `docs/RULES_GENERIC.md`
 - **Program-specific rules (APIs, tables, behavior):** `docs/RULES_PROGRAM.md`
