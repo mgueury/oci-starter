@@ -55,6 +55,10 @@ data "oci_core_subnet" "starter_db_subnet" {
 {%- else %}
 */
 {%- endif %}
+variable "public_ip_filter" {
+  description = "IP Range that can access the public network"
+  default = "0.0.0.0/0"  
+}
 
 # New VCN and Subnets
 locals {
@@ -139,7 +143,7 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = "0.0.0.0/0"
+    source    = var.public_ip_filter
     stateless = false
 
     tcp_options {
@@ -150,7 +154,7 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = "0.0.0.0/0"
+    source    = var.public_ip_filter
     stateless = false
 
     tcp_options {
@@ -159,10 +163,9 @@ resource "oci_core_security_list" "starter_security_list" {
     }
   }
 
-  // XXXXXX 0.0.0.0/0 ??
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = "0.0.0.0/0"
+    source    = var.public_ip_filter
     stateless = false
 
     tcp_options {

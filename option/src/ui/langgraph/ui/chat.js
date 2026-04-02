@@ -1,6 +1,6 @@
 // -- Import  --------------------------------------------------------------- 
 
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
 mermaid.initialize({ startOnLoad: false });
 
 // -- Variables ----------------------------------------------------------------- 
@@ -22,6 +22,17 @@ const micButton = document.getElementById('mic-button');
 let csrfToken = "";
 
  // -- Code -----------------------------------------------------------------
+
+function autoGrowTextarea() {
+    if (!chatInput) return;
+    chatInput.style.height = 'auto';
+    chatInput.style.height = `${chatInput.scrollHeight}px`;
+}
+
+if (chatInput) {
+    chatInput.addEventListener('input', autoGrowTextarea);
+    autoGrowTextarea();
+}
 
 // Utility: safely parse JSON
 function safeParse(json) {
@@ -216,6 +227,7 @@ chatForm.addEventListener('submit', async function (e) {
 
     addMessage({ type: "human", content: msg });
     chatInput.value = '';
+    autoGrowTextarea();
 
     const reqBody = {
         "assistant_id": "agent",
@@ -381,6 +393,7 @@ function initRecognition() {
             .map(result => result[0].transcript)
             .join('');
         chatInput.value = transcript;
+        autoGrowTextarea();
         chatInput.focus();
     };
 

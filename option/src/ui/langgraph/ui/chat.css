@@ -80,7 +80,7 @@ form {
     gap: 8px;
 }
 
-input[type="text"] {
+textarea {
     flex: 1;
     padding: 18px;
     border-radius: 18px;
