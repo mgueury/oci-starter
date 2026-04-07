@@ -1,4 +1,8 @@
-. $SCRIPT_DIR/../../starter.sh env -no-auto
+if [ -f $SCRIPT_DIR/../starter.sh ]; then
+   . $SCRIPT_DIR/../starter.sh env -no-auto
+elif [ -f $SCRIPT_DIR/../../starter.sh ]; then
+   . $SCRIPT_DIR/../../starter.sh env -no-auto
+fi
 
 # Build_common.sh
 #!/usr/bin/env bash
