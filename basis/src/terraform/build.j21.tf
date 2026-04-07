@@ -46,9 +46,8 @@ resource "null_resource" "tf_env" {
     echo "curl -s -H 'Authorization: Bearer Oracle' -L http://169.254.169.254/opc/v2/instance/ > /tmp/instance.json" >> $ENV_FILE   
     echo "export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`" >> $ENV_FILE   
     echo "# Database" >> $ENV_FILE   
-    echo "export DB_USER=$TF_VAR_db_user" >> $ENV_FILE   
-    echo "export DB_PASSWORD=$TF_VAR_db_password" >> $ENV_FILE   
-    echo "export DB_URL=$TF_VAR_db_url" >> $ENV_FILE   
+    echo "export DB_USER=\$TF_VAR_db_user" >> $ENV_FILE   
+    echo "export DB_PASSWORD=\$TF_VAR_db_password" >> $ENV_FILE   
     # echo_export "OCI_STARTER_CREATION_DATE" "{{ create_datetime }}"
     # echo_export "OCI_STARTER_VERSION" "4.2"
     # echo_export "OCI_STARTER_PARAMS" "{{ params["params"] }}"
