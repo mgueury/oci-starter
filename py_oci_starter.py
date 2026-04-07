@@ -847,7 +847,7 @@ def create_output_dir():
         print("has_build_rest="+str(has_build_rest))
         if not has_build_rest:
             output_rm_tree("src/app/rest")
-            output_remove("src/app/build_rest.sh")
+            output_remove("src/app/build_rest*.sh")
 
     # -- User Interface -----------------------------------------------------
     if params.get('ui_type') == "none":
