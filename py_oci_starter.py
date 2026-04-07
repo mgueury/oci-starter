@@ -935,7 +935,7 @@ def create_output_dir():
     # -- Database ----------------------------------------------------------------
     if params.get('db_type') != "none":
         cp_terraform("output.tf")
-        output_mkdir("src/db")
+        output_mkdir("src/app/db")
 
         cp_dir_src_db(db_family)
         if params.get('db_type') == "autonomous":
@@ -953,12 +953,12 @@ def create_output_dir():
 
         if params.get('db_type') == "db_free":
             cp_terraform("db_free.j2.tf")
-            output_copy_tree("option/src/db/db_free", "src/db")
+            output_copy_tree("option/src/db/db_free", "src/app/db")
 
         if params.get('db_type') == "mysql":
             if params.get('deploy_type') == "public_compute":
                cp_terraform("mysql_public_compute.tf")
-               output_copy_tree("option/src/db/mysql_public_compute", "src/db")
+               output_copy_tree("option/src/db/mysql_public_compute", "src/app/db")
             else:
                 cp_terraform_existing("mysql_ocid", "mysql.j2.tf")
 
@@ -971,15 +971,6 @@ def create_output_dir():
         if params.get('db_type') == "nosql":
             cp_terraform_existing("nosql_ocid", "nosql.j2.tf")
 
-    if os.path.exists(output_dir + "/src/app/db"):
-        allfiles = os.listdir(output_dir + "/src/app/db")
-        # iterate on all files to move them to destination folder
-        for f in allfiles:
-            src_path = os.path.join("src/app/db", f)
-            dst_path = os.path.join("src/db", f)
-            output_move(src_path, dst_path)
-        os.rmdir(output_dir + "/src/app/db")
-
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
         output_remove('src/app/*/k8s*')
@@ -989,6 +980,7 @@ def create_output_dir():
         output_remove('src/app/rest/env.j2.sh')
     else:         
         output_remove('src/app/*/Dockerfile')
+        
     # Remove empty directories in src/app
     app_src_dir= output_dir + "src/app"
     # Walk the directory tree bottom-up

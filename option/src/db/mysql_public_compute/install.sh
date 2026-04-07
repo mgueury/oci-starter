@@ -2,6 +2,8 @@
 # 
 # Install MySQL on OL8
 # Doc: https://docs.oracle.com/cd/E17952_01/mysql-8.0-en/linux-installation-yum-repo.html
+. $HOME/compute/shared_compute.sh
+
 wget https://repo.mysql.com//mysql80-community-release-el8-9.noarch.rpm
 yum -y install mysql80-community-release-el8-9.noarch.rpm
 yum repolist enabled | grep "mysql.*-community.*"
@@ -19,4 +21,8 @@ EOF
 # firewall-cmd --zone=public --add-port=3306/tcp --permanent
 # firewall-cmd --reload
 
+# Install mysql-shell
+sudo dnf install -y mysql-shell
 
+# Install the tables
+mysqlsh $DB_USER@$DB_URL --password=$DB_PASSWORD --sql < mysql.sql

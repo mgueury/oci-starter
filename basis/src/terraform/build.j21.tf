@@ -72,19 +72,6 @@ resource "null_resource" "build_deploy" {
         # cat target/terraform.tfstate
         # export
         # Run config command on the DB directly (ex RAC)
-{%- if db_subtype == "rac" %}
-        src/db/deploy_rac.sh
-        exit_on_error "Deploy RAC"
-{%- elif db_type == "db_free" %} 
-        src/db/deploy_db_free.sh
-        exit_on_error "Deploy DB Free"
-{%- elif db_type == "mysql" and deploy_type == "public_compute" %} 
-        src/db/deploy_mysql_public_compute.sh
-        exit_on_error "Deploy MySQL Public Compute"
-{%- elif db_type == "database" and language == "apex" %} 
-        src/db/db_node_init/deploy_apex_database.sh
-        exit_on_error "Deploy APEX Database"
-{%- endif %}
 
         # Build the DB tables (via Bastion)
         if [ -d src/app/db ]; then
