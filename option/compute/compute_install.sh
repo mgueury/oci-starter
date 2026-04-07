@@ -6,11 +6,6 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
-if [[ -z "$TF_VAR_language" ]]; then
-  echo "Missing env variables"
-  exit
-fi
-
 export ARCH=`rpm --eval '%{_arch}'`
 echo "ARCH=$ARCH"
 
