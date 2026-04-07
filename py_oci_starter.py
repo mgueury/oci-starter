@@ -1344,7 +1344,7 @@ if params['app_mode'] == 'app':
         dst_path = os.path.join(STARTER_DIR, f)
         output_move(src_path, dst_path)   
     # copy_tree(utput_dir + "/starter/src/app", output_dir)         
-    shutil.copytree( output_dir+"/"+STARTER_DIR + "/src/app", output_dir + "/src" )
+    shutil.copytree( output_dir+"/"+STARTER_DIR + "/src/app", output_dir + "/src", dirs_exist_ok=True )
     output_copy( output_dir+"/"+STARTER_DIR+"/terraform.tfvars", "." )
     output_move( STARTER_DIR+"/README.md", "." )
     output_copy( "option/mode/app/starter.sh", "." )
