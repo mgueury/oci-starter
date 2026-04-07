@@ -1,4 +1,4 @@
-. ./tf_env.sh
+. $HOME/compute/tf_env.sh
 
 # -- Shared Compute Functions ------------------------------------------------
 
