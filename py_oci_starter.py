@@ -987,6 +987,7 @@ def create_output_dir():
         output_remove('src/app/rest/start.j2.sh')
         output_remove('src/app/rest/install.sh')
         output_remove('src/app/rest/env.j2.sh')
+        output_remove('src/app/nginx_app.locations')
     else:         
         output_remove('src/app/*/Dockerfile')
 
@@ -1009,10 +1010,10 @@ def create_group_common_dir():
 
     # -- APP ----------------------------------------------------------------
     output_copy_tree("option/src/app/group_common", "src/app")
-    os.remove(output_dir + "/src/app/k8s_app.j2.yaml")
 
     # -- User Interface -----------------------------------------------------
     output_rm_tree("src/app/ui")
+    output_rm_tree("src/app/rest")
 
     # -- Common -------------------------------------------------------------
     if "atp" in a_group_common:
