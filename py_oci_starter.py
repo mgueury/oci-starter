@@ -822,6 +822,7 @@ def create_output_dir():
             os.path.basename(script) == "build_rest.sh"
             for script in glob.glob(os.path.join("option/src/app/"+app, "build_*.sh"))
         )
+        print("has_build_rest="+has_build_rest)
         if not has_build_rest:
             output_rm_tree("src/app/rest")
             output_remove("src/app/build_rest.sh")
@@ -980,7 +981,7 @@ def create_output_dir():
         output_remove('src/app/rest/env.j2.sh')
     else:         
         output_remove('src/app/*/Dockerfile')
-        
+
     # Remove empty directories in src/app
     app_src_dir= output_dir + "src/app"
     # Walk the directory tree bottom-up
