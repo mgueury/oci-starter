@@ -18,13 +18,16 @@ function scp_bastion() {
     if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
         cp -R src/app/db $TARGET_DIR/compute/app/.
         scp_or_rsync $TARGET_DIR/compute/app
+        cp $TARGET_DIR/tf_env.sh target/compute/compute/.
+        scp_or_rsync $TARGET_DIR/compute/compute
     else
         mkdir -p $TARGET_DIR/bastion/app
         cp -R src/app/db $TARGET_DIR/bastion/app/.
+        cp -R $BIN_DIR/compute $TARGET_DIR/bastion/.
+        cp $TARGET_DIR/tf_env.sh target/bastion/compute/.
         scp_or_rsync $TARGET_DIR/bastion/app
+        scp_or_rsync $TARGET_DIR/bastion/compute
     fi
-    cp $TARGET_DIR/tf_env.sh target/compute/compute/.
-    scp_or_rsync $TARGET_DIR/compute/compute
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
