@@ -72,6 +72,10 @@ resource "null_resource" "build_deploy" {
         # cat target/terraform.tfstate
         # export
         # Run config command on the DB directly (ex RAC)
+{%- if db_subtype == "rac" %}
+        src/app/db/deploy_rac.sh
+        exit_on_error "Deploy RAC"
+{%- endif %}
 
         # Build the DB tables (via Bastion)
         if [ -d src/app/db ]; then

@@ -30,5 +30,5 @@ while [ true ]; do
  i=$(($i+1))
 done
 
-ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$COMPUTE_IP "bash compute/compute_install.sh 2>&1 | tee -a compute/compute_install.log"
+ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/compute_install.sh 2>&1 | tee -a compute/compute_install.log"
 exit_on_error "Deploy Bastion -"

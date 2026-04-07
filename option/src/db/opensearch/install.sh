@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
+. $HOME/compute/shared_compute.sh
 
 export OPENSEARCH_HOST=${DB_URL}
 echo OPENSEARCH_HOST=$OPENSEARCH_HOST
