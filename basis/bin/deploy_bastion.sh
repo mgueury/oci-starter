@@ -17,7 +17,7 @@ function scp_or_rsync() {
 function scp_bastion() {
     if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
         cp -R src/app/db $TARGET_DIR/compute/app/.
-        scp_or_rsync src/app
+        scp_or_rsync $TARGET_DIR/compute/app
     else
         mkdir -p $TARGET_DIR/bastion/app
         cp -R src/app/db $TARGET_DIR/bastion/app/.
