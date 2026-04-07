@@ -814,13 +814,17 @@ def create_output_dir():
             output_copy_tree("option/src/app/"+app, "src/app")
 
         if params.get('deploy_type') != "function" and params['language'] == "python":
-            # Python Framework
-            if params['python_framework'] == "langgraph":
-                # LangGraph does not use build_app.sh
-                output_rm_tree("src/app")
-                output_mkdir("src/app")
             app = "python_" + params['python_framework']
             output_copy_tree("option/src/app/"+app, "src/app")
+
+        # Check if any script exists that is NOT build_rest.sh
+        has_build_rest = any(
+            os.path.basename(script) == "build_rest.sh"
+            for script in glob.glob(os.path.join("option/src/app/"+app, "build_*.sh"))
+        )
+        if not has_build_rest:
+            output_rm_tree("src/app/rest")
+            output_remove("src/app/build_rest.sh")
 
         # Overwrite the generic version (ex for mysql)
         family_dir = app+"_"+db_family

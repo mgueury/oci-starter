@@ -87,7 +87,7 @@ resource "null_resource" "build_deploy" {
 {%- endif %}
 
         # Build the DB tables (via Bastion)
-        if [ -d src/db ]; then
+        if [ -d src/app/db ]; then
             title "Deploy Bastion"
             $BIN_DIR/deploy_bastion.sh
             exit_on_error "Deploy Bastion"   
