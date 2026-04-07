@@ -47,7 +47,7 @@ body {
 }
 
 .bubble {
-    max-width: 75%;
+    max-width: 90%;
     padding: 14px 20px;
     border-radius: 18px;
     background: #eee;
@@ -86,6 +86,7 @@ textarea {
     border-radius: 18px;
     border: 1px lightgray solid;
     outline: 0px #eee solid;
+    font-family: Arial, sans-serif;
 }
 
 button {
@@ -124,30 +125,61 @@ button img {
     margin-top: 8px;
 }
 
+/* Tools table - hidden by default, shown as popup on hover */
+.bubble .tools-table {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 400px;
+    max-width: 600px;
+    margin-top: 8px;
+    padding: 12px;
+    font-size: 0.9em;
+}
+
+.bubble:hover .tools-table {
+    display: block;
+}
+
 .bubble table {
-    background: #ccc;
+    background: #f8f9fa;
     padding: 8px;
     font-size: 0.95em;
     border-radius: 4px;
     margin-top: 8px;
     min-width: 15em;
+    border-collapse: collapse;
 }
 
 .bubble td {
-    padding: 0.3em;
-    max-width: 150px;
+    padding: 0.4em 0.6em;
+    max-width: 140px;
     background: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    border: 1px solid #eee;
+}
+
+.bubble th {
+    padding: 0.5em 0.6em;
+    background: #f0f0f0;
+    font-weight: 600;
+    text-align: left;
+    border: 1px solid #ddd;
 }
 
 .bubble tr:hover td {
-    white-space: wrap;
-    overflow: auto;
+    white-space: normal;
+    overflow: visible;
+    background: #f0f8ff;
 }
-
-.bubble th {}
 
 .citation {
     font-size: 0.9em;

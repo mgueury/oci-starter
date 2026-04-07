@@ -6,6 +6,10 @@ mermaid.initialize({ startOnLoad: false });
 // -- Variables ----------------------------------------------------------------- 
 
 let BASE_URL = '/app';
+let currentBackend = 'LangGraph';
+const backends = [
+    { name: 'LangGraph', baseUrl: '/app' }
+];
 let currentAgent = 'agent';
 let currentUser = 'customer';
 const users = ['employee', 'customer'];
@@ -21,18 +25,26 @@ const micButton = document.getElementById('mic-button');
 // See https://docs.oracle.com/en-us/iaas/Content/APIGateway/Tasks/apigatewayusingjwttokens.htm#Using_JSON_Web_Tokens_JWTs_to_Add_Authentication_and_Authorization_to_API_Deployments__section_csrf_protection
 let csrfToken = "";
 
- // -- Code -----------------------------------------------------------------
+// -- Code -----------------------------------------------------------------
 
+
+// -- ChatInput ---
+// UX: Enter submits, Shift+Enter inserts newline.
+chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.requestSubmit();
+    }
+});
 function autoGrowTextarea() {
     if (!chatInput) return;
     chatInput.style.height = 'auto';
-    chatInput.style.height = `${chatInput.scrollHeight}px`;
+    chatInput.style.height = `${chatInput.scrollHeight-36}px`;
 }
+chatInput.addEventListener('input', autoGrowTextarea);
 
-if (chatInput) {
-    chatInput.addEventListener('input', autoGrowTextarea);
-    autoGrowTextarea();
-}
+
+// -- Rendering ---
 
 // Utility: safely parse JSON
 function safeParse(json) {
@@ -102,25 +114,19 @@ async function renderMessage(msgObj) {
     // Human message
     if (msgObj.type === 'human') {
         innerHTML = `<div class="bubble"><div class="meta">You</div>${renderMarkdown(msgObj.content)}</div>`;
-    } else if (msgObj.type === 'ai') {
-        if (msgObj.content) {
-            innerHTML = `<div class="bubble"><div class="meta">AI</div>${await renderContent(msgObj.content)}`;
-            if (msgObj.tool_calls && msgObj.tool_calls.length > 0) {
+        } else if (msgObj.type === 'ai') {
+            if (msgObj.content) {
+                innerHTML = `<div class="bubble"><div class="meta">AI</div>${await renderContent(msgObj.content)}</div>`;
+            } else if (msgObj.tool_calls && msgObj.tool_calls.length > 0) {
+                const toolNames = msgObj.tool_calls.map(t => t.name).join(' - ');
+                let bubble = `<div class="bubble"><div class="meta">Tool Calls - ${toolNames}</div>`;
                 let tools = msgObj.tool_calls.map(t =>
-                    `<div><b>${t.name}</b> &rarr; <code>${JSON.stringify(t.args)}</code></div>`
+                    `<tr><td>${t.name}</td><td>${JSON.stringify(t.args)}</td></tr>`
                 ).join('');
-                innerHTML += `<div class="tool-calls">${tools}</div>`;
+                bubble += `<table class='tools-table'><thead><tr><th>Name</th><th>Arguments</th></tr></thead><tbody>${tools}</tbody></table>`;
+                innerHTML = bubble;
             }
-            innerHTML += `</div>`;
-        } else if (msgObj.tool_calls && msgObj.tool_calls.length > 0) {
-            let bubble = `<div class="bubble"><div class="meta">Tool Calls</div>`;
-            let tools = msgObj.tool_calls.map(t =>
-                `<tr><td>${t.name}</td><td>${JSON.stringify(t.args)}</td></tr>`
-            ).join('');
-            bubble += `<table class='tools-table'><thead><tr><th>Name</th><th>Arguments</th><tr></thead><tbody>${tools}</tbody></table>`;
-            innerHTML = bubble;
-        }
-    } else if (msgObj.type === 'tool') {
+        } else if (msgObj.type === 'tool') {
         let data = msgObj.artifact?.structured_content ?? {};
         let bubble = "<div class='bubble'><div class='meta'>Tool - " + msgObj.name + "</div>";
         if (data?.response) {
@@ -227,7 +233,6 @@ chatForm.addEventListener('submit', async function (e) {
 
     addMessage({ type: "human", content: msg });
     chatInput.value = '';
-    autoGrowTextarea();
 
     const reqBody = {
         "assistant_id": "agent",
@@ -277,6 +282,19 @@ document.addEventListener('keydown', function (e) {
 });
 
 // Users section
+function renderBackendList() {
+    const backendList = document.getElementById('backendList');
+    backendList.innerHTML = '';
+    backends.forEach(backend => {
+        const li = document.createElement('li');
+        li.textContent = backend.name;
+        li.tabIndex = 0;
+        li.setAttribute('aria-current', backend.name === currentBackend ? 'true' : 'false');
+        li.addEventListener('click', () => setCurrentBackend(backend.name));
+        backendList.appendChild(li);
+    });
+}
+
 function renderUserList() {
     const userList = document.getElementById('userList');
     userList.innerHTML = '';
@@ -334,8 +352,34 @@ function renderAgentList(agents) {
 
 // Updating display
 function updateDisplay() {
-    document.getElementById('currentDisplay').textContent = `Agent: ${currentAgent} - User: ${currentUser}`;
+    document.getElementById('currentDisplay').textContent = `Backend: ${currentBackend} - Agent: ${currentAgent} - User: ${currentUser}`;
 }
+
+async function setCurrentBackend(backendName) {
+    currentBackend = backendName;
+    const backend = backends.find(b => b.name === backendName);
+    if (backend) {
+        BASE_URL = backend.baseUrl;
+    }
+
+    messagesEl.innerHTML = '';
+    thread_id = await getThreadId();
+    last_message_id = 0;
+    if (!thread_id) {
+        messagesEl.innerHTML = '<div class="message ai">Error: could not get thread_id from backend.</div>';
+        chatInput.disabled = true;
+    } else {
+        chatInput.disabled = false;
+    }
+
+    updateDisplay();
+    nav.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    fetchAgents().then(renderAgentList);
+    renderUserList();
+    renderBackendList();
+}
+
 function setCurrentAgent(agentName) {
     currentAgent = agentName;
     updateDisplay();
@@ -393,7 +437,6 @@ function initRecognition() {
             .map(result => result[0].transcript)
             .join('');
         chatInput.value = transcript;
-        autoGrowTextarea();
         chatInput.focus();
     };
 
@@ -432,9 +475,11 @@ micButton.addEventListener('click', (e) => {
         chatInput.disabled = true;
     }
     initRecognition();
+    renderBackendList();
     renderUserList();
     fetchAgents()
         .then(renderAgentList)
         .catch(error => alert("Could not load agents: " + error));
+    updateDisplay();
 })();
 
