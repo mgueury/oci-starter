@@ -854,7 +854,7 @@ def create_output_dir():
             cp_terraform_apigw("apigw_compute_append.tf")
     else:
         ui_lower = params.get('ui_type').lower()
-        output_copy_tree("option/src/ui/"+ui_lower, "src/app/ui")
+        output_copy_tree("option/src/ui/"+ui_lower, "src/app")
 
     # -- Deployment ---------------------------------------------------------
     if params.get('deploy_type') == "hpc":
