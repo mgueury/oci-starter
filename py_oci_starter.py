@@ -840,12 +840,18 @@ def create_output_dir():
                 params['java_docker'] = 'eclipse-temurin:25'
 
         # Check if any script exists that is NOT build_rest.sh
+        build_scripts = glob.glob(os.path.join("option/src/app/"+app, "build_*.sh"))
         has_build_rest = any(
             os.path.basename(script) == "build_rest.sh"
-            for script in glob.glob(os.path.join("option/src/app/"+app, "build_*.sh"))
+            for script in build_scripts
+        ) 
+        has_other_build = any(
+            os.path.basename(script) != "build_rest.sh"
+            for script in build_scripts
         )
         print("has_build_rest="+str(has_build_rest))
-        if not has_build_rest:
+        print("has_other_build="+str(has_other_build))
+        if has_other_build and not has_build_rest:
             output_rm_tree("src/app/rest")
             output_remove("src/app/build_rest*.sh")
 
