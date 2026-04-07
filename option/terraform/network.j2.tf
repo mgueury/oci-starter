@@ -143,7 +143,7 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = [ var.public_ip_filter,  local.cidr_vcn ]
+    source    = var.public_ip_filter
     stateless = false
 
     tcp_options {
@@ -154,7 +154,19 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = [ var.public_ip_filter,  local.cidr_vcn ]
+    source    = local.cidr_vcn
+    stateless = false
+
+    tcp_options {
+      min = 443
+      max = 443
+    }
+  }
+
+
+  ingress_security_rules {
+    protocol  = "6" // tcp
+    source    = var.public_ip_filter
     stateless = false
 
     tcp_options {
@@ -165,7 +177,18 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = [ var.public_ip_filter,  local.cidr_vcn ]
+    source    = local.cidr_vcn
+    stateless = false
+
+    tcp_options {
+      min = 80
+      max = 80
+    }
+  }
+
+  ingress_security_rules {
+    protocol  = "6" // tcp
+    source    = var.public_ip_filter
     stateless = false
 
     tcp_options {
@@ -173,6 +196,17 @@ resource "oci_core_security_list" "starter_security_list" {
       max = 8080
     }
   }  
+
+  ingress_security_rules {
+    protocol  = "6" // tcp
+    source    = local.cidr_vcn
+    stateless = false
+
+    tcp_options {
+      min = 8080
+      max = 8080
+    }
+  }
 
   // Oracle TNS Listener port
   ingress_security_rules {
