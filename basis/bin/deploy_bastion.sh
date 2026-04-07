@@ -6,14 +6,25 @@ fi
 cd $PROJECT_DIR
 . starter.sh env -silent
 
+function scp_or_rsync() {
+    if command -v rsync &> /dev/null; then
+        rsync -av -e "ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path" $1 opc@$BASTION_IP:.
+    else
+        scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path $1 opc@$BASTION_IP:/home/opc/.
+    fi
+}
+
 function scp_bastion() {
-  if command -v rsync &> /dev/null; then
-    # Using RSYNC allow to reapply the same command several times easily. 
-    rsync -av -e "ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path" src/app opc@$BASTION_IP:.
-  else
-    scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path src/app opc@$BASTION_IP:/home/opc/.
+    if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
+        cp -R src/app/db $TARGET_DIR/compute/app/.
+        scp_or_rsync src/app
+    else
+        mkdir -p $TARGET_DIR/bastion/app
+        cp -R src/app/db $TARGET_DIR/bastion/app/.
+        scp_or_rsync $TARGET_DIR/bastion/app
+    fi
   fi
-  scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path $TARGET_DIR/compute/compute opc@$BASTION_IP:/home/opc/.
+  scp_or_rsync $TARGET_DIR/compute/compute
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
