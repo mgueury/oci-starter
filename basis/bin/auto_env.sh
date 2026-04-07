@@ -327,10 +327,10 @@ if [ -f $STATE_FILE ]; then
     else
       export TF_VAR_docker_image_ui="busybox"      
     fi
-    if [ -f $TARGET_DIR/docker_image_app.txt ]; then
-      export TF_VAR_docker_image_app=`cat $TARGET_DIR/docker_image_app.txt`
+    if [ -f $TARGET_DIR/docker_image_rest.txt ]; then
+      export TF_VAR_docker_image_rest=`cat $TARGET_DIR/docker_image_rest.txt`
     else
-      export TF_VAR_docker_image_app="busybox"      
+      export TF_VAR_docker_image_rest="busybox"      
     fi
   fi
 
