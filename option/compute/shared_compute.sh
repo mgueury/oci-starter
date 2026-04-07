@@ -228,8 +228,8 @@ server {
     }
     listen [::]:443 ssl ipv6only=on; 
     listen 443 ssl; 
-    ssl_certificate /home/opc/compute/certificate/server.crt; 
-    ssl_certificate_key /home/opc/compute/certificate/server.key; 
+    ssl_certificate /home/opc/app/ui/certificate/server.crt; 
+    ssl_certificate_key /home/opc/app/ui/certificate/server.key; 
 
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
@@ -252,18 +252,18 @@ install_ngnix() {
 
     # Default: location /app/ { proxy_pass http://localhost:8080 }
     if [ -f nginx_app.locations ]; then
-    sudo cp nginx_app.locations /etc/nginx/conf.d/.
-    if grep -q nginx_app /etc/nginx/nginx.conf; then
-        echo "Include nginx_app.locations is already there"
-    else
-        echo "Adding nginx_app.locations"
-        sudo awk -i inplace '/404.html/ && !x {print "        include conf.d/nginx_app.locations;"; x=1} 1' /etc/nginx/nginx.conf
-    fi
+        sudo cp nginx_app.locations /etc/nginx/conf.d/.
+        if grep -q nginx_app /etc/nginx/nginx.conf; then
+            echo "Include nginx_app.locations is already there"
+        else
+            echo "Adding nginx_app.locations"
+            sudo awk -i inplace '/404.html/ && !x {print "        include conf.d/nginx_app.locations;"; x=1} 1' /etc/nginx/nginx.conf
+        fi
     fi
 
     # TLS
     if [ ! -f nginx_tls.conf ]; then
-    create_self_signed_ip_certificate  
+        create_self_signed_ip_certificate  
     fi
 
     echo "Adding nginx_tls.conf"
@@ -277,10 +277,9 @@ install_ngnix() {
     sudo systemctl enable nginx
     sudo systemctl restart nginx
 
-    cd $HOME
-    if [ -d ui ]; then
-    # Copy the index file after the installation of nginx
-    sudo cp -r ui/* /usr/share/nginx/html/
+    if [ -d html ]; then
+        # Copy the index file after the installation of nginx
+        sudo cp -r html/* /usr/share/nginx/html/
     fi
 
     # Firewalld
@@ -291,6 +290,5 @@ install_ngnix() {
 
     # -- Util -------------------------------------------------------------------
     sudo dnf install -y psmisc
-
 }
 export -f install_ngnix 
