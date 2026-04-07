@@ -697,7 +697,7 @@ def output_rm_tree(src):
 
 def cp_dir_src_db(db_family):
     print("cp_dir_src_db "+db_family)
-    output_copy_tree("option/src/db/"+db_family, "src/db")
+    output_copy_tree("option/src/db/"+db_family, "src/app/db")
 
 def output_replace_db_node_count():
     if params.get('db_subtype')=="rac":
@@ -708,9 +708,9 @@ def output_replace_db_node_count():
        output_replace('##cpu_core_count##', "4", "src/terraform/dbsystem.j2.tf")
        output_copy_tree("option/src/db/rac", "src/db")
        if params['language'] == "java" and params['java_framework'] == "springboot":
-           output_copy_tree("option/src/app/java_springboot_rac", "src/app")
+           output_copy_tree("option/src/app/java_springboot_rac", "src/app/rest")
        if params['ui_type'] == "html":
-           output_copy_tree("option/src/ui/html_rac", "src/ui" )
+           output_copy_tree("option/src/app/ui/html_rac", "src/app/ui" )
     else:
        # Normal Database
        output_replace('##db_node_count##', "1", "src/terraform/dbsystem.j2.tf")
@@ -773,7 +773,7 @@ def create_output_dir():
 
     # -- APP ----------------------------------------------------------------
     if params['language'] == "none":
-        output_rm_tree("src/app")
+        output_rm_tree("src/app/rest")
     else:
         if params.get('deploy_type') == "function":
             app = "fn/fn_"+params['language']
@@ -838,24 +838,23 @@ def create_output_dir():
         if params['language'] == "java":
             # FROM container-registry.oracle.com/graalvm/jdk:21
             # FROM eclipse-temurin:25
-            if os.path.exists(output_dir + "/src/app/Dockerfile"):
-                if params['java_vm'] == "graalvm":
-                    output_replace('##DOCKER_IMAGE##', 'container-registry.oracle.com/graalvm/jdk:25', "src/app/Dockerfile")
-                else:
-                    output_replace('##DOCKER_IMAGE##', 'eclipse-temurin:25', "src/app/Dockerfile")
+            if params['java_vm'] == "graalvm":
+                params['java_docker'] = 'container-registry.oracle.com/graalvm/jdk:25'
+            else:
+                params['java_docker'] = 'eclipse-temurin:25'
 
     # -- User Interface -----------------------------------------------------
     if params.get('ui_type') == "none":
         print("No UI")
-        output_rm_tree("src/ui")
+        output_rm_tree("src/app/ui")
     elif params.get('ui_type') == "api":
         print("API Only")
-        output_rm_tree("src/ui")
+        output_rm_tree("src/app/ui")
         if params.get('deploy_type') in [ 'public_compute', 'private_compute', 'instance_pool' ]:
             cp_terraform_apigw("apigw_compute_append.tf")
     else:
         ui_lower = params.get('ui_type').lower()
-        output_copy_tree("option/src/ui/"+ui_lower, "src/ui")
+        output_copy_tree("option/src/app/ui/"+ui_lower, "src/app/ui")
 
     # -- Deployment ---------------------------------------------------------
     if params.get('deploy_type') == "hpc":
@@ -980,19 +979,24 @@ def create_output_dir():
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
-        output_remove('src/app/k8s_*')
-        output_remove('src/ui/ui*.yaml')
+        output_remove('src/app/*/k8s*')
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
-        output_remove('src/app/src/start.j2.sh')
-        output_remove('src/app/src/install.sh')
-        output_remove('src/app/src/env.j2.sh')
+        output_remove('src/app/rest/start.j2.sh')
+        output_remove('src/app/rest/install.sh')
+        output_remove('src/app/rest/env.j2.sh')
     else:         
-        output_remove('src/app/Dockerfile*')
-    # Remove starter/src/app/src is empty
-    app_src_dir= output_dir + "src/app/src"
-    if os.path.exists(app_src_dir):
-        if len(os.listdir(app_src_dir)) == 0:
-            os.remove(app_src_dir)
+        output_remove('src/app/*/Dockerfile')
+    # Remove empty directories in src/app
+    app_src_dir= output_dir + "src/app"
+    # Walk the directory tree bottom-up
+    for current_dir, subdirs, files in os.walk(app_src_dir, topdown=False):
+        # Check if directory is empty (no files and no subdirs left)
+        if not subdirs and not files:
+            try:
+                os.rmdir(current_dir)
+                print(f"Removed empty directory: {current_dir}")
+            except OSError as e:
+                print(f"Error removing {current_dir}: {e}")    
 
 #----------------------------------------------------------------------------
 # Create group_common Directory
@@ -1004,7 +1008,7 @@ def create_group_common_dir():
     os.remove(output_dir + "/src/app/k8s_app.j2.yaml")
 
     # -- User Interface -----------------------------------------------------
-    output_rm_tree("src/ui")
+    output_rm_tree("src/app/ui")
 
     # -- Common -------------------------------------------------------------
     if "atp" in a_group_common:
@@ -1340,7 +1344,7 @@ if params['app_mode'] == 'app':
         dst_path = os.path.join(STARTER_DIR, f)
         output_move(src_path, dst_path)   
     # copy_tree(utput_dir + "/starter/src/app", output_dir)         
-    shutil.copytree( output_dir+"/"+STARTER_DIR + "/src/app/src", output_dir + "/src" )
+    shutil.copytree( output_dir+"/"+STARTER_DIR + "/src/app", output_dir + "/src" )
     output_copy( output_dir+"/"+STARTER_DIR+"/terraform.tfvars", "." )
     output_move( STARTER_DIR+"/README.md", "." )
     output_copy( "option/mode/app/starter.sh", "." )

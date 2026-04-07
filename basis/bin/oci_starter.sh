@@ -79,7 +79,7 @@ elif [ "$ARG1" == "build" ]; then
         exit_on_error "Build App $APP_NAME"
     done
   elif [ "$ARG2" == "ui" ]; then
-    $PROJECT_DIR/src/ui/build_ui.sh ${@:2}
+    $PROJECT_DIR/src/app/build_ui.sh ${@:2}
   else
     export LOG_NAME=$TARGET_DIR/logs/build.${DATE_POSTFIX}.log
     # Show the log and save it to target/build.log and target/logs

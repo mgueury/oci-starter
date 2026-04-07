@@ -31,12 +31,14 @@ java_build_common() {
 }
 
 build_ui() {
-  cd $SCRIPT_DIR
+  cd $SCRIPT_DIR/ui
   if is_deploy_compute; then
-    mkdir -p ../../target/compute/ui
-    cp -r ui/* ../../target/compute/ui/.
+    mkdir -p $TARGET_DIR/compute/app/ui/html
+    cp -r html/* $TARGET_DIR/compute/app/ui/html/.
+    cp nginx* $TARGET_DIR/compute/app/ui/.
+    cp install.sh $TARGET_DIR/compute/app/ui/.
   elif [ "$TF_VAR_deploy_type" == "function" ]; then 
-    oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir ui --overwrite --content-type auto
+    oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
   else
     # Kubernetes and Container Instances
     docker image rm ${TF_VAR_prefix}-ui:latest

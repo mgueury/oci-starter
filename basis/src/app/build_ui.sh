@@ -10,14 +10,4 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $SCRIPT_DIR/../../bin/build_common.sh
 
-cd ui/src
-npm install
-npm run build
-cd ..
-
-mkdir -p html
-rm -Rf html/*
-cp -r src/build/* html/.
-
-# Common
 build_ui

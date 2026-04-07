@@ -10,6 +10,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $SCRIPT_DIR/../../bin/build_common.sh
 
+cd ui
 if [ -d starter ]; then
   cd starter
   node_modules/grunt-cli/bin/grunt vb-clean
@@ -23,9 +24,9 @@ node_modules/grunt-cli/bin/grunt vb-process-local
 exit_on_error
 cd ..
 
-mkdir -p ui
-rm -Rf ui/*
-cp -r starter/build/processed/webApps/starter/* ui/.
+mkdir -p html
+rm -Rf html/*
+cp -r starter/build/processed/webApps/starter/* html/.
 
 # Common Function
 build_ui

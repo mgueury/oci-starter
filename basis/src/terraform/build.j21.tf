@@ -45,6 +45,10 @@ resource "null_resource" "tf_env" {
     echo "# Region" >> $ENV_FILE   
     echo "curl -s -H 'Authorization: Bearer Oracle' -L http://169.254.169.254/opc/v2/instance/ > /tmp/instance.json" >> $ENV_FILE   
     echo "export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`" >> $ENV_FILE   
+    echo "# Database" >> $ENV_FILE   
+    echo "export DB_USER=$TF_VAR_db_user" >> $ENV_FILE   
+    echo "export DB_PASSWORD=$TF_VAR_db_password" >> $ENV_FILE   
+    echo "export DB_URL=$TF_VAR_db_url" >> $ENV_FILE   
     # echo_export "OCI_STARTER_CREATION_DATE" "{{ create_datetime }}"
     # echo_export "OCI_STARTER_VERSION" "4.2"
     # echo_export "OCI_STARTER_PARAMS" "{{ params["params"] }}"
@@ -101,12 +105,6 @@ resource "null_resource" "build_deploy" {
             src/app/build_$APP_NAME.sh
             exit_on_error "Build App $APP_NAME"
         done
-
-        if [ -f src/ui/build_ui.sh ]; then
-            title "Build UI"
-            src/ui/build_ui.sh 
-            exit_on_error "Build UI"
-        fi
 
         # Deploy
         title "Deploy $TF_VAR_deploy_type"

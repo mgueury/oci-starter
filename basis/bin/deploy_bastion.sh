@@ -9,11 +9,11 @@ cd $PROJECT_DIR
 function scp_bastion() {
   if command -v rsync &> /dev/null; then
     # Using RSYNC allow to reapply the same command several times easily. 
-    rsync -av -e "ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path" src/db opc@$BASTION_IP:.
+    rsync -av -e "ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path" src/app opc@$BASTION_IP:.
   else
-    scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path src/db opc@$BASTION_IP:/home/opc/.
+    scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path src/app opc@$BASTION_IP:/home/opc/.
   fi
-  scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path bin/shared_compute.sh $TARGET_DIR/tf_env.sh opc@$BASTION_IP:/home/opc/db/.
+  scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path $TARGET_DIR/compute/compute opc@$BASTION_IP:/home/opc/.
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
@@ -30,5 +30,5 @@ while [ true ]; do
  i=$(($i+1))
 done
 
-ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "export DB_USER=\"$TF_VAR_db_user\";export DB_PASSWORD=\"$TF_VAR_db_password\";export DB_URL=\"$DB_URL\"; bash db/db_init.sh 2>&1 | tee -a db/db_init.log"
+ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$COMPUTE_IP "bash compute/compute_install.sh 2>&1 | tee -a compute/compute_install.log"
 exit_on_error "Deploy Bastion -"

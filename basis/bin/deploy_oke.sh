@@ -116,17 +116,13 @@ copy_replace_apply_target_oke() {
   kubectl apply -f $TARGET_OKE/${filename}
 }
 
-# APP
+# APPS
 for APP_NAME in `app_name_list`; do
-  APP_YAML="k8s_${APP_NAME}.yaml"
-  if [ -f src/app/$APP_YAML ]; then
-    copy_replace_apply_target_oke src/app/${APP_YAML}
+  if [ -f src/app/${APP_NAME}/k8s.yaml ]; then
+    copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
+  fi
+  if [ -f src/app/${APP_NAME}/k8s-ingress.yaml ]; then
+    copy_replace_apply_target_oke src/app/${APP_NAME}/k8s-ingress.yaml
   fi
 done
 
-# UI
-copy_replace_apply_target_oke src/ui/ui.yaml
-
-# Ingress
-copy_replace_apply_target_oke src/oke/ingress-app.yaml
-copy_replace_apply_target_oke src/oke/ingress-ui.yaml
