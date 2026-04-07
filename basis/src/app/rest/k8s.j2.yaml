@@ -3,20 +3,20 @@ kind: Deployment
 metadata:
   name: {{ prefix }}-dep
   labels:
-      app: {{ prefix }}-app
+      app: {{ prefix }}-rest
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ prefix }}-app
+      app: {{ prefix }}-rest
   template:
     metadata:
       labels:
-        app: {{ prefix }}-app
+        app: {{ prefix }}-rest
     spec:
       containers:
       - name: app
-        image: ##DOCKER_PREFIX##/{{ prefix }}-app:latest
+        image: ##DOCKER_PREFIX##/{{ prefix }}-rest:latest
         ports:
         - containerPort: 8080
           name: app-port
@@ -73,10 +73,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ prefix }}-app-service
+  name: {{ prefix }}-rest-service
 spec:
   selector:
-    app: {{ prefix }}-app
+    app: {{ prefix }}-rest
   ports:
   - name: http-service-port
     protocol: TCP
