@@ -143,7 +143,7 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = "${var.public_ip_filter},${cidr_vcn}"
+    source    = "${var.public_ip_filter},${local.cidr_vcn}"
     stateless = false
 
     tcp_options {
@@ -154,7 +154,7 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = "${var.public_ip_filter},${cidr_vcn}"
+    source    = "${var.public_ip_filter},${local.cidr_vcn}"
     stateless = false
 
     tcp_options {
@@ -165,7 +165,7 @@ resource "oci_core_security_list" "starter_security_list" {
 
   ingress_security_rules {
     protocol  = "6" // tcp
-    source    = "${var.public_ip_filter},${cidr_vcn}"
+    source    = "${var.public_ip_filter},${local.cidr_vcn}"
     stateless = false
 
     tcp_options {
