@@ -23,6 +23,7 @@ function scp_bastion() {
         cp -R src/app/db $TARGET_DIR/bastion/app/.
         scp_or_rsync $TARGET_DIR/bastion/app
     fi
+    cp $TARGET_DIR/tf_env.sh target/compute/compute/.
     scp_or_rsync $TARGET_DIR/compute/compute
 }
 

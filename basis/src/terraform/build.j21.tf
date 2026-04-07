@@ -99,7 +99,9 @@ resource "null_resource" "build_deploy" {
 
         # Deploy
         title "Deploy $TF_VAR_deploy_type"
-        if [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then
+        if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
+            echo "Skipping. Done via Deploy Bastion."
+        elif [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then
             $BIN_DIR/deploy_compute.sh
             exit_on_error "Deploy $TF_VAR_deploy_type"
         elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
