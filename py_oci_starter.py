@@ -686,8 +686,8 @@ def output_mkdir(src):
        os.mkdir(file_path)
 
 def output_remove(src_pattern):
-    print(f"<output_remove>src_pattern={src_pattern}")
     pattern = os.path.join(output_dir, src_pattern)
+    print(f"<output_remove>pattern={pattern}")
     for file_path in glob.glob(pattern):
         if os.path.isfile(file_path):
             os.remove(file_path)
