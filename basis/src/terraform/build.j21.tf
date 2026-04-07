@@ -77,13 +77,6 @@ resource "null_resource" "build_deploy" {
         exit_on_error "Deploy RAC"
 {%- endif %}
 
-        # Build the DB tables (via Bastion)
-        if [ -d src/app/db ]; then
-            title "Deploy Bastion"
-            $BIN_DIR/deploy_bastion.sh
-            exit_on_error "Deploy Bastion"   
-        fi  
-
         # Init target/compute
         if is_deploy_compute; then
             mkdir -p target/compute
@@ -97,9 +90,16 @@ resource "null_resource" "build_deploy" {
             exit_on_error "Build App $APP_NAME"
         done
 
+        # Build the DB tables (via Bastion)
+        if [ -d src/app/db ] || [ "$TF_VAR_deploy_type" == "public_compute" ]; then
+            title "Deploy Bastion"
+            $BIN_DIR/deploy_bastion.sh
+            exit_on_error "Deploy Bastion"   
+        fi  
+
         # Deploy
         title "Deploy $TF_VAR_deploy_type"
-        if is_deploy_compute; then
+        if [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then
             $BIN_DIR/deploy_compute.sh
             exit_on_error "Deploy $TF_VAR_deploy_type"
         elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
