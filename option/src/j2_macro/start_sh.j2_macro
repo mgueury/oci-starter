@@ -2,21 +2,21 @@
 . $HOME/compute/tf_env.sh
 
 {% if language == "java" -%}
+# Java VM
 export TF_VAR_java_vm="##TF_VAR_java_vm##"
 {%- endif %}
-
 {% if db_family == "none" -%}
 # No database
 {% else -%}
-# Database
 {% if db_family == "nosql" %}
+# Nosql
 export regionDomain=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`
 export TF_VAR_nosql_endpoint="nosql.${TF_VAR_region}.oci.${regionDomain}"
 {%- elif language == "java" -%}
 {%- if java_framework == "helidon" or java_framework == "helidon4" %}
+# Helidon
 export JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL=$JDBC_URL
 {%- endif %}
 {%- endif %}
 {%- endif %}
-
 {% endmacro %}
