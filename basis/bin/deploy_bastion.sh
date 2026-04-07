@@ -23,22 +23,21 @@ function scp_bastion() {
         cp -R src/app/db $TARGET_DIR/bastion/app/.
         scp_or_rsync $TARGET_DIR/bastion/app
     fi
-  fi
-  scp_or_rsync $TARGET_DIR/compute/compute
+    scp_or_rsync $TARGET_DIR/compute/compute
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
 i=0
 while [ true ]; do
- scp_bastion
- if [ $? -eq 0 ]; then
-   break;
- elif [ "$i" == "5" ]; then
-  echo "deploy_bastion.sh: Maximum number of scp retries, ending."
-  error_exit
- fi
- sleep 5
- i=$(($i+1))
+    scp_bastion
+    if [ $? -eq 0 ]; then
+        break;
+    elif [ "$i" == "5" ]; then
+        echo "deploy_bastion.sh: Maximum number of scp retries, ending."
+        error_exit
+    fi
+    sleep 5
+    i=$(($i+1))
 done
 
 ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/compute_install.sh 2>&1 | tee -a compute/compute_install.log"
