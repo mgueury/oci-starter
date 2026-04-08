@@ -2,6 +2,8 @@ if [ -f $HOME/compute/tf_env.sh ]; then
     . $HOME/compute/tf_env.sh
     export TF_VAR_namespace=$OCIR_NAMESPACE
     export IS_BASTION="true"
+    export TARGET_DIR="$HOME/target"
+    mkdir -p $TARGET_DIR
     if [ "$0" != "" ]; then
         APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
         if [ "$APP_NAME" != "" ]; then
