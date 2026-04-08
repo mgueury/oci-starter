@@ -7,8 +7,8 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../bin/build_common.sh
+{% import "build.j2_macro" as m with context %}
+m.build_common
 
 cd rest
 java_build_common
@@ -18,7 +18,6 @@ cp application.properties.tmpl src/main/resources/application.properties
 replace_db_user_password_in_file src/main/resources/application.properties
 
 if is_deploy_compute; then
-
   if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then
     # Native Build about 14 mins. Output is ./demo
     mvn -Pnative native:compile

@@ -7,8 +7,8 @@
 # - and a start.sh to start the program
 # Docker:
 # - build the image
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../bin/build_common.sh
+{% import "build.j2_macro" as m with context %}
+m.build_common
 
 if is_deploy_compute; then
   build_rsync $APP_SRC_DIR

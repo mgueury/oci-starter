@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../bin/build_common.sh
+{% import "build.j2_macro" as m with context %}
+m.build_common
 
 # FN uses more variable like OCIR_HOST that are not available with ./env.sh -no-auto
 . $SCRIPT_DIR/../../starter.sh env 
