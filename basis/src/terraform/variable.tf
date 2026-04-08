@@ -105,6 +105,11 @@ variable log_group_ocid  {
   description="LogGroup OCID"  
 }
 
+variable no_policy  { 
+  default=null 
+  description="No OCI Policy"  
+}
+
 # Certificate
 variable "certificate_ocid" {
   default=null 
