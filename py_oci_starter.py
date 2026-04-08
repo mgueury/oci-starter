@@ -844,11 +844,11 @@ def create_output_dir():
         # Check if any script exists that is NOT build_rest.sh
         build_scripts = glob.glob(os.path.join("option/src/app/"+app, "build_*.sh"))
         has_build_rest = any(
-            os.path.basename(script) == "build_rest.sh"
+            os.path.basename(script) in ["build_rest.sh","build_rest.j2.sh"]
             for script in build_scripts
         ) 
         has_other_build = any(
-            os.path.basename(script) != "build_rest.sh"
+            os.path.basename(script) not in ["build_rest.sh","build_rest.j2.sh"]
             for script in build_scripts
         )
         print("has_build_rest="+str(has_build_rest))
