@@ -1,4 +1,6 @@
-. $HOME/compute/tf_env.sh
+if [ -f $HOME/compute/tf_env.sh ]; then
+    . $HOME/compute/tf_env.sh
+fi
 
 # -- Shared Compute Functions ------------------------------------------------
 
