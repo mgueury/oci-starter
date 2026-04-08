@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: ##DOCKER_PREFIX##/{{ prefix }}-rest:latest
+        image: ##DOCKER_PREFIX##/{{ prefix }}-rest:##DOCKER_IMG_VERSION##
         ports:
         - containerPort: 8080
           name: app-port

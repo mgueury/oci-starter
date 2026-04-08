@@ -14,8 +14,9 @@ fi
 {%- endmacro -%}
 
 {% macro build_docker() -%}
+    export DOCKER_IMG_VERSION=$(date +%Y-%m-%d-%H-%M-%S)
     docker image rm ${TF_VAR_prefix}-${APP_NAME}:latest
-    docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest .
+    docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest -t ${TF_VAR_prefix}-${APP_NAME}:${DOCKER_IMG_VERSION} .
     exit_on_error "docker build"
     {{ deploy_oke() }}
 {%- endmacro -%}

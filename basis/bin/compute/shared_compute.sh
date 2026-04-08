@@ -448,12 +448,14 @@ export -f get_docker_prefix
 
 # Apply k8s file after replacing the variables 
 copy_replace_apply_target_oke() {
-  filepath="$1"  
-  filename="${filepath##*/}"
-  echo "-- kubectl apply -- $filename --"
-  cp $filepath $TARGET_DIR/oke/${filename}
-  file_replace_variables $TARGET_DIR/oke/${filename}
-  kubectl apply -f $TARGET_DIR/oke/${filename}
+  FILEPATH="$1"  
+  APP="$2"
+  FILENAME="${FILEPATH##*/}"
+  echo "-- kubectl apply -- $FILENAME --"
+  mkdir -p $TARGET_DIR/oke
+  cp $FILEPATH $TARGET_DIR/oke/${APP}-${FILENAME}
+  file_replace_variables $TARGET_DIR/oke/${APP}-${FILENAME}
+  kubectl apply -f $TARGET_DIR/oke/${APP}-${FILENAME}
 }
 export -f copy_replace_apply_target_oke 
 
@@ -501,10 +503,10 @@ oke_deploy_app() {
     ocir_docker_push_app $APP
     title "Deploy to OKE - $APP"  
     if [ -f k8s.yaml ]; then
-        copy_replace_apply_target_oke k8s.yaml
+        copy_replace_apply_target_oke k8s.yaml $APP
     fi
     if [ -f $k8s-ingress.yaml ]; then
-        copy_replace_apply_target_oke k8s-ingress.yaml
+        copy_replace_apply_target_oke k8s-ingress.yaml $APP
     fi
 }
 export -f oke_deploy_app
@@ -534,10 +536,11 @@ build_ui() {
         oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
     else
         # Kubernetes and Container Instances
-        docker image rm ${TF_VAR_prefix}-ui:latest
-        docker build -t ${TF_VAR_prefix}-ui:latest .
+        export DOCKER_IMG_VERSION=$(date +%Y-%m-%d-%H-%M-%S)
+        docker image rm ${TF_VAR_prefix}-ui:latest 
+        docker build -t ${TF_VAR_prefix}-ui:latest -t ${TF_VAR_prefix}-ui:DOCKER_IMG_VERSION .
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-            oke_deploy_app ${APP_NAME}
+            oke_deploy_app ui
         fi
     fi 
 }
