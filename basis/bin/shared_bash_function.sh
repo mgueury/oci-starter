@@ -19,6 +19,7 @@ app_name_list() {
 
 build_function() {
     # Build the function
+    get_docker_prefix
     fn create context ${TF_VAR_region} --provider oracle
     fn use context ${TF_VAR_region}
     fn update context oracle.compartment-id ${TF_VAR_compartment_ocid}
@@ -58,32 +59,6 @@ build_function() {
 create_kubeconfig() {
     oci ce cluster create-kubeconfig --cluster-id $OKE_OCID --file $KUBECONFIG --region $TF_VAR_region --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT
     chmod 600 $KUBECONFIG
-}
-
-ocir_docker_push () {
-    # Docker Login
-    docker_login
-    echo DOCKER_PREFIX=$DOCKER_PREFIX
-
-    # Push image in registry
-    for APP_NAME in `app_name_list`; do
-        if [ -n "$(docker images -q ${TF_VAR_prefix}-${APP_NAME} 2> /dev/null)" ]; then
-        docker tag ${TF_VAR_prefix}-${APP_NAME} ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP_NAME}:latest
-        oci artifacts container repository create --compartment-id $TF_VAR_compartment_ocid --display-name ${DOCKER_PREFIX_NO_OCIR}/${TF_VAR_prefix}-${APP_NAME} 2>/dev/null
-        docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP_NAME}:latest
-        exit_on_error "docker push APP"
-        echo "${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP_NAME}:latest" > $TARGET_DIR/docker_image_${APP_NAME}.txt
-        fi
-    done
-
-    # Push image in registry
-    if [ -d $PROJECT_DIR/src/ui ]; then
-        docker tag ${TF_VAR_prefix}-ui ${DOCKER_PREFIX}/${TF_VAR_prefix}-ui:latest
-        oci artifacts container repository create --compartment-id $TF_VAR_compartment_ocid --display-name ${DOCKER_PREFIX_NO_OCIR}/${TF_VAR_prefix}-ui 2>/dev/null
-        docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-ui:latest
-        exit_on_error "docker push UI"
-        echo "${DOCKER_PREFIX}/${TF_VAR_prefix}-ui:latest" > $TARGET_DIR/docker_image_ui.txt
-    fi
 }
 
 auto_echo () {

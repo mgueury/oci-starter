@@ -8,6 +8,10 @@ mkdir -p $TARGET_OKE
 
 cd $HOME/app
 
+if [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then 
+    docker_login
+fi
+
 for APP_DIR in `app_dir_list`; do
     if [ -f $APP_DIR/install.sh ]; then
         APP_NAME=$(basename "${APP_DIR}")
@@ -22,6 +26,7 @@ for APP_DIR in `app_dir_list`; do
             fi
         elif [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then 
             title "$APP_NAME: Deploy in OKE"
+            ocir_docker_push_app $APP_NAME
             if [ -f k8s.yaml ]; then
                 copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
             fi

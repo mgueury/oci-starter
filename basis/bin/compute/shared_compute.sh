@@ -133,7 +133,7 @@ install_java() {
 }
 export -f install_java
 
-# Install tnsnames.ora
+# -- install_tnsname  -------------------------------------------------------
 install_tnsname() {
     # Run SQLCl
     # Install the tables
@@ -145,7 +145,7 @@ EOT
 }
 export -f install_tnsname
 
-# Download
+# -- download  --------------------------------------------------------------
 function download()
 {
    echo "Downloading - $1"
@@ -153,7 +153,44 @@ function download()
 }
 export -f download
 
-# Install SQLCL 
+# -- file_replace_variables -------------------------------------------------
+# Function to replace ##VARIABLE_NAME## in a file
+# Replace ##OPTIONAL/VARIABLE_NAME## by variables if it exists or __NOT_USED__
+
+file_replace_variables() {
+  local file="$1"
+  local temp_file=$(mktemp)
+
+  echo "Replace variables in file: $1"
+  while IFS= read -r line || [ -n "$line" ]; do  
+    while [[ $line =~ (.*)##(.*)##(.*) ]]; do
+      local var_name="${BASH_REMATCH[2]}"
+      echo "- variable: ${var_name}"
+
+      if [[ ${var_name} =~ OPTIONAL/(.*) ]]; then
+         var_name2="${BASH_REMATCH[1]}"
+         var_value="${!var_name2}"
+         if [ "$var_value" == "" ]; then
+            var_value="__NOT_USED__"
+         fi
+      else
+        var_value="${!var_name}"       
+        if [ "$var_value" == "" ]; then
+            echo "ERROR: Environment variable '${var_name}' is not defined."
+            error_exit
+        fi
+      fi
+      line=${line/"##${var_name}##"/${var_value}}
+    done
+
+    echo "$line" >> "$temp_file"
+  done < "$file"
+
+  mv "$temp_file" "$file"
+}
+export -f file_replace_variables 
+
+# -- install_sqlcl  ---------------------------------------------------------
 install_sqlcl() {
     install_java
     install_tnsname
@@ -167,7 +204,7 @@ install_sqlcl() {
 }  
 export -f install_sqlcl
 
-# Install Python
+# -- install_python  --------------------------------------------------------
 install_python() {
     sudo dnf install -y python3.12 python3.12-pip python3-devel wget
     sudo update-alternatives --set python /usr/bin/python3.12
@@ -183,7 +220,7 @@ install_python() {
 }
 export -f install_python
 
-# Install LibreOffice
+# -- install_libreoffice  ---------------------------------------------------
 install_libreoffice() {
     export STABLE_VERSIONS=`curl -s https://download.documentfoundation.org/libreoffice/stable/`
     export LIBREOFFICE_VERSION=`echo $STABLE_VERSIONS | sed 's/.*<td valign="top">//' | sed 's/\/<\/a>.*//' | sed 's/.*\/">//'`
@@ -204,7 +241,7 @@ install_libreoffice() {
 } 
 export -f install_libreoffice   
 
-# Install Chrome
+# -- install_chrome  --------------------------------------------------------
 install_chrome() {
     cd /tmp
     export CHROME_RPM="google-chrome-stable_current_x86_64.rpm"
@@ -216,6 +253,8 @@ install_chrome() {
     cd -
 } 
 export -f install_chrome   
+
+# -- install_instant_client  ------------------------------------------------
 
 # Install InstantClient (including SqlPlus)
 install_instant_client() {
@@ -309,7 +348,6 @@ EOF
 }
 export -f create_self_signed_ip_certificate 
 
-
 # -- Install NGINX  ------------------------------------------------------------------
 install_ngnix() {
     title "NGINX"
@@ -383,45 +421,19 @@ install_docker_tools() {
     chmod +x kubectl
     echo "source <(kubectl completion bash)" >> ~/.bashrc
 }
+export -f install_docker_tools
 
-# -- file_replace_variables -------------------------------------------------
-# Function to replace ##VARIABLE_NAME## in a file
-# Replace ##OPTIONAL/VARIABLE_NAME## by variables if it exists or __NOT_USED__
-
-file_replace_variables() {
-  local file="$1"
-  local temp_file=$(mktemp)
-
-  echo "Replace variables in file: $1"
-  while IFS= read -r line || [ -n "$line" ]; do  
-    while [[ $line =~ (.*)##(.*)##(.*) ]]; do
-      local var_name="${BASH_REMATCH[2]}"
-      echo "- variable: ${var_name}"
-
-      if [[ ${var_name} =~ OPTIONAL/(.*) ]]; then
-         var_name2="${BASH_REMATCH[1]}"
-         var_value="${!var_name2}"
-         if [ "$var_value" == "" ]; then
-            var_value="__NOT_USED__"
-         fi
-      else
-        var_value="${!var_name}"       
-        if [ "$var_value" == "" ]; then
-            echo "ERROR: Environment variable '${var_name}' is not defined."
-            error_exit
-        fi
-      fi
-      line=${line/"##${var_name}##"/${var_value}}
-    done
-
-    echo "$line" >> "$temp_file"
-  done < "$file"
-
-  mv "$temp_file" "$file"
+# -- get_docker_prefix ------------------------------------------------------
+get_docker_prefix() {
+    export DOCKER_PREFIX_NO_OCIR=${CONTAINER_PREFIX}
+    export DOCKER_PREFIX=${OCIR_HOST}/${TF_VAR_namespace}/${DOCKER_PREFIX_NO_OCIR}
+    auto_echo DOCKER_PREFIX=$DOCKER_PREFIX
 }
-export -f file_replace_variables 
+export -f get_docker_prefix 
 
-# -- Apply k8s file after replacing the variables ---------------------------
+# -- copy_replace_apply_target_oke ------------------------------------------
+
+# Apply k8s file after replacing the variables 
 copy_replace_apply_target_oke() {
   filepath="$1"  
   filename="${filepath##*/}"
@@ -431,6 +443,40 @@ copy_replace_apply_target_oke() {
   kubectl apply -f $TARGET_OKE/${filename}
 }
 export -f copy_replace_apply_target_oke 
+
+# -- docker_login -----------------------------------------------------------
+docker_login() {
+    get_docker_prefix
+    oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
+    exit_on_error "Docker Login"
+}
+
+# -- ocir_docker_push_app -------------------------------------------------------
+ocir_docker_push_app() {
+    # Docker Login
+    APP=$1
+    docker tag ${TF_VAR_prefix}-${APP} ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest
+    oci artifacts container repository create --compartment-id $TF_VAR_compartment_ocid --display-name ${DOCKER_PREFIX_NO_OCIR}/${TF_VAR_prefix}-${APP} 2>/dev/null
+    docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest
+    exit_on_error "docker push ${APP}"
+    echo "${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest" > $TARGET_DIR/docker_image_${APP}.txt
+}
+export -f ocir_docker_push_app
+
+# -- ocir_docker_push -------------------------------------------------------
+ocir_docker_push () {
+    # Docker Login
+    docker_login
+    echo DOCKER_PREFIX=$DOCKER_PREFIX
+
+    # Push image in registry
+    for APP_NAME in `app_name_list`; do
+        if [ -n "$(docker images -q ${TF_VAR_prefix}-${APP_NAME} 2> /dev/null)" ]; then
+            ocir_docker_push_app ${APP_NAME}
+        fi
+    done
+}
+export -f ocir_docker_push
 
 # -- is_deploy_compute ------------------------------------------------------
 is_deploy_compute() {
@@ -510,10 +556,4 @@ build_rsync() {
     if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh ]; then 
         file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
     fi 
-}
-
-# -- docker_login -----------------------------------------------------------
-docker_login() {
-    oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
-    exit_on_error "Docker Login"
 }
