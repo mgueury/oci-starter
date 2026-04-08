@@ -27,11 +27,18 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
 
     # Build_host = bastion
     if [ "$TF_VAR_build_host" == "bastion" ]; then 
+        # Kubernetes
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then 
             install_docker_tools
             echo "export KUBECONFIG=$HOME/compute/kubeconfig_starter" >> $HOME/.bashrc
         fi 
+        # Java 
+        if [ "$TF_VAR_language" == "java" ]; then
+            install_java
+        fi
     fi
+
+
 fi
 
 # -- App --------------------------------------------------------------------
