@@ -307,6 +307,8 @@ export -f install_ngnix
 install_docker_tools() {
     # docker 
     sudo yum install -y docker
+    sudo touch /etc/containers/nodocker
+
     # oci cli
     sudo dnf install -y git python36-oci-cli
     oci setup repair-file-permissions --file $HOME/.oci/config
@@ -374,7 +376,16 @@ copy_replace_apply_target_oke() {
 }
 export -f copy_replace_apply_target_oke 
 
-# -- build_ui ------------------------------------------------------------------
+# -- is_deploy_compute ------------------------------------------------------
+is_deploy_compute() {
+    if [ "$TF_VAR_deploy_type" == "public_compute" ] || [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# -- build_ui ---------------------------------------------------------------
 build_ui() {
     cd $SCRIPT_DIR/ui
     if is_deploy_compute; then

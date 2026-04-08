@@ -357,14 +357,6 @@ get_ui_url() {
     fi
 }
 
-is_deploy_compute() {
-    if [ "$TF_VAR_deploy_type" == "public_compute" ] || [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 detect_livelabs() {
   if grep -q 'compartment_ocid="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
     # vnc_ocid still undefined ? 
