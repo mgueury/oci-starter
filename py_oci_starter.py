@@ -1254,10 +1254,11 @@ print(title(script_name()))
 script_dir = os.getcwd()
 
 params = get_params()
-print(f'params: {params}')
+print(f'params1: {params}')
 mode = get_mode()
 unknown_params = missing_parameters(allowed_options(), prog_arg_dict().keys())
 illegal_params = check_values()
+print(f'params2: {params}')
 dash_params={f'-{k}': v for k, v in params.items()}
 if 'group_name' in params:
   missing_params = missing_parameters(dash_params.keys(), mandatory_options(GROUP))
@@ -1269,7 +1270,7 @@ if len(unknown_params) > 0 or len(illegal_params) > 0 or len(missing_params) > 0
 
 warnings = []
 errors = []
-print(f'params: {params}')
+print(f'params3: {params}')
 
 if mode == CLI:
     if os.path.isdir(output_dir):
