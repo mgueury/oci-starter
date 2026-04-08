@@ -11,6 +11,12 @@ title() {
 }
 export -f title
 
+# The apps are installed in alphabetical order
+app_dir_list() {
+  ls -d app app/* 2>/dev/null | sort -g
+}
+export -f app_dir_list
+
 install_java() {
   # Install the JVM (jdk or graalvm)
   if [ "$TF_VAR_java_vm" != "jdk" ]; then

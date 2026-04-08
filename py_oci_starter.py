@@ -409,6 +409,7 @@ def missing_parameters(supplied_params, expected_params):
 
 def get_params():
     params = deprefix_keys({**default_options, **prog_arg_dict()})
+    print( params )
     for key, value in rename_params.items():
         if params.get(key):
             params[value] = params[key]
