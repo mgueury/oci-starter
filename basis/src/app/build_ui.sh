@@ -8,6 +8,10 @@
 # Docker:
 # - build the image
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../bin/build_common.sh
+if [ -f $SCRIPT_DIR/../../bin/build_common.sh ]; then
+    . $SCRIPT_DIR/../../bin/build_common.sh
+elif [ -f $HOME/compute/shared_compute.sh ]; then
+    . $HOME/compute/shared_compute.sh
+fi        
 
 build_ui

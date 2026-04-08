@@ -1,5 +1,6 @@
 if [ -f $HOME/compute/tf_env.sh ]; then
     . $HOME/compute/tf_env.sh
+    export IS_BASTION="true"
 fi
 
 # -- Shared Compute Functions ------------------------------------------------
@@ -372,3 +373,24 @@ copy_replace_apply_target_oke() {
   kubectl apply -f $TARGET_OKE/${filename}
 }
 export -f copy_replace_apply_target_oke 
+
+# -- build_ui ------------------------------------------------------------------
+build_ui() {
+    cd $SCRIPT_DIR/ui
+    if is_deploy_compute; then
+        if [ "$IS_BASTION" != "" ]; then
+            ./install.sh
+        else 
+            mkdir -p $TARGET_DIR/compute/app/ui/html
+            cp -r html/* $TARGET_DIR/compute/app/ui/html/.
+            cp nginx* $TARGET_DIR/compute/app/ui/.
+            cp install.sh $TARGET_DIR/compute/app/ui/.
+        fi
+    elif [ "$TF_VAR_deploy_type" == "function" ]; then 
+        oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
+    else
+        # Kubernetes and Container Instances
+        docker image rm ${TF_VAR_prefix}-ui:latest
+        docker build -t ${TF_VAR_prefix}-ui:latest .
+    fi 
+}
