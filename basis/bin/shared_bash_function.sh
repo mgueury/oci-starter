@@ -17,70 +17,6 @@ app_name_list() {
     ls -d $PROJECT_DIR/src/app/build_*.sh | sort -g | sed "s#.*src/app/build_##g" | sed "s/\.sh$//"
 }
 
-# Java Build Common
-java_build_common() {
-    if [ "${OCI_CLI_CLOUD_SHELL,,}" == "true" ]; then
-        # csruntimectl is a function defined in /etc/bashrc.cloudshell
-        . /etc/bashrc.cloudshell
-        export JAVA_ID=`csruntimectl java list | grep jdk-17 | sed -e 's/^.*\(graal[^ ]*\) .*$/\1/'`
-        csruntimectl java set $JAVA_ID
-    fi
-
-    if [ -f $TARGET_DIR/jms_agent_deploy.sh ]; then
-        cp $TARGET_DIR/jms_agent_deploy.sh $TARGET_DIR/compute/.
-    fi
-
-    if [ -f $PROJECT_DIR/../group_common/target/jms_agent_deploy.sh ]; then
-        cp $PROJECT_DIR/../group_common/target/jms_agent_deploy.sh $TARGET_DIR/compute/.
-    fi
-}
-
-build_ui() {
-    cd $SCRIPT_DIR/ui
-    if is_deploy_compute; then
-        mkdir -p $TARGET_DIR/compute/app/ui/html
-        cp -r html/* $TARGET_DIR/compute/app/ui/html/.
-        cp nginx* $TARGET_DIR/compute/app/ui/.
-        cp install.sh $TARGET_DIR/compute/app/ui/.
-    elif [ "$TF_VAR_deploy_type" == "function" ]; then 
-        oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
-    else
-        # Kubernetes and Container Instances
-        docker image rm ${TF_VAR_prefix}-ui:latest
-        docker build -t ${TF_VAR_prefix}-ui:latest .
-    fi 
-}
-
-build_rsync() {
-    if [ "$1" == "" ]; then
-        error_exit "Missing src parameter"
-    fi
-
-    # In Java, copy the src/*.sh to target 
-    if [ -d target ]; then
-        cp src/*.sh target/.
-    fi
-
-    # Copy all the app files in $TARGET_DIR/compute/$APP_NAME
-    mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
-    rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
-
-    # Replace the user and password in start.sh
-    if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh ]; then
-        replace_db_user_password_in_file $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh
-    fi
-
-    # Replace variables in env.sh
-    if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh ]; then 
-        file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
-    fi 
-}
-
-docker_login() {
-    oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
-    exit_on_error "Docker Login"
-}
-
 build_function() {
     # Build the function
     fn create context ${TF_VAR_region} --provider oracle
@@ -430,26 +366,26 @@ is_deploy_compute() {
 }
 
 detect_livelabs() {
-    if grep -q 'compartment_ocid="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
-        # vnc_ocid still undefined ? 
-        if [ "$TF_VAR_vcn_ocid" != "__TO_FILL__" ]; then
-        # Variables already set
-        return
-        fi
-        # In cloud shell ? 
-        if [ -z $OCI_CLI_CLOUD_SHELL ]; then 
-        return
-        fi
-        # Whoami user format ? 
-        W=$(whoami)
-        W=${W^^}
-        if [[ $W =~ ^LL.*_U.* ]]; then
-        echo "LiveLabs - Green Button - whoami format detected"
-        else
-        return
-        fi
-        export LIVELABS="true"
-    fi  
+  if grep -q 'compartment_ocid="__TO_FILL__"' $PROJECT_DIR/terraform.tfvars; then
+    # vnc_ocid still undefined ? 
+    if [ "$TF_VAR_vcn_ocid" != "__TO_FILL__" ]; then
+      # Variables already set
+      return
+    fi
+    # In cloud shell ? 
+    if [ -z $OCI_CLI_CLOUD_SHELL ]; then 
+      return
+    fi
+    # Whoami user format ? 
+    W=$(whoami)
+    W=${W^^}
+    if [[ $W =~ ^LL.*_U.* ]]; then
+      echo "LiveLabs - Green Button - whoami format detected"
+    else
+      return
+    fi
+    export LIVELABS="true"
+  fi  
 }
 
 livelabs_green_button() {
