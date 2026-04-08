@@ -15,18 +15,19 @@ function scp_or_rsync() {
 }
 
 function scp_bastion() {
-    if [ "$TF_VAR_deploy_type" == "public_compute" ] || [ "$TF_VAR_build_host" == "bastion" ]; then
-        if [ is_deploy_compute ]; then
-            BASTION_DIR=$TARGET_DIR/compute
-        else 
-            BASTION_DIR=$TARGET_DIR/bastion
-        fi 
-    else
+    if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
+        BASTION_DIR=$TARGET_DIR/compute
+    else 
         BASTION_DIR=$TARGET_DIR/bastion
-    fi
+        rm -Rf $BASTION_DIR
+    fi 
 
     mkdir -p $BASTION_DIR/app
-    cp -R src/app/db $BASTION_DIR/app/.
+    if [ "$TF_VAR_build_host" == "bastion" ] && [ "$TF_VAR_deploy_type" != "public_compute" ]; then
+        cp -R src/app $BASTION_DIR/.
+    else
+        cp -R src/app/db $BASTION_DIR/app/.
+    fi
 
     cp -R $BIN_DIR/compute $BASTION_DIR/.
     cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
