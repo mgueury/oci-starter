@@ -190,6 +190,7 @@ def db_rules():
 
 def language_rules():
     if params.get('language') != 'java' or params.get('deploy_type') == 'function':
+        print('XXXX NOT JAVA', flush=True)
         params.pop('java_framework')
         params.pop('java_vm')
         params.pop('java_version')
@@ -1275,7 +1276,6 @@ if mode == CLI:
         mode = ABORT
     else:
         save_params()
-        print(f'params1b: {params}', flush=True)
         apply_rules()
         print(f'params2b: {params}', flush=True)
         if len(errors) > 0:
