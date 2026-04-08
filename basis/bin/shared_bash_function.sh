@@ -86,43 +86,6 @@ ocir_docker_push () {
     fi
 }
 
-replace_db_user_password_in_file() {
-    # Replace DB_USER DB_PASSWORD
-    CONFIG_FILE=$1
-    if [ -f $CONFIG_FILE ]; then 
-        sed -i "s/##DB_USER##/$TF_VAR_db_user/" $CONFIG_FILE
-        sed -i "s/##DB_PASSWORD##/$TF_VAR_db_password/" $CONFIG_FILE
-        sed -i "s%##JDBC_URL##%$JDBC_URL%" $CONFIG_FILE
-    fi
-}  
-
-error_exit() {
-    echo
-    LEN=${#BASH_LINENO[@]}
-    printf "%-40s %-10s %-20s\n" "STACK TRACE"  "LINE" "FUNCTION"
-    for (( INDEX=${LEN}-1; INDEX>=0; INDEX--))
-    do
-        printf "   %-37s %-10s %-20s\n" ${BASH_SOURCE[${INDEX}]#$PROJECT_DIR/}  ${BASH_LINENO[$(($INDEX-1))]} ${FUNCNAME[${INDEX}]}
-    done
-
-    if [ "$1" != "" ]; then
-        echo
-        echo "ERROR: $1"
-    fi
-    exit 1
-}
-
-exit_on_error() {
-    RESULT=$?
-    if [ $RESULT -eq 0 ]; then
-        echo "Success - $1"
-    else
-        title "EXIT ON ERROR - HISTORY - $1 "
-        history 2 | cut -c1-256
-        error_exit "Command Failed (RESULT=$RESULT)"
-    fi  
-}
-
 auto_echo () {
     if [ -z "$SILENT_MODE" ]; then
         echo "$1"

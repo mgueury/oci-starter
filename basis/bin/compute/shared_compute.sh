@@ -3,8 +3,9 @@ if [ -f $HOME/compute/tf_env.sh ]; then
     export IS_BASTION="true"
 fi
 
-# -- Shared Compute Functions ------------------------------------------------
+# -- Shared Compute Functions -----------------------------------------------
 
+# -- title ------------------------------------------------------------------
 title() {
   line='-------------------------------------------------------------------------'
   NAME=$1
@@ -14,66 +15,116 @@ title() {
 }
 export -f title
 
-# The apps are installed in alphabetical order
+# -- error_exit -------------------------------------------------------------
+error_exit() {
+    echo
+    LEN=${#BASH_LINENO[@]}
+    printf "%-40s %-10s %-20s\n" "STACK TRACE"  "LINE" "FUNCTION"
+    for (( INDEX=${LEN}-1; INDEX>=0; INDEX--))
+    do
+        printf "   %-37s %-10s %-20s\n" ${BASH_SOURCE[${INDEX}]#$PROJECT_DIR/}  ${BASH_LINENO[$(($INDEX-1))]} ${FUNCNAME[${INDEX}]}
+    done
+
+    if [ "$1" != "" ]; then
+        echo
+        echo "ERROR: $1"
+    fi
+    exit 1
+}
+export -f error_exit
+
+# -- exit_on_error ----------------------------------------------------------
+exit_on_error() {
+    RESULT=$?
+    if [ $RESULT -eq 0 ]; then
+        echo "Success - $1"
+    else
+        title "EXIT ON ERROR - HISTORY - $1 "
+        history 2 | cut -c1-256
+        error_exit "Command Failed (RESULT=$RESULT)"
+    fi  
+}
+export -f exit_on_error
+
+# -- replace_db_user_password_in_file ----------------------------------------
+replace_db_user_password_in_file() {
+    # Replace DB_USER DB_PASSWORD
+    CONFIG_FILE=$1
+    if [ -f $CONFIG_FILE ]; then 
+        sed -i "s/##DB_USER##/$TF_VAR_db_user/" $CONFIG_FILE
+        sed -i "s/##DB_PASSWORD##/$TF_VAR_db_password/" $CONFIG_FILE
+        sed -i "s%##JDBC_URL##%$JDBC_URL%" $CONFIG_FILE
+    fi
+}  
+export -f replace_db_user_password_in_file
+
+# -- app_dir_list -----------------------------------------------------------
 app_dir_list() {
-  ls -d app app/* 2>/dev/null | sort -g
+    # The apps are installed in alphabetical order
+    ls -d app app/* 2>/dev/null | sort -g
 }
 export -f app_dir_list
 
+# -- install_java -----------------------------------------------------------
 install_java() {
   # Install the JVM (jdk or graalvm)
-  if [ "$TF_VAR_java_vm" != "jdk" ]; then
-    if grep -q 'export JAVA_HOME' $HOME/.bashrc; then
-      echo "Java already installed " 
-      return
-    fi
-    # GraalVM
-    if [ "$TF_VAR_java_version" == 8 ]; then
-      sudo dnf install -y graalvm21-ee-8-jdk 
-      export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java8
-    elif [ "$TF_VAR_java_version" == 11 ]; then
-      sudo dnf install -y graalvm22-ee-11-jdk
-      export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java11
-    elif [ "$TF_VAR_java_version" == 17 ]; then
-      sudo dnf install -y graalvm22-ee-17-jdk 
-      export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java17
-    elif [ "$TF_VAR_java_version" == 21 ]; then
-      sudo dnf install -y graalvm-21-jdk
-      export JAVA_HOME=/usr/lib64/graalvm/graalvm-java21
+    if [ "$TF_VAR_java_vm" != "jdk" ]; then
+        if grep -q 'export JAVA_HOME' $HOME/.bashrc; then
+            echo "Java already installed " 
+            return
+        fi
+        # GraalVM
+        if [ "$TF_VAR_java_version" == 8 ]; then
+            sudo dnf install -y graalvm21-ee-8-jdk 
+            export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java8
+        elif [ "$TF_VAR_java_version" == 11 ]; then
+            sudo dnf install -y graalvm22-ee-11-jdk
+            export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java11
+        elif [ "$TF_VAR_java_version" == 17 ]; then
+            sudo dnf install -y graalvm22-ee-17-jdk 
+            export JAVA_HOME=/usr/lib64/graalvm/graalvm22-ee-java17
+        elif [ "$TF_VAR_java_version" == 21 ]; then
+            sudo dnf install -y graalvm-21-jdk
+            export JAVA_HOME=/usr/lib64/graalvm/graalvm-java21
+        else
+            sudo dnf install -y graalvm-25-jdk
+            export JAVA_HOME=/usr/lib64/graalvm/graalvm-java25    
+            # sudo update-alternatives --set native-image $JAVA_HOME/lib/svm/bin/native-image
+        fi   
+        sudo update-alternatives --set java $JAVA_HOME/bin/java
+        echo "export JAVA_HOME=${JAVA_HOME}" >> $HOME/.bashrc
     else
-      sudo dnf install -y graalvm-25-jdk
-      export JAVA_HOME=/usr/lib64/graalvm/graalvm-java25    
-      # sudo update-alternatives --set native-image $JAVA_HOME/lib/svm/bin/native-image
-    fi   
-    sudo update-alternatives --set java $JAVA_HOME/bin/java
-    echo "export JAVA_HOME=${JAVA_HOME}" >> $HOME/.bashrc
-  else
-    # JDK 
-    # Needed due to concurrency
-    sudo dnf install -y alsa-lib 
-    if [ "$TF_VAR_java_version" == 8 ]; then
-      sudo dnf install -y java-1.8.0-openjdk
-    elif [ "$TF_VAR_java_version" == 11 ]; then
-      sudo dnf install -y java-11  
-    elif [ "$TF_VAR_java_version" == 17 ]; then
-      sudo dnf install -y java-17        
-    elif [ "$TF_VAR_java_version" == 21 ]; then
-      sudo dnf install -y java-21         
-    else
-      sudo dnf install -y java-25  
-      # Trick to find the path
-      # cd -P "/usr/java/latest"
-      # export JAVA_LATEST_PATH=`pwd`
-      # cd -
-      # sudo update-alternatives --set java $JAVA_LATEST_PATH/bin/java
+        # JDK 
+        # Needed due to concurrency
+        sudo dnf install -y alsa-lib 
+        if [ "$TF_VAR_java_version" == 8 ]; then
+            sudo dnf install -y java-1.8.0-openjdk
+        elif [ "$TF_VAR_java_version" == 11 ]; then
+            sudo dnf install -y java-11  
+        elif [ "$TF_VAR_java_version" == 17 ]; then
+            sudo dnf install -y java-17        
+        elif [ "$TF_VAR_java_version" == 21 ]; then
+            sudo dnf install -y java-21         
+        else
+            sudo dnf install -y java-25  
+            # Trick to find the path
+            # cd -P "/usr/java/latest"
+            # export JAVA_LATEST_PATH=`pwd`
+            # cd -
+            # sudo update-alternatives --set java $JAVA_LATEST_PATH/bin/java
+        fi
     fi
-  fi
 
-  # JMS agent deploy (to fleet_ocid )
-  if [ -f jms_agent_deploy.sh ]; then
-    chmod +x jms_agent_deploy.sh
-    sudo ./jms_agent_deploy.sh
-  fi
+    # JMS agent deploy (to fleet_ocid )
+    if [ -f jms_agent_deploy.sh ]; then
+        chmod +x jms_agent_deploy.sh
+        sudo ./jms_agent_deploy.sh
+    fi
+
+  # Build on Bastion
+    if [ "$TF_VAR_build_host" == "bastion" ]; then 
+        sudo dnf install -y maven
+    fi
 }
 export -f install_java
 
