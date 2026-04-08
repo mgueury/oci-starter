@@ -190,8 +190,6 @@ def db_rules():
 
 def language_rules():
     if params.get('language') != 'java' or params.get('deploy_type') == 'function':
-        print('XXXX NOT JAVA', flush=True)
-        print(f'Language {params.get('language')}', flush=True)
         params.pop('java_framework')
         params.pop('java_vm')
         params.pop('java_version')
@@ -836,7 +834,7 @@ def create_output_dir():
         if params['language'] == "java":
             # FROM container-registry.oracle.com/graalvm/jdk:21
             # FROM eclipse-temurin:25
-            if params['java_vm'] == "graalvm":
+            if params.get('java_vm') == "graalvm":
                 params['java_docker'] = 'container-registry.oracle.com/graalvm/jdk:25'
             else:
                 params['java_docker'] = 'eclipse-temurin:25'
