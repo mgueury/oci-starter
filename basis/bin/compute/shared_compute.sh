@@ -447,7 +447,10 @@ export -f copy_replace_apply_target_oke
 # -- docker_login -----------------------------------------------------------
 docker_login() {
     get_docker_prefix
-    oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
+    # Login only if needed
+    if ! docker system info 2>/dev/null | grep -q "Username"; then
+        oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
+    fi
     exit_on_error "Docker Login"
 }
 
@@ -455,6 +458,7 @@ docker_login() {
 ocir_docker_push_app() {
     # Docker Login
     APP=$1
+    docker_login
     docker tag ${TF_VAR_prefix}-${APP} ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest
     oci artifacts container repository create --compartment-id $TF_VAR_compartment_ocid --display-name ${DOCKER_PREFIX_NO_OCIR}/${TF_VAR_prefix}-${APP} 2>/dev/null
     docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest
@@ -466,7 +470,6 @@ export -f ocir_docker_push_app
 # -- ocir_docker_push -------------------------------------------------------
 ocir_docker_push () {
     # Docker Login
-    docker_login
     echo DOCKER_PREFIX=$DOCKER_PREFIX
 
     # Push image in registry
