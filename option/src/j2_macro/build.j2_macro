@@ -8,7 +8,7 @@ fi
 {%- endmacro -%}
 
 {% macro deploy_oke() -%}
-    if [ "TF_VAR_deploy_type" == "kubernetes" ]; then
+    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
         oke_deploy_app ${APP_NAME}
     fi
 {%- endmacro -%}

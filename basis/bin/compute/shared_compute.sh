@@ -481,6 +481,9 @@ export -f ocir_docker_push
 # -- oke_deploy_app ------------------------------------------------------------
 oke_deploy_app() {
     APP=$1
+    title "OCIR Docker Push - $APP"  
+    ocir_docker_push_app $APP
+    title "Deploy to OKE - $APP"  
     if [ -f src/app/${APP}/k8s.yaml ]; then
         copy_replace_apply_target_oke src/app/${APP}/k8s.yaml
     fi
@@ -489,7 +492,6 @@ oke_deploy_app() {
     fi
 }
 export -f oke_deploy_app
-
 
 # -- is_deploy_compute ------------------------------------------------------
 is_deploy_compute() {
@@ -518,6 +520,9 @@ build_ui() {
         # Kubernetes and Container Instances
         docker image rm ${TF_VAR_prefix}-ui:latest
         docker build -t ${TF_VAR_prefix}-ui:latest .
+        if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
+            oke_deploy_app ${APP_NAME}
+        fi
     fi 
 }
 export -f build_ui 
