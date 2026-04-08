@@ -394,3 +394,59 @@ build_ui() {
         docker build -t ${TF_VAR_prefix}-ui:latest .
     fi 
 }
+export -f build_ui 
+
+# -- java_build_common ------------------------------------------------------
+java_build_common() {
+    if [ "${OCI_CLI_CLOUD_SHELL,,}" == "true" ]; then
+        # csruntimectl is a function defined in /etc/bashrc.cloudshell
+        . /etc/bashrc.cloudshell
+        export JAVA_ID=`csruntimectl java list | grep jdk-17 | sed -e 's/^.*\(graal[^ ]*\) .*$/\1/'`
+        csruntimectl java set $JAVA_ID
+    fi
+
+    if [ -f $TARGET_DIR/jms_agent_deploy.sh ]; then
+        cp $TARGET_DIR/jms_agent_deploy.sh $TARGET_DIR/compute/.
+    fi
+
+    if [ -f $PROJECT_DIR/../group_common/target/jms_agent_deploy.sh ]; then
+        cp $PROJECT_DIR/../group_common/target/jms_agent_deploy.sh $TARGET_DIR/compute/.
+    fi
+}
+export -f java_build_common 
+
+# -- build_rsync ------------------------------------------------------------
+build_rsync() {
+    if [ "$IS_BASTION" != "" ]; then
+        return
+    fi
+
+    if [ "$1" == "" ]; then
+        error_exit "Missing src parameter"
+    fi
+
+    # In Java, copy the src/*.sh to target 
+    if [ -d target ]; then
+        cp src/*.sh target/.
+    fi
+
+    # Copy all the app files in $TARGET_DIR/compute/$APP_NAME
+    mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
+    rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
+
+    # Replace the user and password in start.sh
+    if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh ]; then
+        replace_db_user_password_in_file $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh
+    fi
+
+    # Replace variables in env.sh
+    if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh ]; then 
+        file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
+    fi 
+}
+
+# -- docker_login -----------------------------------------------------------
+docker_login() {
+    oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
+    exit_on_error "Docker Login"
+}
