@@ -500,11 +500,11 @@ oke_deploy_app() {
     title "OCIR Docker Push - $APP"  
     ocir_docker_push_app $APP
     title "Deploy to OKE - $APP"  
-    if [ -f src/app/${APP}/k8s.yaml ]; then
-        copy_replace_apply_target_oke src/app/${APP}/k8s.yaml
+    if [ -f k8s.yaml ]; then
+        copy_replace_apply_target_oke k8s.yaml
     fi
-    if [ -f src/app/${APP}/k8s-ingress.yaml ]; then
-        copy_replace_apply_target_oke src/app/${APP}/k8s-ingress.yaml
+    if [ -f $k8s-ingress.yaml ]; then
+        copy_replace_apply_target_oke k8s-ingress.yaml
     fi
 }
 export -f oke_deploy_app
