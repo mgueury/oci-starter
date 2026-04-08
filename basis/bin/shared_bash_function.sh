@@ -109,7 +109,7 @@ tf_env_configmap() {
     echo "apiVersion: v1
 kind: ConfigMap
 metadata:
-name: tf-env-configmap
+  name: tf-env-configmap
 data:" > $TARGET_OKE/tf_env_configmap.yaml
 
     grep -v '^#' $TARGET_DIR/tf_env.sh | grep '^export' | while read line; do
