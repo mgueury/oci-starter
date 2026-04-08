@@ -8,7 +8,7 @@
 # Docker:
 # - build the image
 {% import "build.j2_macro" as m with context %}
-m.build_common
+{{ m.build_common }}
 
 if is_deploy_compute; then
   sed "s&##ORDS_URL##&$ORDS_URL&" nginx_app.locations > $TARGET_DIR/compute/compute/nginx_app.locations

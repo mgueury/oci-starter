@@ -8,7 +8,7 @@
 # Docker:
 # - build the image
 {% import "build.j2_macro" as m with context %}
-m.build_common
+{{ m.build_common }}
 
 cd rest
 java_build_common
