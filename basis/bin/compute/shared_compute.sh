@@ -298,3 +298,51 @@ install_ngnix() {
     sudo dnf install -y psmisc
 }
 export -f install_ngnix 
+
+# -- file_replace_variables -------------------------------------------------
+# Function to replace ##VARIABLE_NAME## in a file
+# Replace ##OPTIONAL/VARIABLE_NAME## by variables if it exists or __NOT_USED__
+
+file_replace_variables() {
+  local file="$1"
+  local temp_file=$(mktemp)
+
+  echo "Replace variables in file: $1"
+  while IFS= read -r line || [ -n "$line" ]; do  
+    while [[ $line =~ (.*)##(.*)##(.*) ]]; do
+      local var_name="${BASH_REMATCH[2]}"
+      echo "- variable: ${var_name}"
+
+      if [[ ${var_name} =~ OPTIONAL/(.*) ]]; then
+         var_name2="${BASH_REMATCH[1]}"
+         var_value="${!var_name2}"
+         if [ "$var_value" == "" ]; then
+            var_value="__NOT_USED__"
+         fi
+      else
+        var_value="${!var_name}"       
+        if [ "$var_value" == "" ]; then
+            echo "ERROR: Environment variable '${var_name}' is not defined."
+            error_exit
+        fi
+      fi
+      line=${line/"##${var_name}##"/${var_value}}
+    done
+
+    echo "$line" >> "$temp_file"
+  done < "$file"
+
+  mv "$temp_file" "$file"
+}
+export -f file_replace_variables 
+
+# -- Apply k8s file after replacing the variables ---------------------------
+copy_replace_apply_target_oke() {
+  filepath="$1"  
+  filename="${filepath##*/}"
+  echo "-- kubectl apply -- $filename --"
+  cp $filepath $TARGET_OKE/${filename}
+  file_replace_variables $TARGET_OKE/${filename}
+  kubectl apply -f $TARGET_OKE/${filename}
+}
+export -f copy_replace_apply_target_oke 

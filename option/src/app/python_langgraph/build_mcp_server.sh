@@ -13,7 +13,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 if is_deploy_compute; then
   build_rsync $APP_SRC_DIR
 else
+  cd $APP_SRC_DIR
   docker image rm ${TF_VAR_prefix}-${APP_NAME}:latest
-  docker build -f ${APP_DOCKERFILE} -t ${TF_VAR_prefix}-${APP_NAME}:latest .
+  docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest .
   exit_on_error "docker build"
 fi  

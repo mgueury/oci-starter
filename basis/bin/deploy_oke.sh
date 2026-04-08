@@ -107,15 +107,6 @@ kubectl apply -f $TARGET_OKE/tf_env_configmap.yaml
 ocir_docker_push
 
 # Append a line in tf_env.sh (typically used in before_build.sh to add custom variable to pass to bastion/compute/...)
-copy_replace_apply_target_oke() {
-  filepath="$1"  
-  filename="${filepath##*/}"
-  echo "-- kubectl apply -- $filename --"
-  cp $filepath $TARGET_OKE/${filename}
-  file_replace_variables $TARGET_OKE/${filename}
-  kubectl apply -f $TARGET_OKE/${filename}
-}
-
 # APPS
 for APP_NAME in `app_name_list`; do
   if [ -f src/app/${APP_NAME}/k8s.yaml ]; then
