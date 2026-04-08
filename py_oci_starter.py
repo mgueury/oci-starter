@@ -409,7 +409,6 @@ def missing_parameters(supplied_params, expected_params):
 
 def get_params():
     params = deprefix_keys({**default_options, **prog_arg_dict()})
-    print( params )
     for key, value in rename_params.items():
         if params.get(key):
             params[value] = params[key]
@@ -1255,6 +1254,7 @@ print(title(script_name()))
 script_dir = os.getcwd()
 
 params = get_params()
+print(f'params: {params}')
 mode = get_mode()
 unknown_params = missing_parameters(allowed_options(), prog_arg_dict().keys())
 illegal_params = check_values()
@@ -1269,6 +1269,7 @@ if len(unknown_params) > 0 or len(illegal_params) > 0 or len(missing_params) > 0
 
 warnings = []
 errors = []
+print(f'params: {params}')
 
 if mode == CLI:
     if os.path.isdir(output_dir):
