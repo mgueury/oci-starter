@@ -451,9 +451,9 @@ copy_replace_apply_target_oke() {
   filepath="$1"  
   filename="${filepath##*/}"
   echo "-- kubectl apply -- $filename --"
-  cp $filepath $TARGET_OKE/${filename}
-  file_replace_variables $TARGET_OKE/${filename}
-  kubectl apply -f $TARGET_OKE/${filename}
+  cp $filepath $TARGET_DIR/oke/${filename}
+  file_replace_variables $TARGET_DIR/oke/${filename}
+  kubectl apply -f $TARGET_DIR/oke/${filename}
 }
 export -f copy_replace_apply_target_oke 
 
