@@ -84,7 +84,8 @@ default_options = {
     '-output_dir' : 'output',
     '-db_password' : TO_FILL,
     '-oke_type' : 'managed',
-    '-security' : 'none'
+    '-security' : 'none',
+    '-build_host' : 'terraform'
 }
 
 no_default_options = ['-compartment_ocid', '-oke_ocid', '-vcn_ocid',
@@ -126,7 +127,8 @@ allowed_values = {
     'db_install': {'default', 'kubernetes'},
     'tls': {'none', 'new_http_01', 'new_dns_01', 'existing_ocid', 'existing_dir'},
     'oke_type': {'managed', 'virtual_node'},
-    'security': {'none', 'openid'}
+    'security': {'none', 'openid'},
+    'build_host' : {'terraform','bastion'}
 }
 
 def check_values():

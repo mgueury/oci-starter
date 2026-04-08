@@ -10,43 +10,42 @@ export ARCH=`rpm --eval '%{_arch}'`
 echo "ARCH=$ARCH"
 
 if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
-  # Set VI and NANO in utf8
-  echo "export LC_CTYPE=en_US.UTF-8" >> $HOME/.bashrc
-  echo "shopt -s direxpand" >> $HOME/.bashrc
+    # Set VI and NANO in utf8
+    echo "export LC_CTYPE=en_US.UTF-8" >> $HOME/.bashrc
+    echo "shopt -s direxpand" >> $HOME/.bashrc
 
-  # Disable SELinux
-  # XXXXXX Since OL8, the service does not start if SELINUX=enforcing XXXXXX
-  sudo setenforce 0
-  sudo sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config
+    # Disable SELinux
+    # XXXXXX Since OL8, the service does not start if SELINUX=enforcing XXXXXX
+    sudo setenforce 0
+    sudo sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config
 
-  # Resize the boot volume (if >47GB)
-  sudo /usr/libexec/oci-growfs -y
+    # Resize the boot volume (if >47GB)
+    sudo /usr/libexec/oci-growfs -y
 fi
 
-# Shared Install Funciton
+# Shared Install Function
 . ./shared_compute.sh
+
+if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then 
+    install_docker_tools
+fi
 
 # -- App --------------------------------------------------------------------
 # Application Specific installation
 # Build all app* directories
 cd $HOME
 
-# The apps are installed in alphabetical order
-app_dir_list() {
-  ls -d app app/* 2>/dev/null | sort -g
-}
-
 for APP_DIR in `app_dir_list`; do
-  if [ -f $APP_DIR/install.sh ]; then
-    title "$APP_DIR: Install"
-    if [ -f ${APP_DIR}/env.sh ]; then
-      chmod +x ${APP_DIR}/env.sh
-    fi
-    if [ -f ${APP_DIR}/install.sh ]; then
-      chmod +x ${APP_DIR}/install.sh
-      ${APP_DIR}/install.sh
-    fi
-  fi  
+    if [ -f $APP_DIR/install.sh ]; then
+        title "$APP_DIR: Install"
+        if [ -f ${APP_DIR}/env.sh ]; then
+            chmod +x ${APP_DIR}/env.sh
+        fi
+        if [ -f ${APP_DIR}/install.sh ]; then
+            chmod +x ${APP_DIR}/install.sh
+            ${APP_DIR}/install.sh
+        fi
+    fi  
 done
 
 # -- app/start*.sh -----------------------------------------------------------

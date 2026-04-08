@@ -299,6 +299,25 @@ install_ngnix() {
 }
 export -f install_ngnix 
 
+# -- Install Docker tools ---------------------------------------------------
+
+install_docker_tools() {
+    sudo yum install -y docker
+    # Kubectl
+    # XXX Got forbidden and had to download manually ?
+    mkdir -p $HOME/bin
+    cd $HOME/bin
+    if [ `arch` == "x86_64" ]; then
+        ARCH_PREFIX=amd64
+    else
+        ARCH_PREFIX=arm64
+    fi
+    curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH_PREFIX}/kubectl
+    chmod +x kubectl
+    echo "source <(kubectl completion bash)" >> ~/.bashrc
+    echo "shopt -s direxpand" >> ~/.bashrc  
+}
+
 # -- file_replace_variables -------------------------------------------------
 # Function to replace ##VARIABLE_NAME## in a file
 # Replace ##OPTIONAL/VARIABLE_NAME## by variables if it exists or __NOT_USED__
