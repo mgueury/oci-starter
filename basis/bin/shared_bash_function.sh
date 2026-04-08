@@ -94,11 +94,15 @@ get_output_from_tfstate () {
     fi
 }
 
+# -- append_tf_env ----------------------------------------------------------
+
 # Append a line in tf_env.sh (typically used in before_build.sh to add custom variable to pass to bastion/compute/...)
 append_tf_env() {
     echo "$1"
     echo "$1" >> $TARGET_DIR/tf_env.sh
 }
+
+# -- tf_env_configmap -------------------------------------------------------
 
 # Convert tf_env.sh to configmap
 tf_env_configmap() {
@@ -112,10 +116,16 @@ data:" > $TARGET_OKE/tf_env_configmap.yaml
         VAR=$(echo $line | sed 's/export //')
         KEY=$(echo $VAR | cut -d= -f1)
         VALUE=$(echo $VAR | cut -d= -f2- | sed 's/^"\(.*\)"$/\1/')
+        if [[ "$VALUE" == \$* ]]; then
+            VAR_NAME="${VALUE:1}"
+            VALUE="${!VAR_NAME}" 
+        fi
         echo "  $KEY: \"$VALUE\"" >> $TARGET_OKE/tf_env_configmap.yaml
     done
     echo "tf_env_configmap.yaml created."
 }
+
+# -- group_common_contain ---------------------------------------------------
 
 # Check is the option '$1' is part of the TF_VAR_group_common
 # If the app is not a group_common one, return 1==false
