@@ -474,11 +474,12 @@ ocir_docker_push_app() {
     # Docker Login
     APP=$1
     docker_login
-    docker tag ${TF_VAR_prefix}-${APP} ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest
+    export DOCKER_IMG_VERSION=$(date +%Y-%m-%d-%H-%M-%S)
+    docker tag ${TF_VAR_prefix}-${APP} ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:${DOCKER_IMG_VERSION}
     oci artifacts container repository create --compartment-id $TF_VAR_compartment_ocid --display-name ${DOCKER_PREFIX_NO_OCIR}/${TF_VAR_prefix}-${APP} 2>/dev/null
-    docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest
+    docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:${DOCKER_IMG_VERSION}
     exit_on_error "docker push ${APP}"
-    echo "${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:latest" > $TARGET_DIR/docker_image_${APP}.txt
+    echo "${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:${DOCKER_IMG_VERSION}" > $TARGET_DIR/docker_image_${APP}.txt
 }
 export -f ocir_docker_push_app
 
@@ -536,9 +537,8 @@ build_ui() {
         oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
     else
         # Kubernetes and Container Instances
-        export DOCKER_IMG_VERSION=$(date +%Y-%m-%d-%H-%M-%S)
         docker image rm ${TF_VAR_prefix}-ui:latest 
-        docker build -t ${TF_VAR_prefix}-ui:latest -t ${TF_VAR_prefix}-ui:DOCKER_IMG_VERSION .
+        docker build -t ${TF_VAR_prefix}-ui:latest .
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
             oke_deploy_app ui
         fi
