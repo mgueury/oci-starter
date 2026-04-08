@@ -1276,7 +1276,6 @@ if mode == CLI:
     else:
         save_params()
         apply_rules()
-        print(f'params2b: {params}', flush=True)
         if len(errors) > 0:
             mode = ABORT
         else:
@@ -1287,7 +1286,7 @@ if mode == ABORT:
     exit(1)
 
 print(f'Mode: {mode}')
-print(f'params4: {params}')
+print(f'params: {params}')
 
 # -- Copy Files -------------------------------------------------------------
 output_dir_orig = output_dir
