@@ -16,27 +16,26 @@ function scp_or_rsync() {
 
 function scp_bastion() {
     if [ "$TF_VAR_deploy_type" == "public_compute" ] || [ "$TF_VAR_build_host" == "bastion" ]; then
-        cp -R src/app/db $TARGET_DIR/compute/app/.
-        scp_or_rsync $TARGET_DIR/compute/app
-
         if [ is_deploy_compute ]; then
             BASTION_DIR=$TARGET_DIR/compute
         else 
-            mkdir -p $TARGET_DIR/bastion/compute
             BASTION_DIR=$TARGET_DIR/bastion
         fi 
-        cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
-        if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-            cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
-        fi
     else
-        mkdir -p $TARGET_DIR/bastion/app
-        cp -R src/app/db $TARGET_DIR/bastion/app/.
-        cp -R $BIN_DIR/compute $TARGET_DIR/bastion/.
-        cp $TARGET_DIR/tf_env.sh target/bastion/compute/.
-        scp_or_rsync $TARGET_DIR/bastion/app
-        scp_or_rsync $TARGET_DIR/bastion/compute
+        BASTION_DIR=$TARGET_DIR/bastion
     fi
+
+    mkdir -p $BASTION_DIR/app
+    cp -R src/app/db $BASTION_DIR/app/.
+
+    cp -R $BIN_DIR/compute $BASTION_DIR/.
+    cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
+    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
+        cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
+    fi
+
+    scp_or_rsync $BASTION_DIR/app
+    scp_or_rsync $BASTION_DIR/compute    
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
