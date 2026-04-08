@@ -19,12 +19,16 @@ function scp_bastion() {
         cp -R src/app/db $TARGET_DIR/compute/app/.
         scp_or_rsync $TARGET_DIR/compute/app
 
-        cp $TARGET_DIR/tf_env.sh target/compute/compute/.
+        if [ is_deploy_compute ]; then
+            BASTION_DIR=$TARGET_DIR/compute
+        else 
+            mkdir -p $TARGET_DIR/bastion/compute
+            BASTION_DIR=$TARGET_DIR/bastion
+        fi 
+        cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-            cp $TARGET_DIR/kubeconfig_starter target/compute/compute
+            cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
         fi
-        scp_or_rsync $TARGET_DIR/compute/compute
-
     else
         mkdir -p $TARGET_DIR/bastion/app
         cp -R src/app/db $TARGET_DIR/bastion/app/.
