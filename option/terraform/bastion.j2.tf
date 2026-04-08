@@ -119,11 +119,11 @@ output "bastion_ip" {
 
 {%- if build_host == "bastion" %}
 # -- Policies for building on the bastion machine
-resource "oci_identity_policy" "starter_ai_policy" {
+resource "oci_identity_policy" "starter_bastion_policy" {
     count          = var.no_policy=="true" ? 0 : 1      
     provider       = oci.home    
-    name           = "${var.prefix}-policy"
-    description    = "${var.prefix} policy"
+    name           = "${var.prefix}-bastion-policy"
+    description    = "${var.prefix} bastion policy"
     compartment_id = local.lz_serv_cmp_ocid
 
     statements = [
