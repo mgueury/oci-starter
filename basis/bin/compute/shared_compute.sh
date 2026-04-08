@@ -1,6 +1,11 @@
 if [ -f $HOME/compute/tf_env.sh ]; then
     . $HOME/compute/tf_env.sh
     export IS_BASTION="true"
+    APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
+    if [ "$APP_NAME" != "" ]; then
+        APP_SRC_DIR="${APP_NAME}"
+        APP_COMPUTE_DIR="app/${APP_NAME}"
+    fi
 fi
 
 # -- Shared Compute Functions -----------------------------------------------
