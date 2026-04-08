@@ -1,10 +1,13 @@
 if [ -f $HOME/compute/tf_env.sh ]; then
     . $HOME/compute/tf_env.sh
+    export TF_VAR_namespace=$OCIR_NAMESPACE
     export IS_BASTION="true"
-    APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
-    if [ "$APP_NAME" != "" ]; then
-        APP_SRC_DIR="${APP_NAME}"
-        APP_COMPUTE_DIR="app/${APP_NAME}"
+    if [ "$0" != "" ]; then
+        APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
+        if [ "$APP_NAME" != "" ]; then
+            APP_SRC_DIR="${APP_NAME}"
+            APP_COMPUTE_DIR="app/${APP_NAME}"
+        fi
     fi
 fi
 
@@ -19,6 +22,14 @@ title() {
   echo  
 }
 export -f title
+
+# -- auto_echo --------------------------------------------------------------
+auto_echo() {
+    if [ -z "$SILENT_MODE" ]; then
+        echo "$1"
+    fi  
+}
+export -f auto_echo
 
 # -- error_exit -------------------------------------------------------------
 error_exit() {

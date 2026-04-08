@@ -61,12 +61,6 @@ create_kubeconfig() {
     chmod 600 $KUBECONFIG
 }
 
-auto_echo () {
-    if [ -z "$SILENT_MODE" ]; then
-        echo "$1"
-    fi  
-}
-
 set_if_not_null () {
     if [ "$2" != "" ] && [ "$2" != "null" ]; then
         auto_echo "$1=$RESULT"
