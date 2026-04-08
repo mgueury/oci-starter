@@ -304,9 +304,15 @@ export -f install_ngnix
 # -- Install Docker tools ---------------------------------------------------
 
 install_docker_tools() {
+    # docker 
     sudo yum install -y docker
-    # Kubectl
-    # XXX Got forbidden and had to download manually ?
+    # oci cli
+    sudo dnf install -y git python36-oci-cli
+    oci setup repair-file-permissions --file $HOME/.oci/config
+    oci setup repair-file-permissions --file $HOME/.oci/oci_api_key.pem    
+    echo "export OCI_CLI_AUTH=instance_principal" >> ~/.bashrc  
+
+    # kubectl
     mkdir -p $HOME/bin
     cd $HOME/bin
     if [ `arch` == "x86_64" ]; then
@@ -317,7 +323,6 @@ install_docker_tools() {
     curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH_PREFIX}/kubectl
     chmod +x kubectl
     echo "source <(kubectl completion bash)" >> ~/.bashrc
-    echo "shopt -s direxpand" >> ~/.bashrc  
 }
 
 # -- file_replace_variables -------------------------------------------------
