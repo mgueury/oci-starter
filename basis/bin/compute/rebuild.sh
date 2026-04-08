@@ -17,20 +17,19 @@ if [ "$TF_VAR_deploy_type" == "public_compute" ] || [ "$TF_VAR_deploy_type" == "
         fi  
     done
 elif [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then 
+    cd $HOME/app
     for APP_DIR in `app_dir_list`; do
-        if [ -f $APP_DIR/docker.sh ]; then
-            title "$APP_DIR: Docker build"
-            cd ${APP_DIR}
-            APP_NAME=APP_NAME=$(basename "${APP_DIR}")
-            docker image rm ${TF_VAR_prefix}-${APP_NAME}:latest
-            docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest .
+        if [ -f $APP_DIR/Dockerfile ]; then
+            APP_NAME=$(basename "${APP_DIR}")
+            title "$APP_NAME: Build"
+            ./build_${APP_NAME}.sh
+            title "$APP_NAME: Deploy in OKE"
             if [ -f k8s.yaml ]; then
                 copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
             fi
             if [ -f k8s-ingress.yaml ]; then
                 copy_replace_apply_target_oke src/app/${APP_NAME}/k8s-ingress.yaml
             fi
-            cd -
         fi  
     done
 else 
