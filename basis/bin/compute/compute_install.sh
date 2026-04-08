@@ -21,17 +21,18 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
 
     # Resize the boot volume (if >47GB)
     sudo /usr/libexec/oci-growfs -y
+
+    # Build_host = bastion
+    if [ "$TF_VAR_build_host" == "bastion" ]; then 
+        if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then 
+            install_docker_tools
+            echo "export KUBECONFIG=$HOME/compute/kubeconfig_starter" >> $HOME/.bashrc
+        fi 
+    fi
 fi
 
 # Shared Install Function
 . ./shared_compute.sh
-
-# Build_host = bastion
-if [ "$TF_VAR_build_host" == "bastion" ]; then 
-    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then 
-        install_docker_tools
-    fi 
-fi
 
 # -- App --------------------------------------------------------------------
 # Application Specific installation

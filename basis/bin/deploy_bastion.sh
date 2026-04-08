@@ -21,8 +21,7 @@ function scp_bastion() {
 
         cp $TARGET_DIR/tf_env.sh target/compute/compute/.
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-            mkdir target/compute/.kube
-            cp $TARGET_DIR/kubeconfig_starter target/compute/.kube/config
+            cp $TARGET_DIR/kubeconfig_starter target/compute/compute
         fi
         scp_or_rsync $TARGET_DIR/compute/compute
 
