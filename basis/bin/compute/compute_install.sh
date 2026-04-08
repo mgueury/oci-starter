@@ -26,8 +26,11 @@ fi
 # Shared Install Function
 . ./shared_compute.sh
 
-if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then 
-    install_docker_tools
+# Build_host = bastion
+if [ "$TF_VAR_build_host" == "bastion" ]; then 
+    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then 
+        install_docker_tools
+    fi 
 fi
 
 # -- App --------------------------------------------------------------------
