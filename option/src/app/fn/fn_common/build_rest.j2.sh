@@ -22,4 +22,3 @@ cd rest
 build_function
 {%- endif %}
 exit_on_error "build_function"
-

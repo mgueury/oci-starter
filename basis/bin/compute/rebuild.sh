@@ -25,8 +25,9 @@ for APP_DIR in `app_dir_list`; do
                 ${APP_DIR}/restart.sh
             fi
         elif [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then 
-            title "$APP_NAME: Deploy in OKE"
+            title "$APP_NAME: Pushing to OCIR"
             ocir_docker_push_app $APP_NAME
+            title "$APP_NAME: Deploy in OKE"
             if [ -f k8s.yaml ]; then
                 copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
             fi

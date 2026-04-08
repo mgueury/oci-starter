@@ -478,6 +478,19 @@ ocir_docker_push () {
 }
 export -f ocir_docker_push
 
+# -- oke_deploy_app ------------------------------------------------------------
+oke_deploy_app() {
+    APP=$1
+    if [ -f src/app/${APP}/k8s.yaml ]; then
+        copy_replace_apply_target_oke src/app/${APP}/k8s.yaml
+    fi
+    if [ -f src/app/${APP}/k8s-ingress.yaml ]; then
+        copy_replace_apply_target_oke src/app/${APP}/k8s-ingress.yaml
+    fi
+}
+export -f oke_deploy_app
+
+
 # -- is_deploy_compute ------------------------------------------------------
 is_deploy_compute() {
     if [ "$TF_VAR_deploy_type" == "public_compute" ] || [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then

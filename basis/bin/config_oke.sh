@@ -104,16 +104,16 @@ kubectl apply -f $TARGET_OKE/tf_env_configmap.yaml
 # Using & as separator
 
 # Call build_common to push the ${TF_VAR_prefix}-${APP_NAME}:latest and ${TF_VAR_prefix}-ui:latest to OCIR Docker registry
-ocir_docker_push
+# ocir_docker_push
 
 # Append a line in tf_env.sh (typically used in before_build.sh to add custom variable to pass to bastion/compute/...)
 # APPS
-for APP_NAME in `app_name_list`; do
-  if [ -f src/app/${APP_NAME}/k8s.yaml ]; then
-    copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
-  fi
-  if [ -f src/app/${APP_NAME}/k8s-ingress.yaml ]; then
-    copy_replace_apply_target_oke src/app/${APP_NAME}/k8s-ingress.yaml
-  fi
-done
+# for APP_NAME in `app_name_list`; do
+#   if [ -f src/app/${APP_NAME}/k8s.yaml ]; then
+#     copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
+#   fi
+#   if [ -f src/app/${APP_NAME}/k8s-ingress.yaml ]; then
+#     copy_replace_apply_target_oke src/app/${APP_NAME}/k8s-ingress.yaml
+#   fi
+# done
 

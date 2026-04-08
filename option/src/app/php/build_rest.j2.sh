@@ -10,10 +10,13 @@
 {% import "build.j2_macro" as m with context %}
 {{ m.build_common() }}
 
+## XXXXX Check Language version
+
+cd rest
 if is_deploy_compute; then
-  sed "s&##ORDS_URL##&$ORDS_URL&" nginx_app.locations > $TARGET_DIR/compute/compute/nginx_app.locations
-  sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_DIR/compute/compute/nginx_app.locations
-  build_rsync $APP_SRC_DIR
+    build_rsync $APP_SRC_DIR
+    # Replace the user and password in the start file
+    replace_db_user_password_in_file $TARGET_DIR/compute/$APP_NAME/php.ini.append
 else
-  echo "No docker image needed"
+    {{ m.build_docker() }}
 fi  

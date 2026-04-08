@@ -6,3 +6,16 @@ elif [ -f $HOME/compute/shared_compute.sh ]; then
     . $HOME/compute/shared_compute.sh
 fi        
 {%- endmacro -%}
+
+{% macro deploy_oke() -%}
+    if [ "TF_VAR_deploy_type" == "kubernetes" ]; then
+        oke_deploy_app ${APP_NAME}
+    fi
+{%- endmacro -%}
+
+{% macro build_docker() -%}
+    docker image rm ${TF_VAR_prefix}-${APP_NAME}:latest
+    docker build -t ${TF_VAR_prefix}-${APP_NAME}:latest .
+    exit_on_error "docker build"
+    {{ deploy_oke() }}
+{%- endmacro -%}

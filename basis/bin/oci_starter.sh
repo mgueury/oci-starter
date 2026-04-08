@@ -189,8 +189,6 @@ elif [ "$ARG1" == "deploy" ]; then
     $BIN_DIR/deploy_compute.sh
   elif [ "$ARG2" == "bastion" ]; then
     $BIN_DIR/deploy_bastion.sh
-  elif [ "$ARG2" == "oke" ]; then
-    $BIN_DIR/deploy_oke.sh
   else 
     echo "Unknown command: $ARG1 $ARG2"
     exit 1

@@ -10,10 +10,15 @@
 {% import "build.j2_macro" as m with context %}
 {{ m.build_common() }}
 
+cd rest
+java_build_common
+
+mvn package
+exit_on_error
+
 if is_deploy_compute; then
-  sed "s&##ORDS_URL##&$ORDS_URL&" nginx_app.locations > $TARGET_DIR/compute/compute/nginx_app.locations
-  sed -i "s&##ORDS_HOST##&$ORDS_HOST&" $TARGET_DIR/compute/compute/nginx_app.locations
-  build_rsync $APP_SRC_DIR
+    cp nginx_app.locations $TARGET_DIR/compute/compute
+    build_rsync target
 else
-  echo "No docker image needed"
+    {{ m.build_docker() }}
 fi  

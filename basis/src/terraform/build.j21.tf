@@ -80,6 +80,9 @@ resource "null_resource" "build_deploy" {
         if is_deploy_compute; then
             mkdir -p target/compute
             cp -r src/compute target/compute/.
+        elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
+            $BIN_DIR/config_oke.sh
+            exit_on_error "Deploy $TF_VAR_deploy_type"        
         fi
 
         # Build all apps
@@ -102,9 +105,6 @@ resource "null_resource" "build_deploy" {
             echo "Skipping. Done via Deploy Bastion."
         elif [ "$TF_VAR_deploy_type" == "private_compute" ] || [ "$TF_VAR_deploy_type" == "instance_pool" ]; then
             $BIN_DIR/deploy_compute.sh
-            exit_on_error "Deploy $TF_VAR_deploy_type"
-        elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-            $BIN_DIR/deploy_oke.sh
             exit_on_error "Deploy $TF_VAR_deploy_type"
         elif [ "$TF_VAR_deploy_type" == "container_instance" ]; then
             $BIN_DIR/deploy_ci.sh
