@@ -1254,11 +1254,11 @@ print(title(script_name()))
 script_dir = os.getcwd()
 
 params = get_params()
-print(f'params1: {params}')
+print(f'params1: {params}', flush=True)
 mode = get_mode()
 unknown_params = missing_parameters(allowed_options(), prog_arg_dict().keys())
 illegal_params = check_values()
-print(f'params2: {params}')
+print(f'params2: {params}', flush=True)
 dash_params={f'-{k}': v for k, v in params.items()}
 if 'group_name' in params:
   missing_params = missing_parameters(dash_params.keys(), mandatory_options(GROUP))
@@ -1270,7 +1270,7 @@ if len(unknown_params) > 0 or len(illegal_params) > 0 or len(missing_params) > 0
 
 warnings = []
 errors = []
-print(f'params3: {params}')
+print(f'params3: {params}', flush=True)
 
 if mode == CLI:
     if os.path.isdir(output_dir):
@@ -1289,7 +1289,7 @@ if mode == ABORT:
     exit(1)
 
 print(f'Mode: {mode}')
-print(f'params: {params}')
+print(f'params4: {params}')
 
 # -- Copy Files -------------------------------------------------------------
 output_dir_orig = output_dir
