@@ -9,6 +9,9 @@ cd $SCRIPT_DIR
 export ARCH=`rpm --eval '%{_arch}'`
 echo "ARCH=$ARCH"
 
+# Shared Install Function
+. ./shared_compute.sh
+
 if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
     # Set VI and NANO in utf8
     echo "export LC_CTYPE=en_US.UTF-8" >> $HOME/.bashrc
@@ -30,9 +33,6 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         fi 
     fi
 fi
-
-# Shared Install Function
-. ./shared_compute.sh
 
 # -- App --------------------------------------------------------------------
 # Application Specific installation
