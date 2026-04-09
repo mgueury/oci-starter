@@ -36,9 +36,14 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         if [ "$TF_VAR_language" == "java" ]; then
             install_java
         fi
+        # Create a git branch 
+        sudo dnf install -y git
+        cp .gitignore > $HOME/app
+        cd $HOME/app
+        git init
+        git add .
+        git commit -m "bastion app"
     fi
-
-
 fi
 
 # -- App --------------------------------------------------------------------
