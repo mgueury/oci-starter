@@ -56,13 +56,14 @@ if [ "$UI_URL" != "" ]; then
   append_done "git clone opc@$BASTION_IP:~/app.git my-app"
   append_done "cd my-app"
   append_done "<do some changes>"
-  append_done "git add .; git commit -m "build in bastion"; git push"
-  append_done "Build will start automatically."
+  append_done "cat git_push.sh"
+  append_done "./git_push.sh"
+  append_done "Build will start automatically in the bastion"
   append_done
   append_done "Build logs ssh to opc@$BASTION_IP"
   append_done "- compute/rebuild.log"
   append_done "Application logs" 
-  append_done "- app/rest/rest.log"
+  append_done "- app/rest/rest.log"BANCO DE INVESTIMENTO GLOBAL
   {%- endif %} 
 
 elif [ ! -f $FILE_DONE ]; then
