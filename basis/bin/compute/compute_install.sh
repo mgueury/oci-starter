@@ -40,8 +40,8 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         sudo dnf install -y git
         cd $HOME/app
         cp $HOME/compute/git/gitignore .gitignore
-        cp $HOME/compute/git/git_push.sh .
         chmod +x $HOME/compute/git/git_push.sh
+        cp $HOME/compute/git/git_push.sh .
         git init
         git add .
         git commit -m "bastion app"
