@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+APP_DIR="$HOME/app"
+BRANCH="main"
+
+echo "Deploy triggered for $BRANCH"
+
+# Update working tree
+git --work-tree="$APP_DIR" --git-dir="$HOME/app.git" checkout -f "$BRANCH"
+
+# Optional: ensure latest (usually not needed, but safe)
+git --work-tree="$APP_DIR" --git-dir="$HOME/app.git" pull origin "$BRANCH" || true
+
+# Run rebuild script
+$HOME/compute/rebuild.sh

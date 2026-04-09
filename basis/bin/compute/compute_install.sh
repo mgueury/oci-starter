@@ -39,12 +39,18 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         # Create a git branch 
         sudo dnf install -y git
         cd $HOME/app
-        cp gitignore $HOME/app/.gitignore
+        cp $HOME/compute/git/gitignore .gitignore
         git init
         git add .
         git commit -m "bastion app"
+
+        # Create a bare repo (this could be gitlab, github, bitbucket, oci devops, ...). This is easier to set up like this 
+        git clone --bare $HOME/app/.git $HOME/app.git
+        cp $HOME/compute/git/post-receive ~/app.git/hooks
+        chmod +x ~/app.git/hooks/post-receive
     fi
 fi
+rm $HOME/compute/gitignore
 
 # -- App --------------------------------------------------------------------
 # Application Specific installation
