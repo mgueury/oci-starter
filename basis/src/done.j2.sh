@@ -58,11 +58,11 @@ if [ "$UI_URL" != "" ]; then
   append_done "<do some changes>"
   append_done "git add .; git commit -m "build in bastion"; git push"
   append_done "Build will start automatically."
+  append_done
   append_done "Build logs ssh to opc@$BASTION_IP"
   append_done "- compute/rebuild.log"
   append_done "Application logs" 
   append_done "- app/rest/rest.log"
-  append_done "- app/rest/ui.log"
   app/rest/rest.log"
   {%- endif %} 
 
