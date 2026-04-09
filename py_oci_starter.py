@@ -814,6 +814,7 @@ def create_output_dir():
 
         if params.get('deploy_type') != "function" and params['language'] == "java":
             # Java Framework
+            output_copy_tree("option/src/app/java", "src/app")
             app = "java_" + params['java_framework']
             output_copy_tree("option/src/app/"+app, "src/app")
 
