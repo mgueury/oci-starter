@@ -6,7 +6,6 @@ cd $SCRIPT_DIR
 TARGET_OKE="$HOME/target/oke"
 mkdir -p $TARGET_OKE
 
-cd $HOME/app
 
 if [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then 
     docker_login
@@ -20,7 +19,7 @@ for APP_DIR in `app_dir_list`; do
             title "$APP_NAME: Build"
             ./build_${APP_NAME}.sh
         fi
-        if is_deploy_compute then
+        if is_deploy_compute; then
             if [ -f ${APP_DIR}/restart.sh ]; then
                 title "$APP_NAME: Restart"
                 ${APP_DIR}/restart.sh
