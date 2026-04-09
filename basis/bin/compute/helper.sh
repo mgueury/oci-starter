@@ -2,11 +2,14 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
+. $HOME/compute/shared_compute.sh
+
 help() {
     echo "List of Apps:"
-    for APP_DIR in `ls -d app* | sort -g`; do
-      echo "-- APP: $APP_DIR -------------------------------------------"
-      sudo systemctl status $APP_DIR --no-pager
+    for APP_DIR in `app_dir_list`; do
+        APP_NAME=$(basename "${APP_DIR}")    
+        echo "-- APP: $APP_NAME -------------------------------------------"
+        sudo systemctl status $APP_NAME --no-pager
     done 
     echo    
     echo "Command:"
@@ -14,25 +17,25 @@ help() {
     echo "- App  : ./helper.sh <start/stop/restart/status> <app>"
 }
 
-APP_DIR=$2
+APP_NAME=$2
 if [ "$1" == "" ] || [ "$1" == "info" ]; then
-  help
+    help
 elif [ "$1" == "start" ]; then
-  sudo systemctl start $APP_DIR
+    sudo systemctl start $APP_NAME
 elif [ "$1" == "stop" ]; then
-  sudo systemctl stop $APP_DIR
+    sudo systemctl stop $APP_NAME
 elif [ "$1" == "restart" ]; then
-  sudo systemctl restart $APP_DIR
+    sudo systemctl restart $APP_NAME
 elif [ "$1" == "status" ]; then
-  if [ "$APP_DIR" == "" ]; then
-    for APP_DIR in `ls -d app* | sort -g`; do
-      sudo systemctl status $APP_DIR --no-pager
-    done 
-  else
-    sudo systemctl status $APP_DIR --no-pager
-  fi
+    if [ "$APP_NAME" == "" ]; then
+        for APP_NAME in `app_dir_list`; do
+            sudo systemctl status $APP_NAME --no-pager
+        done 
+    else
+        sudo systemctl status $APP_NAME --no-pager
+    fi
 else
-  help
-  echo
-  echo "ERROR: Unknown command: $1"
+    help
+    echo
+    echo "ERROR: Unknown command: $1"
 fi 
