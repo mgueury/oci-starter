@@ -12,12 +12,17 @@ if [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then
 fi
 
 cd $HOME/app
+chmod +x */*.sh
+
 for APP_DIR in `app_dir_list`; do
     APP_NAME=$(basename "${APP_DIR}")
     title "$APP_NAME"
     if [ -f build_${APP_NAME}.sh ]; then
         title "$APP_NAME: Build"
         ./build_${APP_NAME}.sh
+    elif [ -f $APP_DIR/install.sh ] && is_deploy_compute; then
+        title "$APP_NAME: Install"
+        ${APP_DIR}/install.sh
     fi
     if is_deploy_compute; then
         if [ -f ${APP_DIR}/restart.sh ]; then

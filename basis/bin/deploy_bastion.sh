@@ -15,7 +15,7 @@ function scp_or_rsync() {
 }
 
 function scp_bastion() {
-    if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
+    if [ "$TF_VAR_deploy_type" == "public_compute" ] && [ "$TF_VAR_build_host" != "bastion" ]; then
         BASTION_DIR=$TARGET_DIR/compute
     else 
         BASTION_DIR=$TARGET_DIR/bastion
@@ -23,17 +23,16 @@ function scp_bastion() {
     fi 
 
     mkdir -p $BASTION_DIR/app
-    if [ "$TF_VAR_build_host" == "bastion" ] && [ "$TF_VAR_deploy_type" != "public_compute" ]; then
+    cp -R $BIN_DIR/compute $BASTION_DIR/.
+    if [ "$TF_VAR_build_host" == "bastion" ]; then
         cp -R src/app $BASTION_DIR/.
+        if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
+            cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
+        fi
     else
         cp -R src/app/db $BASTION_DIR/app/.
     fi
-
-    cp -R $BIN_DIR/compute $BASTION_DIR/.
     cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
-    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-        cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
-    fi
 
     scp_or_rsync $BASTION_DIR/app
     scp_or_rsync $BASTION_DIR/compute    

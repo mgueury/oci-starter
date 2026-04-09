@@ -60,18 +60,7 @@ rm $HOME/compute/gitignore
 # Build all app* directories
 cd $HOME
 
-for APP_DIR in `app_dir_list`; do
-    if [ -f $APP_DIR/install.sh ]; then
-        title "$APP_DIR: Install"
-        if [ -f ${APP_DIR}/env.sh ]; then
-            chmod +x ${APP_DIR}/env.sh
-        fi
-        if [ -f ${APP_DIR}/install.sh ]; then
-            chmod +x ${APP_DIR}/install.sh
-            ${APP_DIR}/install.sh
-        fi
-    fi  
-done
+./rebuild.sh
 
 # -- app/start*.sh -----------------------------------------------------------
 for APP_DIR in `app_dir_list`; do
