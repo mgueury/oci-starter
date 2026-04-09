@@ -28,7 +28,8 @@ elif [ "$1" == "restart" ]; then
     sudo systemctl restart $APP_NAME
 elif [ "$1" == "status" ]; then
     if [ "$APP_NAME" == "" ]; then
-        for APP_NAME in `app_dir_list`; do
+        for APP_DIR in `app_dir_list`; do
+            APP_NAME=$(basename "${APP_DIR}")  
             sudo systemctl status $APP_NAME --no-pager
         done 
     else

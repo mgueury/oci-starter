@@ -53,14 +53,13 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         chmod +x ~/app.git/hooks/post-receive
     fi
 fi
-rm $HOME/compute/gitignore
 
 # -- App --------------------------------------------------------------------
 # Application Specific installation
 # Build all app* directories
 cd $HOME
 
-./rebuild.sh
+$HOME/compute/rebuild.sh
 
 # -- app/start*.sh -----------------------------------------------------------
 if is_deploy_compute; then 
