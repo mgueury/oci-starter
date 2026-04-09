@@ -63,7 +63,6 @@ if [ "$UI_URL" != "" ]; then
   append_done "- compute/rebuild.log"
   append_done "Application logs" 
   append_done "- app/rest/rest.log"
-  app/rest/rest.log"
   {%- endif %} 
 
 elif [ ! -f $FILE_DONE ]; then
