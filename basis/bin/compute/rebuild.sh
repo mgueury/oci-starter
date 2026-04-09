@@ -18,9 +18,15 @@ for APP_DIR in `app_dir_list`; do
     APP_NAME=$(basename "${APP_DIR}")
     title "$APP_NAME"
     if [ -f build_${APP_NAME}.sh ]; then
+        # Build in bastion
         title "$APP_NAME: Build"
         ./build_${APP_NAME}.sh
+    elif [ "APP_NAME" == "db" ] then
+        # Database
+        title "$APP_NAME: Install"
+        ${APP_DIR}/install.sh
     elif [ -f $APP_DIR/install.sh ] && is_deploy_compute; then
+        # Build in terraform - compute 
         title "$APP_NAME: Install"
         ${APP_DIR}/install.sh
     fi
