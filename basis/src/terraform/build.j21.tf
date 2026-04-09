@@ -86,11 +86,13 @@ resource "null_resource" "build_deploy" {
         fi
 
         # Build all apps
-        for APP_NAME in `app_name_list`; do
-            title "Build App $APP_NAME"
-            src/app/build_$APP_NAME.sh
-            exit_on_error "Build App $APP_NAME"
-        done
+        if [ "$TF_VAR_build_host" == "terraform" ]; then
+            for APP_NAME in `app_name_list`; do
+                title "Build App $APP_NAME"
+                src/app/build_$APP_NAME.sh
+                exit_on_error "Build App $APP_NAME"
+            done
+        fi 
 
         # Build the DB tables (via Bastion)
         if [ -d src/app/db ] || [ "$TF_VAR_deploy_type" == "public_compute" ]; then
