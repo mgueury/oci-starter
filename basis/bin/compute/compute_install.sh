@@ -38,8 +38,8 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         fi
         # Create a git branch 
         sudo dnf install -y git
-        cp .gitignore > $HOME/app
         cd $HOME/app
+        cp gitignore $HOME/app/.gitignore
         git init
         git add .
         git commit -m "bastion app"
