@@ -63,7 +63,7 @@ if [ "$UI_URL" != "" ]; then
   append_done "Build logs ssh to opc@$BASTION_IP"
   append_done "- compute/rebuild.log"
   append_done "Application logs" 
-  append_done "- app/rest/rest.log"BANCO DE INVESTIMENTO GLOBAL
+  append_done "- app/rest/rest.log"
   {%- endif %} 
 
 elif [ ! -f $FILE_DONE ]; then

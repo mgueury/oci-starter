@@ -40,6 +40,8 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         sudo dnf install -y git
         cd $HOME/app
         cp $HOME/compute/git/gitignore .gitignore
+        cp $HOME/compute/git/git_push.sh .
+        chmod +x $HOME/compute/git/git_push.sh
         git init
         git add .
         git commit -m "bastion app"
@@ -47,6 +49,7 @@ if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
         # Create a bare repo (this could be gitlab, github, bitbucket, oci devops, ...). This is easier to set up like this 
         git clone --bare $HOME/app/.git $HOME/app.git
         cp $HOME/compute/git/post-receive ~/app.git/hooks
+        chmod +x ~/app.git/hooks/post-receive
         chmod +x ~/app.git/hooks/post-receive
     fi
 fi
