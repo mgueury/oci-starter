@@ -33,6 +33,14 @@ auto_echo() {
 }
 export -f auto_echo
 
+# -- debug ------------------------------------------------------------------
+debug() {
+    if [ -z "$DEBUG_MODE" ]; then
+        echo "$1"
+    fi  
+}
+export -f debug
+
 # -- error_exit -------------------------------------------------------------
 error_exit() {
     echo
@@ -178,7 +186,7 @@ file_replace_variables() {
   while IFS= read -r line || [ -n "$line" ]; do  
     while [[ $line =~ (.*)##(.*)##(.*) ]]; do
       local var_name="${BASH_REMATCH[2]}"
-      echo "- variable: ${var_name}"
+      debug "- variable: ${var_name}"
 
       if [[ ${var_name} =~ OPTIONAL/(.*) ]]; then
          var_name2="${BASH_REMATCH[1]}"
