@@ -514,7 +514,7 @@ oke_deploy_app() {
     if [ -f k8s.yaml ]; then
         copy_replace_apply_target_oke k8s.yaml $APP
     fi
-    if [ -f $k8s-ingress.yaml ]; then
+    if [ -f k8s-ingress.yaml ]; then
         copy_replace_apply_target_oke k8s-ingress.yaml $APP
     fi
 }
