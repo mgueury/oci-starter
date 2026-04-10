@@ -87,7 +87,7 @@ export -f replace_db_user_password_in_file
 # -- app_dir_list -----------------------------------------------------------
 app_dir_list() {
     # The apps are installed in alphabetical order
-    ls -d app $HOME/app/*/ 2>/dev/null | sort -g
+    ls -d $HOME/app/*/ 2>/dev/null | sort -g
 }
 export -f app_dir_list
 
@@ -602,35 +602,39 @@ build_rsync() {
         file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
     fi 
 }
+export -f build_rsync
 
-# -- Build Changed Dir
-#!/usr/bin/env bash
+# -- app_list_since_last_build ----------------------------------------------
 app_list_since_last_build() {
     STATE_FILE="$TARGET_DIR/.last_built_commit"
-    cd $HOME/app
+    APPS=`app_dir_list`
 
-    ROOTS=app_dir_list
+    cd $HOME/app
     current_commit="$(git rev-parse HEAD)"
 
     if [[ ! -f "$STATE_FILE" ]]; then
         echo "First run: building all targets"
-        changed_dirs=("${ROOTS[@]}")
+        changed_dirs=("${APPS[@]}")
     else
         last_commit="$(cat "$STATE_FILE")"
-        echo "Comparing $last_commit..$current_commit"
-
         changed_dirs=()
-        while IFS= read -r file; do
-            for root in "${ROOTS[@]}"; do
-            if [[ "$file" == "$root/"* ]]; then
-                changed_dirs+=("$root")
-                break
-            fi
-            done
-        done < <(git diff --name-only "$last_commit..$current_commit" -- "${ROOTS[@]}")
+        if [ "$last_commit" == "$current_commit" ]; then
+            echo "No commit done"
+        else
+            echo "Comparing $last_commit..$current_commit"
+            while IFS= read -r file; do
+                for APP_DIR in "${APPS[@]}"; do
+                    APP_SHORT_DIR="${APP_DIR#/home/opc/app/}"
+                    if [[ "$file" == "$APP_SHORT_DIR/"* ]]; then
+                        changed_dirs+=("$APP_DIR")
+                        break
+                    fi
+                done
+            done < <(git diff --name-only "$last_commit..$current_commit" -- "${APPS[@]}")
 
-        # Remove duplicates
-        mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
+            # Remove duplicates
+            mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
+        fi
     fi
 
     if [[ ${#changed_dirs[@]} -eq 0 ]]; then
@@ -645,3 +649,4 @@ app_list_since_last_build() {
 
     return ${#changed_dirs[@]}
 }
+export -f app_list_since_last_build
