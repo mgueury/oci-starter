@@ -1,10 +1,6 @@
 {%- macro env() %}
 . $HOME/compute/tf_env.sh
 
-{% if language == "java" -%}
-# Java VM
-export TF_VAR_java_vm="##TF_VAR_java_vm##"
-{%- endif %}
 {% if db_family == "none" -%}
 # No database
 {% else -%}

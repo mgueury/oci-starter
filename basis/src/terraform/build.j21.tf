@@ -45,6 +45,11 @@ resource "null_resource" "tf_env" {
     echo "# Region" >> $ENV_FILE   
     echo "curl -s -H 'Authorization: Bearer Oracle' -L http://169.254.169.254/opc/v2/instance/ > /tmp/instance.json" >> $ENV_FILE   
     echo "export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`" >> $ENV_FILE   
+{% if db_family == "nosql" %}
+    echo "# NoSQL" >> $ENV_FILE
+    echo "export regionDomain=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`" >> $ENV_FILE
+    echo 'export TF_VAR_nosql_endpoint="nosql.${TF_VAR_region}.oci.${regionDomain}"' >> $ENV_FILE
+{%- endif %} 
     echo "# Database" >> $ENV_FILE   
     echo "export DB_USER=\$TF_VAR_db_user" >> $ENV_FILE   
     echo "export DB_PASSWORD=\$TF_VAR_db_password" >> $ENV_FILE   
