@@ -35,7 +35,7 @@ export -f auto_echo
 
 # -- debug ------------------------------------------------------------------
 debug() {
-    if [ -z "$DEBUG_MODE" ]; then
+    if [ "$DEBUG_MODE" == "true" ]; then
         echo "$1"
     fi  
 }
