@@ -1,5 +1,6 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
+start_time=$(date +%s)
 
 . ./shared_compute.sh
 
@@ -16,7 +17,7 @@ chmod +x */*.sh
 
 for APP_DIR in `app_dir_list`; do
     APP_NAME=$(basename "${APP_DIR}")
-    title "$APP_NAME"
+    title "App: $APP_NAME"
     if [ -f build_${APP_NAME}.sh ]; then
         # Build in bastion
         title "$APP_NAME: Build"
@@ -39,3 +40,7 @@ for APP_DIR in `app_dir_list`; do
         echo "rebuild.sh: TF_VAR_deploy_type: $TF_VAR_deploy_type is not supported. It requires terraform to redeploy."
     fi
 done
+
+end_time=$(date +%s)
+echo
+echo "<rebuild.sh> Time taken: $((end_time - start_time)) seconds"
