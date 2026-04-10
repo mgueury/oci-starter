@@ -57,25 +57,26 @@ fi
 # -- App --------------------------------------------------------------------
 # Application Specific installation
 # Build all app* directories
-cd $HOME
-
 $HOME/compute/rebuild.sh
 
 # -- app/start*.sh -----------------------------------------------------------
 if is_deploy_compute; then 
+    cd $HOME/app
     for APP_DIR in `app_dir_list`; do
     # if [ -f $APP_DIR/restart.sh ]; then
     #  echo "$APP_DIR/restart.sh exists already"
     # else
         rm -f $APP_DIR/restart.sh 
-        for START_SH in `ls $APP_DIR/start*.sh 2>/dev/null | sort -g`; do
+        APP_SHORT_DIR="${APP_DIR#/home/opc/app/}"
+
+        for START_SH in `ls $APP_SHORT_DIR/start*.sh 2>/dev/null | sort -g`; do
             title "$START_SH"
             if [[ "$START_SH" =~ start_(.*).sh ]]; then
                 APP_NAME=$(echo "$START_SH" | sed -E 's/(.*)\/start_([a-zA-Z0-9_]+)\.sh$/\1_\2/')
             elif [[ "$START_SH" =~ app/(.*)/start.sh ]]; then
                 APP_NAME=$(echo "$START_SH" | sed -E 's/(.*)\/([a-zA-Z0-9_]+)\/start\.sh$/\1_\2/')
             else
-                APP_NAME=${APP_DIR}
+                APP_NAME=${APP_SHORT_DIR}
             fi
             echo "APP_NAME=$APP_NAME"
             # Hardcode the connection to the DB in the start.sh
@@ -114,8 +115,4 @@ EOT
     fi
     done 
 fi
-
-# -- Helper --------------------------------------------------------------------
-cd $SCRIPT_DIR
-mv helper.sh $HOME
 

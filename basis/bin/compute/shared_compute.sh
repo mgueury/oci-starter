@@ -87,7 +87,7 @@ export -f replace_db_user_password_in_file
 # -- app_dir_list -----------------------------------------------------------
 app_dir_list() {
     # The apps are installed in alphabetical order
-    ls -d $HOME/app/*/ 2>/dev/null | sort -g
+    ls -d $HOME/app/*/ | sed 's#/$##' 2>/dev/null | sort -g
 }
 export -f app_dir_list
 
