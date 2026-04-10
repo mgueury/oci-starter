@@ -1,6 +1,6 @@
 if [ -f $HOME/compute/tf_env.sh ]; then
     . $HOME/compute/tf_env.sh
-    export TF_VAR_namespace=$OCIR_NAMESPACE
+    export TF_VAR_namespace=$OBJECT_STORAGE_NAMESPACE
     export IS_BASTION="true"
     export TARGET_DIR="$HOME/target"
     mkdir -p $TARGET_DIR
