@@ -13,4 +13,5 @@ git --work-tree="$APP_DIR" --git-dir="$HOME/app.git" checkout -f "$BRANCH"
 git --work-tree="$APP_DIR" --git-dir="$HOME/app.git" pull origin "$BRANCH" || true
 
 # Run rebuild script
-$HOME/compute/rebuild.sh >> "$HOME/compute/rebuild.log" 2>&1 &
+DATE_POSTFIX=`date '+%Y%m%d-%H%M%S'`
+$HOME/compute/rebuild.sh >> "$HOME/compute/rebuild.$DATE_POSTFIX.log" 2>&1 &

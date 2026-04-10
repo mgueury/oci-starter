@@ -602,3 +602,46 @@ build_rsync() {
         file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
     fi 
 }
+
+# -- Build Changed Dir
+#!/usr/bin/env bash
+app_list_since_last_build() {
+    STATE_FILE="$TARGET_DIR/.last_built_commit"
+    cd $HOME/app
+
+    ROOTS=app_dir_list
+    current_commit="$(git rev-parse HEAD)"
+
+    if [[ ! -f "$STATE_FILE" ]]; then
+        echo "First run: building all targets"
+        changed_dirs=("${ROOTS[@]}")
+    else
+        last_commit="$(cat "$STATE_FILE")"
+        echo "Comparing $last_commit..$current_commit"
+
+        changed_dirs=()
+        while IFS= read -r file; do
+            for root in "${ROOTS[@]}"; do
+            if [[ "$file" == "$root/"* ]]; then
+                changed_dirs+=("$root")
+                break
+            fi
+            done
+        done < <(git diff --name-only "$last_commit..$current_commit" -- "${ROOTS[@]}")
+
+        # Remove duplicates
+        mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
+    fi
+
+    if [[ ${#changed_dirs[@]} -eq 0 ]]; then
+        echo "No Changed directory"
+    else
+        echo "Changed directories: ${changed_dirs[@]}"
+    fi
+
+    # Save the commit only after successful builds
+    printf '%s\n' "$current_commit" > "$STATE_FILE"
+    cd -
+
+    return ${#changed_dirs[@]}
+}
