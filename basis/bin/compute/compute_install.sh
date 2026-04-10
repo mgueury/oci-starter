@@ -95,7 +95,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/opc/$START_SH
+ExecStart=/home/opc/app/$START_SH
 TimeoutStartSec=0
 User=opc
 
