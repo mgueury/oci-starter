@@ -1010,11 +1010,8 @@ def create_group_common_dir():
     create_dir_shared()
 
     # -- APP ----------------------------------------------------------------
+    output_remove("src/app/*")
     output_copy_tree("option/src/app/group_common", "src/app")
-
-    # -- User Interface -----------------------------------------------------
-    output_rm_tree("src/app/ui")
-    output_rm_tree("src/app/rest")
 
     # -- Common -------------------------------------------------------------
     if "atp" in a_group_common:
