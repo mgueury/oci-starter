@@ -12,11 +12,11 @@
 
 ## XXXXX Check Language version
 
-cd rest
 if is_deploy_compute; then
     build_rsync $APP_SRC_DIR
     # Replace the user and password in the start file
     replace_db_user_password_in_file $TARGET_DIR/compute/$APP_NAME/php.ini.append
 else
+    cd rest
     {{ m.build_docker() }}
 fi  

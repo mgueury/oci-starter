@@ -10,9 +10,9 @@
 {% import "build.j2_macro" as m with context %}
 {{ m.build_common() }}
 
-cd $APP_SRC_DIR
 if is_deploy_compute; then
     build_rsync $APP_SRC_DIR
 else
+    cd $APP_SRC_DIR
     {{ m.build_docker() }}
 fi  
