@@ -382,12 +382,15 @@ pre_test_suite() {
     exit;
   fi
 
+
   # Avoid already set variables
   unset "${!TF_VAR@}"
 
   mkdir $TEST_HOME
   cd $TEST_HOME
   git clone https://github.com/mgueury/oci-starter
+  touch inprogress_rerun.sh
+  touch ok_rerun.sh
 
   SHAPE_GROUP="amd"
   if [[ `arch` == "aarch64" ]]; then
