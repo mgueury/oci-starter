@@ -574,31 +574,35 @@ java_build_common() {
 export -f java_build_common 
 
 # -- build_rsync ------------------------------------------------------------
+
 build_rsync() {
     if [ "$IS_BASTION" != "" ]; then
         return
     fi
-
+ 
     if [ "$1" == "" ]; then
         error_exit "Missing src parameter"
     fi
 
-    # In Java, copy the src/*.sh to target 
-    if [ -d target ]; then
-        cp src/*.sh target/.
+    if [ "$1" == "target" ]; then
+        # In Java, copy the *.sh and the target 
+        mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR/target
+        cp *.sh $TARGET_DIR/compute/$APP_COMPUTE_DIR/.
+        rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR/target --exclude starter --exclude terraform.tfvars
+    else
+        mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
+        rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
     fi
-
-    # Copy all the app files in $TARGET_DIR/compute/$APP_NAME
-    mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
-    rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
 
     # Replace the user and password in start.sh
     if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh ]; then
+        echo "XXX_TO_REMOVE"
         replace_db_user_password_in_file $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh
     fi
 
     # Replace variables in env.sh
     if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh ]; then 
+        echo "XXX_TO_REMOVE"
         file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
     fi 
 }
