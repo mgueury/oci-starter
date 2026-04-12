@@ -6,7 +6,7 @@
 # Run as root
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
-. /home/opc/compute/tf_enf.sh
+. /home/opc/compute/tf_env.sh
 
 if [ `arch` != "aarch64" ]; then
   FREEDB_RPM=oracle-database-free-23ai-1.0-1.el8.x86_64.rpm
