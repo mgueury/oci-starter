@@ -23,6 +23,13 @@ fi
 # Set pipefail to get the error despite pipe to tee
 set -o pipefail
 
+# Silent mode (default is not silent)
+if [ "$1" == "-silent" ]; then
+  SILENT_MODE=true
+else
+  unset SILENT_MODE
+fi 
+
 # Function to parse a .tfvars file and export TF_VAR_ variables
 read_terraform_tfvars() {
   # Read the file line by line, ignoring comments and empty lines
@@ -49,36 +56,36 @@ read_terraform_tfvars() {
 # Environment Variables
 # In 4 places:
 # 1. target/tf_env.sh created by the terraform (created by the first build)
-echo "Reading variables"
-echo
-echo "Order     File Name                             Settings from"
-echo "-----     ---------                             -------------"
+auto_echo "Reading variables"
+auto_echo
+auto_echo "Order     File Name                             Settings from"
+auto_echo "-----     ---------                             -------------"
 
 if [ -f $TARGET_DIR/tf_env.sh ]; then
   . $TARGET_DIR/tf_env.sh
-  echo "1         target/tf_env.sh                      Terraform apply"
+  auto_echo "1         target/tf_env.sh                      Terraform apply"
 else
-  echo "1 SKIP    target/tf_env.sh                      Terraform apply"
+  auto_echo "1 SKIP    target/tf_env.sh                      Terraform apply"
 fi 
 # 2. terraform.tfvars
-echo "2         terraform.tfvars                      Project"  
+auto_echo "2         terraform.tfvars                      Project"  
 read_terraform_tfvars
 # 3. $HOME/.oci_starter_profile
 if [ -f $HOME/.oci_starter_profile ]; then
   . $HOME/.oci_starter_profile
-  echo "3         \$HOME/.oci_starter_profile            User Home"
+  auto_echo "3         \$HOME/.oci_starter_profile            User Home"
 else
-  echo "3 SKIP    \$HOME/.oci_starter_profile            User Home"
+  auto_echo "3 SKIP    \$HOME/.oci_starter_profile            User Home"
 fi 
 # 4. for groups, also in group_common_env.sh
 if [ -f $PROJECT_DIR/../group_common_env.sh ]; then
   . $PROJECT_DIR/../group_common_env.sh
-  echo "4         ../group_common_env.sh                Group of Projects"
+  auto_echo "4         ../group_common_env.sh                Group of Projects"
 elif [ -f $PROJECT_DIR/../../group_common_env.sh ]; then
   . $PROJECT_DIR/../../group_common_env.sh
-  echo "4         ../../group_common_env.sh             Group of Projects"
+  auto_echo "4         ../../group_common_env.sh             Group of Projects"
 else
-  echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
+  auto_echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
 fi
 
 # Autocomplete in bash
@@ -151,13 +158,6 @@ fi
 
 # Change the prompt
 export PS1='[\[\e[0;3m\]\u@\h:\W\[\e[0m\]]$ '
-
-# Silent mode (default is not silent)
-if [ "$1" == "-silent" ]; then
-  SILENT_MODE=true
-else
-  unset SILENT_MODE
-fi 
 
 # Before Config (run only once)
 if [ -f $PROJECT_DIR/src/before_config.sh ]; then
