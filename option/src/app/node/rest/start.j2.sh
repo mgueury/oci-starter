@@ -3,5 +3,5 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 . $HOME/compute/tf_env.sh
 
-node app.js > app.log 2>&1 
+node rest.js > rest.log 2>&1 
 

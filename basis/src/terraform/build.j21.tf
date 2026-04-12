@@ -47,10 +47,10 @@ resource "null_resource" "tf_env" {
 {%- endfor %}
     append "# Region"   
     append "curl -s -H 'Authorization: Bearer Oracle' -L http://169.254.169.254/opc/v2/instance/ > /tmp/instance.json"   
-    append "export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`"   
+    append 'export TF_VAR_region=`cat /tmp/instance.json | jq -r .region`'
 {% if db_family == "nosql" %}
     append "# NoSQL"
-    append "export REGION_DOMAIN=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`" 
+    append 'export REGION_DOMAIN=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`'
     append 'export TF_VAR_nosql_endpoint="nosql.$TF_VAR_region.oci.$REGION_DOMAIN"'
 {%- endif %} 
     append "# Database"

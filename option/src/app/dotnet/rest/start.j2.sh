@@ -4,4 +4,4 @@ cd $SCRIPT_DIR
 . $HOME/compute/tf_env.sh
 
 export PATH=$HOME/.dotnet:$PATH
-dotnet run 2>&1 | tee app.log
+dotnet run 2>&1 | tee rest.log
