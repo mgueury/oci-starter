@@ -301,7 +301,7 @@ if [ -f $STATE_FILE ]; then
   # Functions
   if [ "$TF_VAR_deploy_type" == "function" ]; then
     # OBJECT Storage URL
-    export BUCKET_URL="https://objectstorage.${TF_VAR_region}.oraclecloud.com/n/${TF_VAR_namespace}/b/${TF_VAR_prefix}-public-bucket/o"
+    export BUCKET_URL="https://objectstorage.${TF_VAR_region}.oraclecloud.com/n/${OBJECT_STORAGE_NAMESPACE}/b/${TF_VAR_prefix}-public-bucket/o"
 
     # Function OCID
     get_attribute_from_tfstate "FN_FUNCTION_OCID" "starter_fn_function" "id"

@@ -447,7 +447,7 @@ export -f install_docker_tools
 # -- get_docker_prefix ------------------------------------------------------
 get_docker_prefix() {
     export DOCKER_PREFIX_NO_OCIR=${CONTAINER_PREFIX}
-    export DOCKER_PREFIX=${OCIR_HOST}/${TF_VAR_namespace}/${DOCKER_PREFIX_NO_OCIR}
+    export DOCKER_PREFIX=${OCIR_HOST}/${OBJECT_STORAGE_NAMESPACE}/${DOCKER_PREFIX_NO_OCIR}
     auto_echo DOCKER_PREFIX=$DOCKER_PREFIX
 }
 export -f get_docker_prefix 
@@ -542,7 +542,7 @@ build_ui() {
             cp install.sh $TARGET_DIR/compute/app/ui/.
         fi
     elif [ "$TF_VAR_deploy_type" == "function" ]; then 
-        oci os object bulk-upload -ns $TF_VAR_namespace -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
+        oci os object bulk-upload -ns $OBJECT_STORAGE_NAMESPACE -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
     else
         # Kubernetes and Container Instances
         docker image rm ${TF_VAR_prefix}-ui:latest 
