@@ -133,6 +133,7 @@ locals {
   # OCIR
   local_ocir_host = join("", [lower(lookup(data.oci_identity_regions.current_region.regions[0], "key")), ".ocir.io"])
   local_object_storage_namespace = lookup(data.oci_objectstorage_namespace.ns, "namespace") 
+  current_region_name = lower(lookup(data.oci_identity_regions.current_region.regions[0], "name"))
 }
 
 # Random ID
