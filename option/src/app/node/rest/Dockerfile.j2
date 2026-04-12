@@ -16,4 +16,4 @@ RUN dnf module enable -y nodejs:20 && \
 WORKDIR /app
 COPY * /app/
 RUN npm install
-CMD exec node app.js
+CMD exec node rest.js
