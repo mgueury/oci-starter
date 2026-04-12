@@ -865,8 +865,8 @@ def create_output_dir():
         output_remove("src/app/build_ui*.sh")
     elif params.get('ui_type') == "api":
         print("API Only")
-        output_rm_tree("src/app/ui")
-        output_remove("src/app/build_ui*.sh")
+        # output_rm_tree("src/app/ui")
+        # output_remove("src/app/build_ui*.sh")
         if params.get('deploy_type') in [ 'public_compute', 'private_compute', 'instance_pool' ]:
             cp_terraform_apigw("apigw_compute_append.tf")
     else:
