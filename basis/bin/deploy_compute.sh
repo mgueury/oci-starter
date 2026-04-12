@@ -9,9 +9,6 @@ cd $PROJECT_DIR
 echo "COMPUTE_IP=$COMPUTE_IP"
 
 # Create the target/compute directory
-export COMPUTE_DIR=$TARGET_DIR/compute
-mkdir -p $COMPUTE_DIR
-cp -R $BIN_DIR/compute $COMPUTE_DIR/.
 cp $TARGET_DIR/tf_env.sh $COMPUTE_DIR/compute/.
 
 scp_via_bastion "target/compute/*" opc@$COMPUTE_IP:/home/opc/.
