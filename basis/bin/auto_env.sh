@@ -23,6 +23,9 @@ fi
 # Set pipefail to get the error despite pipe to tee
 set -o pipefail
 
+# Shared BASH Functions
+. $BIN_DIR/shared_bash_function.sh
+
 # Silent mode (default is not silent)
 if [ "$1" == "-silent" ]; then
   SILENT_MODE=true
@@ -148,9 +151,6 @@ if [ "$0" != "-bash" ]; then
   unset HISTFILE
   set -o history -o histexpand
 fi
-
-# Shared BASH Functions
-. $BIN_DIR/shared_bash_function.sh
 
 if [ "$1" == "-no-auto" ]; then
   return
