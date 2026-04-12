@@ -5,9 +5,6 @@
 # No database
 {% else -%}
 {% if db_family == "nosql" %}
-# Nosql
-export regionDomain=`cat /tmp/instance.json | jq -r .regionInfo.realmDomainComponent`
-export TF_VAR_nosql_endpoint="nosql.${TF_VAR_region}.oci.${regionDomain}"
 {%- elif language == "java" -%}
 {%- if java_framework == "helidon" or java_framework == "helidon4" %}
 # Helidon
