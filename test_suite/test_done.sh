@@ -44,7 +44,7 @@ if [ "$UI_URL" != "" ]; then
       x=$(( $x + 1 ))
     done
     echo "----- Testing: $UI_URL/"
-    if [ "$TF_VAR_ui_type" != "api" ] && [ "$TF_VAR_language" != "apex" ]; then
+    if [ "$TF_VAR_ui_type" != "api" ] && [ "$TF_VAR_ui_type" != "jsp" ] && [ "$TF_VAR_language" != "apex" ]; then
       if [ -f "$TMP_PATH/cookie.txt" ]; then
         rm $TMP_PATH/cookie.txt
       fi  
