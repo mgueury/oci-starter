@@ -31,8 +31,7 @@ sudo ./wa_php_oci.sh
 sudo yum install -y php-pgsql
 {%- endif %}
 
-if grep -q '##DB_URL##' php.ini.append; then
-  sed -i "s!##DB_URL##!$DB_URL!" php.ini.append 
+if ! grep -q 'app.cfg.DB_USER' /etc/php.ini; then
   sudo sh -c "cat php.ini.append >> /etc/php.ini"
 else
   echo "DB_URL is already in php.ini.append"
