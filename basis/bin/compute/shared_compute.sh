@@ -508,8 +508,10 @@ export -f ocir_docker_push
 # -- oke_deploy_app ------------------------------------------------------------
 oke_deploy_app() {
     APP=$1
-    title "OCIR Docker Push - $APP"  
-    ocir_docker_push_app $APP
+    if [ -f Dockerfile ]; then
+        title "OCIR Docker Push - $APP"  
+        ocir_docker_push_app $APP
+    fi    
     title "Deploy to OKE - $APP"  
     if [ -f k8s.yaml ]; then
         copy_replace_apply_target_oke k8s.yaml $APP
