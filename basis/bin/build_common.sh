@@ -1,7 +1,7 @@
 if [ -f $SCRIPT_DIR/../starter.sh ]; then
-   . $SCRIPT_DIR/../starter.sh env -no-auto
+   . $SCRIPT_DIR/../starter.sh env -no-auto -silent
 elif [ -f $SCRIPT_DIR/../../starter.sh ]; then
-   . $SCRIPT_DIR/../../starter.sh env -no-auto
+   . $SCRIPT_DIR/../../starter.sh env -no-auto -silent
 fi
 
 # Build_common.sh
