@@ -6,7 +6,11 @@ cd $SCRIPT_DIR
 sudo ./install_root.sh
 
 # Install Table
-su - oracle -c "sqlplus $DB_USER/$DB_PASSWORD@$DB_URL" <<EOF
-@/home/opc/app/db/oracle
-EOF
+. $HOME/compute/tf_env.sh
+install_tnsname
+
+export ORAENV_ASK=NO
+export ORACLE_SID=FREE
+. oraenv
+sqlplus $DB_USER/$DB_PASSWORD@$DB_URL @oracle
 
