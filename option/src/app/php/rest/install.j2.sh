@@ -22,6 +22,8 @@ cd $SCRIPT_DIR
 # sudo dnf install -y php-mysqlnd 
 # sudo dnf install -y httpd
 
+. $HOME/compute/tf_env.sh
+
 chmod +x wa_php_oci.sh
 sudo ./wa_php_oci.sh
 
