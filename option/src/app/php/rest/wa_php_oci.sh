@@ -34,6 +34,11 @@ echo >> /etc/php.ini
 echo extension=oci8.so >> /etc/php.ini
 echo extension=oci8 > /etc/php.d/20-oci8.ini
 
+# Error Logs
+ln -s /var/log/php-fpm/www-error.log .
+ln -s /var/log/php-fpm/error.log .
+
+
 # Enable Service
 systemctl enable httpd
 systemctl enable php-fpm
