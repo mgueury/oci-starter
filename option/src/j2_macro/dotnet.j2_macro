@@ -92,7 +92,7 @@ using Oracle.NoSQL.SDK;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.ToString());
         }
     {%- elif db_family == "nosql" %}
         List<Dept> a = new List<Dept>();
@@ -151,7 +151,7 @@ using Oracle.NoSQL.SDK;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.ToString());
         }
     {%- endif %}  
 {%- endmacro -%}   
