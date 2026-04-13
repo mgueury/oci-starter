@@ -2,11 +2,6 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
-{%- if db_type == "db_free" %}
-# Install DB_FREE
-sudo ./install_root.sh
-{% endif%}
-
 . $HOME/compute/shared_compute.sh
 install_instant_client
 export TNS_ADMIN=$SCRIPT_DIR
