@@ -152,9 +152,8 @@ build_test_destroy () {
     exit
   fi  
   if [ "$TEST_NO_DESTROY" != "" ]; then 
-    echo "Exiting before destroy_all.sh"
+    echo "TEST_NO_DESTROY - Exiting before destroy_all.sh"
     echo "Last directory: $TEST_DIR"
-    rm $TEST_HOME/stop_after_build
     exit 
   fi 
   SECONDS=0
