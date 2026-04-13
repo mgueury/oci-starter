@@ -31,7 +31,6 @@ sudo ./wa_php_oci.sh
 sudo yum install -y php-pgsql
 {%- endif %}
 
-# XXXX replace_in_file should be done later
 if ! grep -q 'app.cfg.DB_USER' /etc/php.ini; then
     # Replace the user and password in the php.ini.append file
     cp php.ini.append /tmp/.
