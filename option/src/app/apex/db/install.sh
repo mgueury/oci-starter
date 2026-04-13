@@ -19,6 +19,12 @@ grant execute on DBMS_CLOUD_AI to APEX_APP;
 grant connect, resource, unlimited tablespace to apex_app;
 /
 begin
+  apex_instance_admin.set_parameter(
+    'APEX_BUILDER_AUTHENTICATION', 'DB');
+  commit;
+end;
+/
+begin
     apex_instance_admin.add_workspace(
      p_workspace_id   => null,
      p_workspace      => 'APEX_APP',
