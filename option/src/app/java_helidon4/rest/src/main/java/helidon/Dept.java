@@ -16,7 +16,7 @@ public class Dept {
 
     @Id
     @Column(name = "deptno", nullable = false, updatable = false)
-    private int deptno;
+    private long deptno;
 
     @Basic(optional = false)
     @Column(name = "dname")
@@ -29,7 +29,7 @@ public class Dept {
     public Dept() {
     }
 
-    public Dept( int deptno, String dname, String loc) {
+    public Dept( long deptno, String dname, String loc) {
         this.deptno = deptno;
         this.dname = dname;
         this.loc = loc;
@@ -39,7 +39,7 @@ public class Dept {
         return deptno;
     }
 
-    public void setDeptno(int deptno) {
+    public void setDeptno(long deptno) {
         this.deptno = deptno;
     }
 
