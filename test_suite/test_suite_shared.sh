@@ -151,6 +151,12 @@ build_test_destroy () {
     rm $TEST_HOME/stop_after_build
     exit
   fi  
+  if [ "$TEST_NO_DESTROY" != "" ]; then 
+    echo "Exiting before destroy_all.sh"
+    echo "Last directory: $TEST_DIR"
+    rm $TEST_HOME/stop_after_build
+    exit 
+  fi 
   SECONDS=0
   ./starter.sh destroy --auto-approve > destroy.log 2>&1  
   if [ -d "target" ]; then
