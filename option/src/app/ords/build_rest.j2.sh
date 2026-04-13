@@ -11,8 +11,8 @@
 {{ m.build_common() }}
 
 if is_deploy_compute; then
-  null
+    echo "Nothing to deploy on compute"
 else
-  # No docker build
-  {{ m.deploy_oke() }}
+    # No docker build
+    {{ m.deploy_oke() }}
 fi  
