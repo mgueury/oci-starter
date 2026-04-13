@@ -31,10 +31,14 @@ sudo ./wa_php_oci.sh
 sudo yum install -y php-pgsql
 {%- endif %}
 
+# XXXX replace_in_file should be done later
 if ! grep -q 'app.cfg.DB_USER' /etc/php.ini; then
-  sudo sh -c "cat php.ini.append >> /etc/php.ini"
+    # Replace the user and password in the php.ini.append file
+    cp php.ini.append /tmp/.
+    file_replace_variables /tmp/php.ini.append
+    sudo sh -c "cat /tmp/php.ini.append >> /etc/php.ini"
 else
-  echo "DB_URL is already in php.ini.append"
+    echo "DB_URL is already in php.ini.append"
 fi
 
 # PHP use apache 
