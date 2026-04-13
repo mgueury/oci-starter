@@ -105,7 +105,7 @@ using Oracle.NoSQL.SDK;
             }
         }
         catch(Exception ex) {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.ToString());
         }
     {%- else %}
         List<Dept> a = new List<Dept>();
@@ -151,8 +151,7 @@ using Oracle.NoSQL.SDK;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString()
-            );
+            Console.WriteLine(ex.ToString());
         }
     {%- endif %}  
 {%- endmacro -%}   
