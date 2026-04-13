@@ -14,5 +14,6 @@ if is_deploy_compute; then
     build_rsync $APP_SRC_DIR
 else
     # No docker build
+    cd $APP_SRC_DIR    
     {{ m.deploy_oke() }}
 fi  
