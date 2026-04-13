@@ -11,7 +11,7 @@
 {{ m.build_common() }}
 
 if is_deploy_compute; then
-  sed "s&##ORDS_URL##&$ORDS_URL&" rest/nginx_app.locations > $TARGET_DIR/app/ui/nginx_app.locations
+  null
 else
   # No docker build
   {{ m.deploy_oke() }}
