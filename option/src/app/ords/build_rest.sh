@@ -11,7 +11,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $SCRIPT_DIR/../../bin/build_common.sh
 
 if is_deploy_compute; then
-  sed "s&##ORDS_URL##&$ORDS_URL&" rest/nginx_app.locations > $TARGET_DIR/compute/compute/nginx_app.locations
+  sed "s&##ORDS_URL##&$ORDS_URL&" rest/nginx_app.locations > $TARGET_DIR/app/ui/nginx_app.locations
 else
-  echo "No docker image needed"
+  # No docker build
+  {{ m.deploy_oke() }}
 fi  
