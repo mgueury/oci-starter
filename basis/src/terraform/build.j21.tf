@@ -82,6 +82,9 @@ resource "null_resource" "build_deploy" {
 {%- if db_subtype == "rac" %}
         src/app/db/deploy_rac.sh
         exit_on_error "Deploy RAC"
+{%- elif db_type == "database" and language == "apex" %} 
+        src/app/db/db_node_init/deploy_apex_database.sh
+        exit_on_error "Deploy APEX Database"
 {%- endif %}
 
         # Init target/compute
