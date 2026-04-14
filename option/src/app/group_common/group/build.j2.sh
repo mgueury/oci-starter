@@ -1,14 +1,10 @@
-#!/usr/bin/env bash
-# Build_app.sh
-#
+{% import "build.j2_macro" as m with context %}
+{{ m.build_common() }}
+
 # Build the group_common_env.sh file.
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../bin/build_common.sh
-
 append () {
-   echo "$1" >> ../../../group_common_env.sh
+   echo "$1" >> ../../../../group_common_env.sh
 }
-
 conditional_append() {
   if [[ "$COMMON" == *",$1,"* ]]; then
     append "# $1" 
