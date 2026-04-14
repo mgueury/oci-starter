@@ -33,7 +33,7 @@ public class Dept {
         this.loc = loc;
     }
 
-    public int getDeptno() {
+    public long getDeptno() {
         return deptno;
     }
 
