@@ -5,7 +5,7 @@ if [ -f $HOME/compute/tf_env.sh ]; then
     export TARGET_DIR="$HOME/target"
     mkdir -p $TARGET_DIR
     if [ "$0" != "-bash" ]; then
-        APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
+        APP_NAME=$(basename $(dirname $0))
         if [ "$APP_NAME" != "" ]; then
             APP_SRC_DIR="${APP_NAME}"
             APP_COMPUTE_DIR="app/${APP_NAME}"
