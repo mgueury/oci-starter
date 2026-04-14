@@ -5,6 +5,13 @@ cd $SCRIPT_DIR
 . $HOME/compute/shared_compute.sh
 install_sqlcl
 
+if [ -f oracle_install_apex.sh ]; then
+    # Install APEX and DBMS_CLOUD
+    sudo su - oracle -c "export DB_PASSWORD=\"$DB_PASSWORD\"; export DB_URL=\"$DB_URL\"; $SCRIPT_DIR/oracle_install_apex.sh"
+    sudo su - root -c "export DB_PASSWORD=\"$DB_PASSWORD\"; $SCRIPT_DIR/root_install_apex.sh"
+fi 
+
+
 # Create the script to install the APEX Application
 cat > import_application.sql << EOF 
 create user if not exists apex_app identified by "$DB_PASSWORD" default tablespace USERS quota unlimited on USERS temporary tablespace TEMP
