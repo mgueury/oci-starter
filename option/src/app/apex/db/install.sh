@@ -6,11 +6,10 @@ cd $SCRIPT_DIR
 install_sqlcl
 
 if [ -f oracle_install_apex.sh ]; then
-    # Install APEX and DBMS_CLOUD
+    # Install APEX packages and DBMS_CLOUD package in the database (ex: OCI Base Database)
     sudo su - oracle -c "export DB_PASSWORD=\"$DB_PASSWORD\"; export DB_URL=\"$DB_URL\"; $SCRIPT_DIR/oracle_install_apex.sh"
     sudo su - root -c "export DB_PASSWORD=\"$DB_PASSWORD\"; $SCRIPT_DIR/root_install_apex.sh"
 fi 
-
 
 # Create the script to install the APEX Application
 cat > import_application.sql << EOF 
