@@ -596,10 +596,11 @@ build_rsync() {
     else
         mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
         rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
-        if [ "$TF_VAR_build_host" != "bastion" ]; then
-            rm $TARGET_DIR/compute/$APP_COMPUTE_DIR/build.sh
-        fi
     fi
+    # Remove the build.sh if it is not done on the bastion
+    if [ "$TF_VAR_build_host" != "bastion" ]; then
+        rm $TARGET_DIR/compute/$APP_COMPUTE_DIR/build.sh
+    fi    
 }
 export -f build_rsync
 
