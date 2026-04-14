@@ -120,6 +120,7 @@ resource "null_resource" "build_deploy" {
             $BIN_DIR/deploy_ci.sh
             exit_on_error "Deploy $TF_VAR_deploy_type"
         fi
+        title "Terraform: Export Variables"
         ./starter.sh frm
         EOT
   }

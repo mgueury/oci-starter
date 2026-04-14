@@ -171,7 +171,7 @@ elif [ "$ARG1" == "frm" ]; then # From Resource Manager
     exit_on_error "build_all.sh --before_terraform"
   fi    
   . shared_infra_as_code.sh
-  . ./starter.sh env
+  . ./starter.sh env -silent
   resource_manager_variables_json
 
 elif [ "$ARG1" == "start" ]; then
