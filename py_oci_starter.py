@@ -617,7 +617,7 @@ def file_output(file_path, contents):
 
 ## COPY FILES ###############################################################
 def copy_basis(basis_dir=BASIS_DIR):
-    print( "output_dir="+output_dir )
+    print( "<copy_basis> "+output_dir )
     shutil.copytree(basis_dir, output_dir)
 
 def output_replace(old_string, new_string, filename):
@@ -636,7 +636,7 @@ def output_replace(old_string, new_string, filename):
             f.write(s)
 
 def append_file(file1, file2):
-    print("append " + file2)
+    print("<append_file> " + file2)
     # opening first file in append mode and second file in read mode
     f1 = open(file1, 'a+')
     f2 = open(file2, 'r')
@@ -647,7 +647,7 @@ def append_file(file1, file2):
     f2.close()
 
 def cp_terraform(file1, file2=None, file3=None):
-    print("cp_terraform " + file1)
+    print("<cp_terraform> " + file1)
     shutil.copy2("option/terraform/"+file1, output_dir + "/src/terraform")
 
     # Append a second file
@@ -662,7 +662,7 @@ def cp_terraform_existing( param_name, file1, file2=None, file3=None):
     file_name = file1
     if param_name in params:
         file_name = file1.replace(".j2.", "_existing.j2.")
-    print("cp_terraform_existing: " + file_name)
+    print("<cp_terraform_existing> " + file_name)
     shutil.copy2("option/terraform/"+file1, output_dir + "/src/terraform/"+file_name)
 
     # Append a second file
@@ -674,7 +674,7 @@ def cp_terraform_existing( param_name, file1, file2=None, file3=None):
         append_file( output_dir + "/src/terraform/"+file_name, "option/terraform/"+file3 )
 
 def output_copy_tree(src, target):
-    print(f"<output_copy_tree>src={src} -> target={target}")
+    print(f"<output_copy_tree> src={src} -> target={target}")
     shutil.copytree(src, output_dir + os.sep + target, dirs_exist_ok=True)
 
 def output_move(src, target):
@@ -690,17 +690,18 @@ def output_mkdir(src):
 
 def output_remove(src_pattern):
     pattern = os.path.join(output_dir, src_pattern)
-    print(f"<output_remove>pattern={pattern}")
+    print(f"<output_remove> {pattern}")
     for file_path in glob.glob(pattern):
         print(f"<output_remove>file_path={file_path}")
         if os.path.isfile(file_path):
             os.remove(file_path)
 
 def output_rm_tree(src):
+    print("<output_rm_tree> "+src)    
     shutil.rmtree(output_dir + os.sep + src)
 
 def cp_dir_src_db(db_family):
-    print("cp_dir_src_db "+db_family)
+    print("<cp_dir_src_db> "+db_family)
     output_copy_tree("option/src/db/"+db_family, "src/app/db")
 
 def output_replace_db_node_count():
@@ -887,20 +888,20 @@ def create_output_dir():
                 params['java_docker'] = 'eclipse-temurin:25'
 
         # Check if any script exists that is NOT build_rest.sh
-        build_scripts = glob.glob(os.path.join("option/src/app/"+app, "build_*.sh"))
-        has_build_rest = any(
-            os.path.basename(script) in ["build_rest.sh","build_rest.j2.sh"]
-            for script in build_scripts
-        ) 
-        has_other_build = any(
-            os.path.basename(script) not in ["build_rest.sh","build_rest.j2.sh"]
-            for script in build_scripts
-        )
+        has_build_rest = False
+        has_other_build = False
+
+        for script in glob.glob(f"option/src/app/{app}/*/build.sh"):
+            if script.endswith("/rest/build.sh"):
+                has_build_rest = True
+            else:
+                has_other_build = True
+
         print("has_build_rest="+str(has_build_rest))
         print("has_other_build="+str(has_other_build))
         if has_other_build and not has_build_rest:
             output_rm_tree("src/app/rest")
-            output_remove("src/app/build_rest*.sh")
+            output_remove("src/app/rest/build*.sh")
 
     # -- User Interface -----------------------------------------------------
     if params.get('ui_type') == "none":

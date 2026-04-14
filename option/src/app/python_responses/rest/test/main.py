@@ -3,7 +3,7 @@ import os
 
 def main() -> None:
     # Defaults can be overridden by AGENT_HUB_REGION.
-    REGION = "us-chicago-1"
+    REGION = os.getenv("TF_VAR_region")
     MODEL_ID = "openai.gpt-oss-120b"
 
     BASE_URL = f"https://inference.generativeai.{REGION}.oci.oraclecloud.com/20231130/openai/v1"
