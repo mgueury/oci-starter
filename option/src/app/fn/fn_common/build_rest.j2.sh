@@ -3,7 +3,7 @@
 {{ m.build_common() }}
 
 # FN uses more variable like OCIR_HOST that are not available with ./env.sh -no-auto
-. $SCRIPT_DIR/../../starter.sh env 
+. $SCRIPT_DIR/../../starter.sh env -silent
 
 # fn -v deploy --app ${TF_VAR_prefix}-fn-application
 # fn invoke ${TF_VAR_prefix}-fn-application ${TF_VAR_prefix}-fn-function

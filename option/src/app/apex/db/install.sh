@@ -2,11 +2,8 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
-# Install SQLCL (Java program)
-wget -nv https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip
-rm -Rf sqlcl
-unzip sqlcl-latest.zip
-sudo dnf install -y java-17 
+. $HOME/compute/shared_compute.sh
+install_sqlcl
 
 # Create the script to install the APEX Application
 cat > import_application.sql << EOF 
@@ -65,12 +62,5 @@ end;
 quit
 EOF
 
-# Run SQLCl
-# Install the tables
-cat > tnsnames.ora <<EOT
-DB  = $DB_URL
-EOT
-
-export TNS_ADMIN=$HOME/db
 sqlcl/bin/sql $DB_USER/$DB_PASSWORD@DB @import_application.sql
 
