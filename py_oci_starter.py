@@ -901,7 +901,6 @@ def create_output_dir():
         print("has_other_build="+str(has_other_build))
         if has_other_build and not has_build_rest:
             output_rm_tree("src/app/rest")
-            output_remove("src/app/rest/build*.sh")
 
     # -- User Interface -----------------------------------------------------
     if params.get('ui_type') == "none":
