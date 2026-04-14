@@ -73,9 +73,9 @@ elif [ "$ARG1" == "help" ]; then
 elif [ "$ARG1" == "build" ]; then
   if [ "$ARG2" == "app" ]; then
     # Build all apps
-    for APP_NAME in `app_name_list`; do
+    for APP_NAME in `app_name_list_build`; do
         title "Build App $APP_NAME"
-        src/app/build_$APP_NAME.sh ${@:2}
+        src/app/$APP_NAME/build.sh ${@:2}
         exit_on_error "Build App $APP_NAME"
     done
   elif [ "$ARG2" == "ui" ]; then

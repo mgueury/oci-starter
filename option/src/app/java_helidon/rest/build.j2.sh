@@ -1,16 +1,6 @@
-#!/usr/bin/env bash
-# Build_app.sh
-#
-# Compute:
-# - build the code 
-# - create a $ROOT/target/compute/$APP_NAME directory with the compiled files
-# - and a start.sh to start the program
-# Docker:
-# - build the image
 {% import "build.j2_macro" as m with context %}
 {{ m.build_common() }}
 
-cd rest
 java_build_common
 
 # XXXX microprofile-config.properties values should all go in start.sh like JDBC_USER

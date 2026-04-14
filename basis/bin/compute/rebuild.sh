@@ -14,14 +14,14 @@ chmod +x */*.sh
 for APP_DIR in `app_dir_list`; do
     APP_NAME=$(basename "${APP_DIR}")
     title "App: $APP_NAME"
-    if [ -f build_${APP_NAME}.sh ]; then
-        if [ -f ${APP_DIR}/Dockerfile ] && [ "DOCKER_LOGGED" == "false" ]; then 
+    if [ -f ${APP_NAME}/build.sh ]; then
+        if [ -f ${APP_NAME}/Dockerfile ] && [ "DOCKER_LOGGED" == "false" ]; then 
             export DOCKER_LOGGED=true
             docker_login
         fi
         # Build in bastion
         title "$APP_NAME: Build"
-        ./build_${APP_NAME}.sh
+        $APP_NAME/build.sh
     elif [ "APP_NAME" == "db" ]; then
         # Database
         title "$APP_NAME: Install"

@@ -108,7 +108,7 @@ kubectl apply -f $TARGET_OKE/tf_env_configmap.yaml
 
 # Append a line in tf_env.sh (typically used in before_build.sh to add custom variable to pass to bastion/compute/...)
 # APPS
-# for APP_NAME in `app_name_list`; do
+# for APP_NAME in `app_name_list_build`; do
 #   if [ -f src/app/${APP_NAME}/k8s.yaml ]; then
 #     copy_replace_apply_target_oke src/app/${APP_NAME}/k8s.yaml
 #   fi

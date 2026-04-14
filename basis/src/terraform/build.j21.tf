@@ -98,9 +98,9 @@ resource "null_resource" "build_deploy" {
 
         # Build all apps
         if [ "$TF_VAR_build_host" == "terraform" ]; then
-            for APP_NAME in `app_name_list`; do
+            for APP_NAME in `app_name_list_build`; do
                 title "Build App $APP_NAME"
-                src/app/build_$APP_NAME.sh
+                src/app/$APP_NAME/build.sh
                 exit_on_error "Build App $APP_NAME"
             done
         fi 

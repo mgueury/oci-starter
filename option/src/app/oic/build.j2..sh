@@ -1,14 +1,5 @@
-#!/usr/bin/env bash
-# Build_app.sh
-#
-# Compute:
-# - build the code 
-# - create a $ROOT/target/compute/$APP_NAME directory with the compiled files
-# - and a start.sh to start the program
-# Docker:
-# - build the image
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. $SCRIPT_DIR/../../bin/build_common.sh
+{% import "build.j2_macro" as m with context %}
+{{ m.build_common() }}
 
 curl -X PUT -H 'Authorization: Bearer access_token' -H "Accept:application/json" -F file=@myIntegration.iar -F type=application/octet-stream https://integration.us.oraclecloud.com/ic/api/integration/v1/integrations/archive
 

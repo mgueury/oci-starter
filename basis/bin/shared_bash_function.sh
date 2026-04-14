@@ -13,8 +13,8 @@ fi
 #### Commmon functions
 
 # Used in for loop for APP_NAME
-app_name_list() {
-    ls -d $PROJECT_DIR/src/app/build_*.sh | sort -g | sed "s#.*src/app/build_##g" | sed "s/\.sh$//"
+app_name_list_build() {
+    ls -d $PROJECT_DIR/src/app/*/build.sh | sort -g | sed "s#.*src/app/##g" | sed "s#/build\.sh##"
 }
 
 build_function() {

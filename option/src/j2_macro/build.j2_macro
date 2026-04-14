@@ -1,4 +1,13 @@
 {% macro build_common() -%}
+#!/usr/bin/env bash
+# build.sh
+#
+# Compute:
+# - build the code 
+# - create a $TARGET_DIR/compute/app/$APP_NAME directory with the files
+# - and a start.sh to start the program
+# Docker:
+# - build the image
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 if [ -f $SCRIPT_DIR/../../bin/build_common.sh ]; then
     . $SCRIPT_DIR/../../bin/build_common.sh

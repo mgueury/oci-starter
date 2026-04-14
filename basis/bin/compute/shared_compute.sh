@@ -499,7 +499,7 @@ ocir_docker_push () {
     echo DOCKER_PREFIX=$DOCKER_PREFIX
 
     # Push image in registry
-    for APP_NAME in `app_name_list`; do
+    for APP_NAME in `app_name_list_build`; do
         if [ -n "$(docker images -q ${TF_VAR_prefix}-${APP_NAME} 2> /dev/null)" ]; then
             ocir_docker_push_app ${APP_NAME}
         fi
@@ -596,19 +596,10 @@ build_rsync() {
     else
         mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
         rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
+        if [ "TF_VAR_build_bastion" != "bastion" ]; then
+            rm $TARGET_DIR/compute/$APP_COMPUTE_DIR/build.sh
+        fi
     fi
-
-    # Replace the user and password in start.sh
-    if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh ]; then
-        echo "XXX_TO_REMOVE"
-        replace_db_user_password_in_file $TARGET_DIR/compute/$APP_COMPUTE_DIR/start.sh
-    fi
-
-    # Replace variables in env.sh
-    if [ -f $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh ]; then 
-        echo "XXX_TO_REMOVE"
-        file_replace_variables $TARGET_DIR/compute/$APP_COMPUTE_DIR/env.sh
-    fi 
 }
 export -f build_rsync
 
