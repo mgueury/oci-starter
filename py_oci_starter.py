@@ -674,7 +674,7 @@ def cp_terraform_existing( param_name, file1, file2=None, file3=None):
         append_file( output_dir + "/src/terraform/"+file_name, "option/terraform/"+file3 )
 
 def output_copy_tree(src, target):
-    print(f"<output_copy_tree>src={src}")
+    print(f"<output_copy_tree>src={src} -> target={target}")
     shutil.copytree(src, output_dir + os.sep + target, dirs_exist_ok=True)
 
 def output_move(src, target):
