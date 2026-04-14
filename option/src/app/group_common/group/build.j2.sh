@@ -2,8 +2,9 @@
 {{ m.build_common() }}
 
 # Build the group_common_env.sh file.
+export GROUP_COMMON=../../../../group_common_env.sh
 append () {
-   echo "$1" >> ../../../../group_common_env.sh
+   echo "$1" >> $GROUP_COMMON
 }
 conditional_append() {
   if [[ "$COMMON" == *",$1,"* ]]; then
@@ -74,7 +75,7 @@ fi
 
 COMMON=,${TF_VAR_group_common},
 
-cat > ../../../group_common_env.sh <<'EOT' 
+cat > $GROUP_COMMON <<'EOT' 
 export COMMON_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Commment to create an new oci-starter compartment automatically
@@ -86,7 +87,7 @@ else
   append "export TF_VAR_compartment_ocid=$TF_VAR_compartment_ocid"
 fi
 
-cat >> ../../../group_common_env.sh <<'EOT' 
+cat >> $GROUP_COMMON <<'EOT' 
 
 # API Management
 EOT
@@ -102,7 +103,7 @@ else
   append "export TF_VAR_instance_shape=$TF_VAR_instance_shape"
 fi   
 
-cat >> ../../../group_common_env.sh <<EOT 
+cat >> $GROUP_COMMON <<EOT 
 
 # Common Resources Name (Typically: dev, test, qa, prod)
 export TF_VAR_group_name=$TF_VAR_prefix
@@ -153,7 +154,7 @@ if [ "$TF_VAR_auth_token" != "" ]; then
   append "export TF_VAR_auth_token=$TF_VAR_auth_token"
 fi   
 
-cat >> ../../../group_common_env.sh <<'EOT' 
+cat >> $GROUP_COMMON <<'EOT' 
 
 # Database Password
 export TF_VAR_db_password="$TF_VAR_db_password"
