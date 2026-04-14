@@ -6,11 +6,7 @@ start_time=$(date +%s)
 
 TARGET_OKE="$HOME/target/oke"
 mkdir -p $TARGET_OKE
-
-
-if [ "$TF_VAR_deploy_type" == "kubernetes" ] ; then 
-    docker_login
-fi
+export DOCKER_LOGGED=false
 
 cd $HOME/app
 chmod +x */*.sh
@@ -19,6 +15,10 @@ for APP_DIR in `app_dir_list`; do
     APP_NAME=$(basename "${APP_DIR}")
     title "App: $APP_NAME"
     if [ -f build_${APP_NAME}.sh ]; then
+        if [ -f ${APP_DIR}/Dockerfile ] && [ "DOCKER_LOGGED" == "false" ]; then 
+            export DOCKER_LOGGED=true
+            docker_login
+        fi
         # Build in bastion
         title "$APP_NAME: Build"
         ./build_${APP_NAME}.sh
