@@ -774,6 +774,46 @@ def create_dir_shared():
 def create_output_dir():
     create_dir_shared()
 
+    # -- Database ----------------------------------------------------------------
+    # Start by copying the app/db directory (for case like APEX that overwrite a part of the directory)
+    if params.get('db_type') != "none":
+        cp_terraform("output.tf")
+        output_mkdir("src/app/db")
+
+        cp_dir_src_db(db_family)
+        if params.get('db_type') == "autonomous":
+            cp_terraform_existing("atp_ocid", "atp.j2.tf")
+
+        if params.get('db_type') == "database":
+            cp_terraform_existing("db_ocid", "dbsystem.j2.tf")
+            if 'db_ocid' not in params:
+                output_replace_db_node_count()
+            if params.get('language') == 'apex':
+                output_copy_tree("option/src/db/apex", ".")
+
+        if params.get('db_type') == "pluggable":
+            cp_terraform_existing("pdb_ocid", "dbsystem_pluggable.j2.tf")
+
+        if params.get('db_type') == "db_free":
+            cp_terraform("db_free.j2.tf")
+            output_copy_tree("option/src/db/db_free", "src/app/db")
+
+        if params.get('db_type') == "mysql":
+            if params.get('deploy_type') == "public_compute":
+               cp_terraform("mysql_public_compute.tf")
+               output_copy_tree("option/src/db/mysql_public_compute", "src/app/db")
+            else:
+                cp_terraform_existing("mysql_ocid", "mysql.j2.tf")
+
+        if params.get('db_type') == "psql":
+            cp_terraform_existing("psql_ocid", "psql.j2.tf")
+
+        if params.get('db_type') == "opensearch":
+            cp_terraform_existing("opensearch_ocid", "opensearch.j2.tf")
+
+        if params.get('db_type') == "nosql":
+            cp_terraform_existing("nosql_ocid", "nosql.j2.tf")
+
     # -- APP ----------------------------------------------------------------
     if params['language'] == "none":
         output_rm_tree("src/app/rest")
@@ -943,45 +983,6 @@ def create_output_dir():
 
     if params.get('deploy_type') in ["kubernetes","container_instance","function"]:
         cp_terraform("repository.j2.tf")
-
-    # -- Database ----------------------------------------------------------------
-    if params.get('db_type') != "none":
-        cp_terraform("output.tf")
-        output_mkdir("src/app/db")
-
-        cp_dir_src_db(db_family)
-        if params.get('db_type') == "autonomous":
-            cp_terraform_existing("atp_ocid", "atp.j2.tf")
-
-        if params.get('db_type') == "database":
-            cp_terraform_existing("db_ocid", "dbsystem.j2.tf")
-            if 'db_ocid' not in params:
-                output_replace_db_node_count()
-            if params.get('language') == 'apex':
-                output_copy_tree("option/src/db/apex", ".")
-
-        if params.get('db_type') == "pluggable":
-            cp_terraform_existing("pdb_ocid", "dbsystem_pluggable.j2.tf")
-
-        if params.get('db_type') == "db_free":
-            cp_terraform("db_free.j2.tf")
-            output_copy_tree("option/src/db/db_free", "src/app/db")
-
-        if params.get('db_type') == "mysql":
-            if params.get('deploy_type') == "public_compute":
-               cp_terraform("mysql_public_compute.tf")
-               output_copy_tree("option/src/db/mysql_public_compute", "src/app/db")
-            else:
-                cp_terraform_existing("mysql_ocid", "mysql.j2.tf")
-
-        if params.get('db_type') == "psql":
-            cp_terraform_existing("psql_ocid", "psql.j2.tf")
-
-        if params.get('db_type') == "opensearch":
-            cp_terraform_existing("opensearch_ocid", "opensearch.j2.tf")
-
-        if params.get('db_type') == "nosql":
-            cp_terraform_existing("nosql_ocid", "nosql.j2.tf")
 
     # CleanUp - Keep the minimum number of deployment files in the main app directory 
     if params.get('deploy_type')!="kubernetes":
