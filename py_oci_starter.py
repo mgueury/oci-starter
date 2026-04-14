@@ -776,6 +776,27 @@ def create_output_dir():
 
     # -- Database ----------------------------------------------------------------
     # Start by copying the app/db directory (for case like APEX that overwrite a part of the directory)
+    if params['db_type'] == "autonomous" or params['db_type'] == "database" or params['db_type'] == "pluggable" or params['db_type'] == "db_free":
+        db_family = "oracle"
+        db_family_type = "sql"
+    elif params['db_type'] == "mysql":
+        db_family = "mysql"
+        db_family_type = "sql"
+    elif params['db_type'] == "psql":
+        db_family = "psql"
+        db_family_type = "sql"
+    elif params['db_type'] == "opensearch":
+        db_family = "opensearch"
+        db_family_type = "other"
+    elif params['db_type'] == "nosql":
+        db_family = "nosql"
+        db_family_type = "other"
+    elif params['db_type'] == "none":
+        db_family = "none"
+        db_family_type = "other"
+    params['db_family'] = db_family
+    params['db_family_type'] = db_family_type
+
     if params.get('db_type') != "none":
         cp_terraform("output.tf")
         output_mkdir("src/app/db")
@@ -822,27 +843,6 @@ def create_output_dir():
             app = "fn/fn_"+params['language']
         else:
             app = params['language']
-
-        if params['db_type'] == "autonomous" or params['db_type'] == "database" or params['db_type'] == "pluggable" or params['db_type'] == "db_free":
-            db_family = "oracle"
-            db_family_type = "sql"
-        elif params['db_type'] == "mysql":
-            db_family = "mysql"
-            db_family_type = "sql"
-        elif params['db_type'] == "psql":
-            db_family = "psql"
-            db_family_type = "sql"
-        elif params['db_type'] == "opensearch":
-            db_family = "opensearch"
-            db_family_type = "other"
-        elif params['db_type'] == "nosql":
-            db_family = "nosql"
-            db_family_type = "other"
-        elif params['db_type'] == "none":
-            db_family = "none"
-            db_family_type = "other"
-        params['db_family'] = db_family
-        params['db_family_type'] = db_family_type
 
         # Function Common
         if params.get('deploy_type') == "function":
