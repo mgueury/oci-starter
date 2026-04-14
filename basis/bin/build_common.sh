@@ -15,7 +15,7 @@ if [ "$PROJECT_DIR" == "" ]; then
   exit 1
 fi
 
-APP_NAME=$(basename "$0" | sed -E 's/^build_(.*)\.sh$/\1/')
+APP_NAME=$(basename $(dirname $0))
 APP_SRC_DIR="${APP_NAME}"
 APP_COMPUTE_DIR="app/${APP_NAME}"
 cd $SCRIPT_DIR
