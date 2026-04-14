@@ -215,7 +215,7 @@ export -f file_replace_variables
 install_sqlcl() {
     install_java
     install_tnsname
-    cd $HOME/db
+    cd $HOME/app/db
     if [ ! -f sqlcl-latest.zip ]; then
         download https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip
         rm -Rf sqlcl
