@@ -115,7 +115,7 @@ allowed_values = {
     'java_framework': {'springboot', 'helidon', 'helidon4', 'tomcat', 'micronaut'},
     'java_vm': {'jdk', 'graalvm', 'graalvm-native'},
     'java_version': {'8', '11', '17', '21', '25'},
-    'python_framework': {'fastapi', 'langgraph', 'openai_compatible'},
+    'python_framework': {'fastapi', 'langgraph', 'responses'},
     'kubernetes': {'oke', 'docker'},
     'ui_type': {'html', 'jet', 'angular', 'reactjs', 'jsp', 'php', 'api', 'apex', 'none'},
     'db_type': {'atp', 'autonomous', 'database', 'dbsystem', 'rac', 'db_free', 'pluggable', 'pdb', 'mysql', 'psql', 'opensearch', 'nosql', 'none'},
@@ -225,7 +225,7 @@ def ui_rules():
         params['language'] = 'php'
     elif params.get('ui_type') == 'ruby':
         params['language'] = 'ruby'
-    elif params.get('python_framework') == 'langgraph':
+    elif params.get('python_framework') in [ 'langgraph', 'responses' ]:
         params['ui_type'] = 'langgraph'
 
 
@@ -862,6 +862,9 @@ def create_output_dir():
         if params.get('deploy_type') != "function" and params['language'] == "python":
             app = "python_" + params['python_framework']
             output_copy_tree("option/src/app/"+app, "src/app")
+            if params.get('python_framework') in [ 'langgraph', 'responses' ]:
+                output_copy_tree("option/src/app/python_mcp_server", "src/app")
+
 
         # Overwrite the generic version (ex for mysql)
         family_dir = app+"_"+db_family
