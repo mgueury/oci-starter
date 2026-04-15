@@ -1,7 +1,9 @@
-if [ -f $SCRIPT_DIR/../starter.sh ]; then
+BUILD_COMMON_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+if [ -f $BUILD_COMMON_DIR/../starter.sh ]; then
    . $SCRIPT_DIR/../starter.sh env -no-auto -silent
-elif [ -f $SCRIPT_DIR/../../starter.sh ]; then
-   . $SCRIPT_DIR/../../starter.sh env -no-auto -silent
+else 
+   echo "ERROR: starter.sh not found"
+   exit 1
 fi
 
 # Build_common.sh

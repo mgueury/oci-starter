@@ -17,7 +17,6 @@
 {%- if language == "ords" %}
 # ORDS: OCI Function is not used. Nothing to do
 {%- else %}
-cd rest
 build_function
 {%- endif %}
 exit_on_error "build_function"
