@@ -29,7 +29,7 @@ function scp_bastion() {
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
             cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
         fi
-    else
+    elif [ -d src/app/db ]; then
         cp -R src/app/db $BASTION_DIR/app/.
     fi
     cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.

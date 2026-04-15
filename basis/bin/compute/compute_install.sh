@@ -68,12 +68,7 @@ if is_deploy_compute; then
             APP_NAME="${APP_DIR//\//-}"
             echo "Creating restart.sh for APP_DIR=$APP_DIR / APP_NAME=$APP_NAME"
             # Hardcode the connection to the DB in the start.sh
-            if [ "$DB_URL" != "" ]; then
-                sed -i "s!##JDBC_URL##!$JDBC_URL!" $START_SH 
-                sed -i "s!##DB_URL##!$DB_URL!" $START_SH 
-            fi  
-            sed -i "s!##TF_VAR_java_vm##!$TF_VAR_java_vm!" $START_SH
-            chmod +x $START_SH
+            chmod +x $APP_DIR/start.sh
 
             # Create an "app.service" that starts when the machine starts.
             cat > /tmp/$APP_NAME.service << EOT
@@ -83,7 +78,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/opc/app/$START_SH
+ExecStart=/home/opc/app/$APP_DIR/start.sh
 TimeoutStartSec=0
 User=opc
 
