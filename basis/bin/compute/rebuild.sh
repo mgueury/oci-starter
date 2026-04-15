@@ -8,11 +8,11 @@ TARGET_OKE="$HOME/target/oke"
 mkdir -p $TARGET_OKE
 export DOCKER_LOGGED=false
 
-cd $HOME/app
 chmod +x */*.sh
 
+cd $HOME/app
 for APP_DIR in `app_dir_list`; do
-    APP_NAME=$(basename "${APP_DIR}")
+    APP_NAME="${APP_DIR//\//-}"
     title "App: $APP_NAME"
     if [ -f ${APP_NAME}/build.sh ]; then
         if [ -f ${APP_NAME}/Dockerfile ] && [ "DOCKER_LOGGED" == "false" ]; then 

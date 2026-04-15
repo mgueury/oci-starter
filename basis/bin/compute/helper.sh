@@ -6,9 +6,10 @@ cd $SCRIPT_DIR
 
 help() {
     echo "List of Apps:"
+    cd $HOME/app
     for APP_DIR in `app_dir_list`; do
-        APP_NAME=$(basename "${APP_DIR}")    
-        echo "-- APP: $APP_NAME -------------------------------------------"
+        APP_NAME="${APP_DIR//\//-}"
+        echo "-- APP: $APP_DIR - $APP_NAME ---------------------------------------"
         sudo systemctl status $APP_NAME --no-pager
     done 
     echo    
@@ -29,7 +30,7 @@ elif [ "$1" == "restart" ]; then
 elif [ "$1" == "status" ]; then
     if [ "$APP_NAME" == "" ]; then
         for APP_DIR in `app_dir_list`; do
-            APP_NAME=$(basename "${APP_DIR}")  
+            APP_NAME="${APP_DIR//\//-}" 
             sudo systemctl status $APP_NAME --no-pager
         done 
     else

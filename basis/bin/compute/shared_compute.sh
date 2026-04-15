@@ -5,11 +5,8 @@ if [ -f $HOME/compute/tf_env.sh ]; then
     export TARGET_DIR="$HOME/target"
     mkdir -p $TARGET_DIR
     if [ "$0" != "-bash" ]; then
-        APP_NAME=$(basename $(dirname $0))
-        if [ "$APP_NAME" != "" ]; then
-            APP_SRC_DIR="${APP_NAME}"
-            APP_COMPUTE_DIR="app/${APP_NAME}"
-        fi
+        export APP_DIR="${SCRIPT_DIR#*/app/}"
+        export APP_NAME="${APP_DIR//\//-}"
     fi
 fi
 
@@ -590,63 +587,16 @@ build_rsync() {
 
     if [ "$1" == "target" ]; then
         # In Java, copy the *.sh and the target 
-        mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR/target
-        cp *.sh $TARGET_DIR/compute/$APP_COMPUTE_DIR/.
-        rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR/target --exclude starter --exclude terraform.tfvars
+        mkdir -p $TARGET_DIR/compute/app/$APP_DIR/target
+        cp *.sh $TARGET_DIR/compute/app/$APP_DIR/.
+        rsync -av --progress $1/ $TARGET_DIR/compute/app/$APP_DIR/target --exclude starter --exclude terraform.tfvars
     else
-        mkdir -p $TARGET_DIR/compute/$APP_COMPUTE_DIR
-        rsync -av --progress $1/ $TARGET_DIR/compute/$APP_COMPUTE_DIR --exclude starter --exclude terraform.tfvars
+        mkdir -p $TARGET_DIR/compute/app/$APP_DIR
+        rsync -av --progress $1/ $TARGET_DIR/compute/app/$APP_DIR --exclude starter --exclude terraform.tfvars
     fi
     # Remove the build.sh if it is not done on the bastion
     if [ "$TF_VAR_build_host" != "bastion" ]; then
-        rm $TARGET_DIR/compute/$APP_COMPUTE_DIR/build.sh
+        rm $TARGET_DIR/compute/app/$APP_DIR/build.sh
     fi    
 }
 export -f build_rsync
-
-# -- app_list_since_last_build ----------------------------------------------
-# app_list_since_last_build() {
-#     STATE_FILE="$TARGET_DIR/.last_built_commit"
-#     APPS=`app_dir_list`
-
-#     cd $HOME/app
-#     current_commit="$(git rev-parse HEAD)"
-
-#     if [[ ! -f "$STATE_FILE" ]]; then
-#         echo "First run: building all targets"
-#         changed_dirs=("${APPS[@]}")
-#     else
-#         last_commit="$(cat "$STATE_FILE")"
-#         changed_dirs=()
-#         if [ "$last_commit" == "$current_commit" ]; then
-#             echo "No commit done"
-#         else
-#             echo "Comparing $last_commit..$current_commit"
-#             while IFS= read -r file; do
-#                 for APP_DIR in "${APPS[@]}"; do
-#                     APP_SHORT_DIR="${APP_DIR#/home/opc/app/}"
-#                     if [[ "$file" == "$APP_SHORT_DIR/"* ]]; then
-#                         changed_dirs+=("$APP_DIR")
-#                         break
-#                     fi
-#                 done
-#             done < <(git diff --name-only "$last_commit..$current_commit" -- "${APPS[@]}")
-
-#             # Remove duplicates
-#             mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
-#         fi
-#     fi
-
-#     if [[ ${#changed_dirs[@]} -eq 0 ]]; then
-#         echo "No Changed directory"
-#     else
-#         echo "Changed directories: ${changed_dirs[@]}"
-#     fi
-
-#     # Save the commit only after successful builds
-#     printf '%s\n' "$current_commit" > "$STATE_FILE"
-#     cd -
-
-#     return ${#changed_dirs[@]}
-# }
-# export -f app_list_since_last_build

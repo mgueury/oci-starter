@@ -17,9 +17,10 @@ if [ "$PROJECT_DIR" == "" ]; then
   exit 1
 fi
 
-APP_NAME=$(basename $(dirname $0))
-APP_SRC_DIR="${APP_NAME}"
-APP_COMPUTE_DIR="app/${APP_NAME}"
+# Ex: src/app/rest     -> rest     -> rest 
+# Ex: src/app/xxx/rest -> xxx/rest -> xxx-rest 
+export APP_DIR="${SCRIPT_DIR#*/app/}"
+export APP_NAME="${APP_DIR//\//-}"
 cd $SCRIPT_DIR
 
 if [ "$TF_VAR_deploy_type" == "" ]; then
