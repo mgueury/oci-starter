@@ -630,7 +630,7 @@ app_list_since_last_build() {
                         break
                     fi
                 done
-            done < (git diff --name-only "$last_commit..$current_commit" -- "${APPS[@]}")
+            done < <(git diff --name-only "$last_commit..$current_commit" -- "${APPS[@]}")
 
             # Remove duplicates
             mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
