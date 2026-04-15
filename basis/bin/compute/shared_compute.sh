@@ -544,7 +544,11 @@ build_ui() {
             cp install.sh $TARGET_DIR/compute/app/ui/.
         fi
     elif [ "$TF_VAR_deploy_type" == "function" ]; then 
-        oci os object bulk-upload -ns $OBJECT_STORAGE_NAMESPACE -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
+        if [ -d html ]; then 
+            oci os object bulk-upload -ns $OBJECT_STORAGE_NAMESPACE -bn ${TF_VAR_prefix}-public-bucket --src-dir html --overwrite --content-type auto
+        else 
+            echo "<build_ui> No html directory"
+        fi
     else
         # Kubernetes and Container Instances
         docker image rm ${TF_VAR_prefix}-ui:latest 
