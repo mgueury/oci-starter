@@ -605,48 +605,48 @@ build_rsync() {
 export -f build_rsync
 
 # -- app_list_since_last_build ----------------------------------------------
-app_list_since_last_build() {
-    STATE_FILE="$TARGET_DIR/.last_built_commit"
-    APPS=`app_dir_list`
+# app_list_since_last_build() {
+#     STATE_FILE="$TARGET_DIR/.last_built_commit"
+#     APPS=`app_dir_list`
 
-    cd $HOME/app
-    current_commit="$(git rev-parse HEAD)"
+#     cd $HOME/app
+#     current_commit="$(git rev-parse HEAD)"
 
-    if [[ ! -f "$STATE_FILE" ]]; then
-        echo "First run: building all targets"
-        changed_dirs=("${APPS[@]}")
-    else
-        last_commit="$(cat "$STATE_FILE")"
-        changed_dirs=()
-        if [ "$last_commit" == "$current_commit" ]; then
-            echo "No commit done"
-        else
-            echo "Comparing $last_commit..$current_commit"
-            while IFS= read -r file; do
-                for APP_DIR in "${APPS[@]}"; do
-                    APP_SHORT_DIR="${APP_DIR#/home/opc/app/}"
-                    if [[ "$file" == "$APP_SHORT_DIR/"* ]]; then
-                        changed_dirs+=("$APP_DIR")
-                        break
-                    fi
-                done
-            done < <(git diff --name-only "$last_commit..$current_commit" -- "${APPS[@]}")
+#     if [[ ! -f "$STATE_FILE" ]]; then
+#         echo "First run: building all targets"
+#         changed_dirs=("${APPS[@]}")
+#     else
+#         last_commit="$(cat "$STATE_FILE")"
+#         changed_dirs=()
+#         if [ "$last_commit" == "$current_commit" ]; then
+#             echo "No commit done"
+#         else
+#             echo "Comparing $last_commit..$current_commit"
+#             while IFS= read -r file; do
+#                 for APP_DIR in "${APPS[@]}"; do
+#                     APP_SHORT_DIR="${APP_DIR#/home/opc/app/}"
+#                     if [[ "$file" == "$APP_SHORT_DIR/"* ]]; then
+#                         changed_dirs+=("$APP_DIR")
+#                         break
+#                     fi
+#                 done
+#             done < <(git diff --name-only "$last_commit..$current_commit" -- "${APPS[@]}")
 
-            # Remove duplicates
-            mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
-        fi
-    fi
+#             # Remove duplicates
+#             mapfile -t changed_dirs < <(printf '%s\n' "${changed_dirs[@]}" | sort -u)
+#         fi
+#     fi
 
-    if [[ ${#changed_dirs[@]} -eq 0 ]]; then
-        echo "No Changed directory"
-    else
-        echo "Changed directories: ${changed_dirs[@]}"
-    fi
+#     if [[ ${#changed_dirs[@]} -eq 0 ]]; then
+#         echo "No Changed directory"
+#     else
+#         echo "Changed directories: ${changed_dirs[@]}"
+#     fi
 
-    # Save the commit only after successful builds
-    printf '%s\n' "$current_commit" > "$STATE_FILE"
-    cd -
+#     # Save the commit only after successful builds
+#     printf '%s\n' "$current_commit" > "$STATE_FILE"
+#     cd -
 
-    return ${#changed_dirs[@]}
-}
-export -f app_list_since_last_build
+#     return ${#changed_dirs[@]}
+# }
+# export -f app_list_since_last_build
