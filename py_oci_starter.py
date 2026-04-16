@@ -910,6 +910,7 @@ def create_output_dir():
     elif params.get('ui_type') == "api":
         print("API Only")
         # Nothing to build. But something to install
+        output_remove("src/app/ui/build*.sh")
         output_remove("src/app/ui/Dockerfile")
         output_remove("src/app/ui/k8s*")
         if params.get('deploy_type') in [ 'public_compute', 'private_compute', 'instance_pool' ]:

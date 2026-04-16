@@ -3,6 +3,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $SCRIPT_DIR/../starter.sh env -no-auto -silent
 . $BIN_DIR/build_common.sh
 cd $SCRIPT_DIR/..
+title "Config OKE"
 
 export TARGET_OKE=$TARGET_DIR/oke
 mkdir -p $TARGET_OKE
@@ -76,7 +77,7 @@ if [ ! -f $KUBECONFIG ]; then
 fi
 
 # Create secrets
-kubectl delete secret ${TF_VAR_prefix}-db-secret  --ignore-not-found=true
+kubectl delete secret ${TF_VAR_prefix}-db-secret --ignore-not-found=true
 kubectl create secret generic ${TF_VAR_prefix}-db-secret --from-literal=db_user=$TF_VAR_db_user --from-literal=db_password=$TF_VAR_db_password --from-literal=db_url=$DB_URL --from-literal=jdbc_url=$JDBC_URL --from-literal=TF_VAR_compartment_ocid=$TF_VAR_compartment_ocid --from-literal=TF_VAR_nosql_endpoint=$TF_VAR_nosql_endpoint
 
 kubectl delete secret ocirsecret  --ignore-not-found=true

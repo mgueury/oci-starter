@@ -156,7 +156,7 @@ port number (the NodePort) instead of 8080.
 After you’re done, cleanup.
 
 ```
-kubectl delete -f k8s_app.yaml
+kubectl delete -f k8s_app.yaml --ignore-not-found=true
 ```
                                 
 

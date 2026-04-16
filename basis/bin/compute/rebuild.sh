@@ -20,7 +20,6 @@ for APP_DIR in `app_dir_list`; do
             docker_login
         fi
         # Build in bastion
-        title "Rebuild - $APP_NAME: Build"
         $APP_NAME/build.sh
     elif [ "APP_NAME" == "db" ]; then
         # Database

@@ -22,6 +22,7 @@ fi
 export APP_DIR="${SCRIPT_DIR#*/app/}"
 export APP_NAME="${APP_DIR//\//-}"
 cd $SCRIPT_DIR
+title "Build App - $APP_NAME"
 
 if [ "$TF_VAR_deploy_type" == "" ]; then
   . $PROJECT_DIR/starter.sh env
