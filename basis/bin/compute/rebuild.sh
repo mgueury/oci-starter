@@ -13,14 +13,14 @@ chmod +x */*.sh
 cd $HOME/app
 for APP_DIR in `app_dir_list`; do
     APP_NAME="${APP_DIR//\//-}"
-    title "App: $APP_NAME"
+    title "Rebuild App: $APP_NAME"
     if [ -f ${APP_NAME}/build.sh ]; then
         if [ -f ${APP_NAME}/Dockerfile ] && [ "DOCKER_LOGGED" == "false" ]; then 
             export DOCKER_LOGGED=true
             docker_login
         fi
         # Build in bastion
-        title "$APP_NAME: Build"
+        title "Rebuild: $APP_NAME: Build"
         $APP_NAME/build.sh
     elif [ "APP_NAME" == "db" ]; then
         # Database
@@ -28,7 +28,7 @@ for APP_DIR in `app_dir_list`; do
         ${APP_DIR}/install.sh
     elif [ -f $APP_DIR/install.sh ] && [ is_deploy_compute ]; then
         # Build in terraform - compute 
-        title "$APP_NAME: Install"
+        title "Rebuild: $APP_NAME: Install"
         ${APP_DIR}/install.sh
     fi
     if is_deploy_compute; then

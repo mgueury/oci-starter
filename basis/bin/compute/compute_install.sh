@@ -11,6 +11,7 @@ echo "ARCH=$ARCH"
 
 # Shared Install Function
 . ./shared_compute.sh
+title "Compute Install"
 
 if ! grep -q "export LC_CTYPE" $HOME/.bashrc; then
     # Set VI and NANO in utf8
@@ -57,6 +58,7 @@ $HOME/compute/rebuild.sh
 
 # -- app/start*.sh -----------------------------------------------------------
 if is_deploy_compute; then 
+    title "Compute Install - create restart.sh"
     cd $HOME/app
     for APP_DIR in `app_dir_list`; do
     # if [ -f $APP_DIR/restart.sh ]; then
