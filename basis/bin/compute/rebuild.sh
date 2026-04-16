@@ -13,18 +13,18 @@ chmod +x */*.sh
 cd $HOME/app
 for APP_DIR in `app_dir_list`; do
     APP_NAME="${APP_DIR//\//-}"
-    title "Rebuild App: $APP_NAME"
+    title "Rebuild - App: $APP_NAME"
     if [ -f ${APP_NAME}/build.sh ]; then
         if [ -f ${APP_NAME}/Dockerfile ] && [ "DOCKER_LOGGED" == "false" ]; then 
             export DOCKER_LOGGED=true
             docker_login
         fi
         # Build in bastion
-        title "Rebuild: $APP_NAME: Build"
+        title "Rebuild - $APP_NAME: Build"
         $APP_NAME/build.sh
     elif [ "APP_NAME" == "db" ]; then
         # Database
-        title "$APP_NAME: Install"
+        title "Rebuild - $APP_NAME: Install"
         ${APP_DIR}/install.sh
     elif [ -f $APP_DIR/install.sh ] && [ is_deploy_compute ]; then
         # Build in terraform - compute 
@@ -33,11 +33,11 @@ for APP_DIR in `app_dir_list`; do
     fi
     if is_deploy_compute; then
         if [ -f ${APP_DIR}/restart.sh ]; then
-            title "$APP_NAME: Restart"
+            title "Rebuild - $APP_NAME: Restart"
             ${APP_DIR}/restart.sh
         fi
     elif [ "$TF_VAR_deploy_type" != "kubernetes" ] ; then 
-        echo "rebuild.sh: TF_VAR_deploy_type: $TF_VAR_deploy_type is not supported. It requires terraform to redeploy."
+        echo "Rebuild - TF_VAR_deploy_type: $TF_VAR_deploy_type is not supported. It requires terraform to redeploy."
     fi
 done
 
