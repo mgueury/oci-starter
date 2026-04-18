@@ -292,9 +292,11 @@ def tls_rules():
             params['dns_zone_name'] = TO_FILL
             params['certificate_dir'] = TO_FILL
 
+
 def build_host_rules():
     if params.get('build_host')=='bastion':
         params['your_public_ssh_key'] = TO_FILL
+
 
 def apply_rules():
     zip_rules()
@@ -556,7 +558,7 @@ def env_sh_contents():
     tfvars.append(f'prefix="{prefix}"')
 
     for param in env_params:
-        if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls"]:
+        if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "your_public_ssh_key"]:
             to_fill_params.append(param)
             tfvars.append('')
             tf_var_comment(tfvars, param)

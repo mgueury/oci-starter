@@ -53,9 +53,14 @@ if [ "$UI_URL" != "" ]; then
   append_done "-----------------------------------------------------------------------"
   append_done "Vibe Coding (Build done in Bastion):"
   append_done
+  if [ "$TF_VAR_your_public_ssh_key" != "" ]; then
   append_done "1. Be sure that you can login from your laptop to the bastion by adding your SSH key to the bastion"
-  append_done "   - or use the private key created in target/ssh_key_starter"
+  append_done "   - or add the private key created in target/ssh_key_starter in your laptop"
   append_done "   - or login to the bastion (./starter.sh ssh bastion and add your own public key in $HOME/.ssh/authorized_keys)"
+  else
+  append_done "1. Check that you can login from your laptop to the bastion using the private key associated with your_public_ssh_key in terraform.tfvars"
+  append_done "> ssh opc@$BASTION_IP"
+  fi
   append_done "2. Clone the git repo of the starter app in your laptop"
   append_done "> git clone opc@$BASTION_IP:~/app.git app"
   append_done "> cd app"
