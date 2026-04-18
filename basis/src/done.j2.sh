@@ -53,7 +53,9 @@ if [ "$UI_URL" != "" ]; then
   append_done "-----------------------------------------------------------------------"
   append_done "Vibe Coding (Build done in Bastion):"
   append_done
-  append_done "1. Be sure your SSH key is available in your laptop (or see the key created target/*ssh*)"
+  append_done "1. Be sure that you can login from your laptop to the bastion by adding your SSH key to the bastion"
+  append_done "   - or use the private key created in target/ssh_key_starter"
+  append_done "   - or login to the bastion (./starter.sh ssh bastion and add your own public key in $HOME/.ssh/authorized_keys)"
   append_done "2. Clone the git repo of the starter app in your laptop"
   append_done "> git clone opc@$BASTION_IP:~/app.git app"
   append_done "> cd app"

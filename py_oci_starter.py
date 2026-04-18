@@ -292,6 +292,9 @@ def tls_rules():
             params['dns_zone_name'] = TO_FILL
             params['certificate_dir'] = TO_FILL
 
+def build_host_rules():
+    if params.get('build_host')=='bastion':
+        params['your_public_ssh_key'] = TO_FILL
 
 def apply_rules():
     zip_rules()
@@ -305,6 +308,7 @@ def apply_rules():
     license_rules()
     shape_rules()
     tls_rules()
+    build_host_rules()
 
 
 def error(msg):
@@ -459,17 +463,20 @@ Check LICENSE file (Apache 2.0)
 ### Usage
 
 ### Commands
-- starter.sh         : Show the menu
-- starter.sh help    : Show the list of commands
-- starter.sh build   : Build the whole program: Run Terraform, Configure the DB, Build the App, Build the UI
-- starter.sh destroy : Destroy the objects created by Terraform
-- starter.sh env     : Set the env variables in BASH Shell
-
+- starter.sh             : Show the menu
+- starter.sh help        : Show the list of commands
+- starter.sh build       : Build the whole program: Run Terraform, Configure the DB, Build the App, Build the UI
+- starter.sh destroy     : Destroy the objects created by Terraform
+- starter.sh env         : Set the env variables in BASH Shell
+- starter.sh ssh bastion : SSH to the Bastion
+- ...
+                    
 ### Directories
 - src           : Sources files
-    - app       : Source of the Backend Application
-    - ui        : Source of the User Interface
-    - db        : SQL files of the database
+    - app       : Source of the Application
+        - db    : Database SQL files
+        - rest  : Backend - REST Application
+        - ui    : Frontend - User Interface
     - terraform : Terraform scripts'''
                 ]
         if params['deploy_type'] in [ 'public_compute', 'private_compute', 'instance_pool' ]:
@@ -577,7 +584,8 @@ table_comments = {
     'certificate_email': ['SSL/TLS - Email used to create the certificate'],
     'dns_name': ['SSL/TLS - Webserver DNS Name used by the installation (ex: www.mydomain.com)'],
     'dns_zone_name': ['SSL/TLS - OCI DNS Zone Name (ex:mydomain.com)'],
-    'tls': ['SSL/TLS - Method to create the certificate (new_http_01 or new_dns_01 or existing_ocid) ']  
+    'tls': ['SSL/TLS - Method to create the certificate (new_http_01 or new_dns_01 or existing_ocid) '], 
+    'your_public_ssh_key': ['Your ssh public key (associated with your private key stored in your laptop) that will be added in .ssh/authorized host in the bastion. Goal: clone the git repository on your laptop for Vibe Coding']
 }
 
 def tf_var_comment(contents, param):

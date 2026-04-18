@@ -35,6 +35,12 @@ if declare -p | grep -q "__TO_FILL__"; then
     echo       
   }
 
+  Comment_terraform_tfvars() {
+    sed -i "s&$1=\"__TO_FILL__\"&# $1=\"__TO_FILL__\"&" $PROJECT_DIR/terraform.tfvars              
+    echo "$1 commented in terraform.tfvars"            
+    echo       
+  }
+
   read_ocid() {
     while [ "${!1}" == "__TO_FILL__" ]; do    
       title "Config - $2 OCID"  
@@ -142,6 +148,20 @@ if declare -p | grep -q "__TO_FILL__"; then
     else 
       read -r -p "Enter your OCI Auth token (TF_VAR_auth_token) " TF_VAR_auth_token 
       store_terraform_tfvars auth_token $TF_VAR_auth_token
+    fi      
+  fi
+
+
+  # YOUR_PUBLIC_SSH_KEY
+  if [ "$TF_VAR_your_public_ssh_key" == "__TO_FILL__" ]; then
+    title "Config - Your Public SSH Key"
+    export REQUEST="Use your own public SSH KEY ? "NO" will generated a new SSH KEY ? (TF_VAR_your_public_ssh_key) ?"
+    if accept_request; then
+      echo "A new SSH key will be generated during the build."
+      comment_terraform_tfvars your_public_ssh_key
+    else 
+      read -r -p "Enter your Public SSH Key (TF_VAR_your_public_ssh_key) " TF_VAR_auth_token 
+      store_terraform_tfvars your_public_ssh_key $TF_VAR_your_public_ssh_key
     fi      
   fi
 
