@@ -206,6 +206,7 @@ def kubernetes_rules():
       params['deploy_type'] = longhand('deploy_type', {'oke': 'kubernetes', 'ci': 'container_instance'})
 
 def vcn_rules():
+    params['public_ip_filter'] = TO_FILL
     if 'subnet_ocid' in params:
         params['web_subnet_ocid'] = params['subnet_ocid']
         params['app_subnet_ocid'] = params['subnet_ocid']
@@ -579,6 +580,7 @@ def env_sh_contents():
 
 table_comments = {
     'prefix': ['Prefix to all resources created by terraform'],
+    'public_ip_filter': ['IP Range that can access port like 80/443 on the internet. Typically:', '- All internet - 0.0.0.0/0', ' or <your_laptop_ip>/32. Get your Laptop IP by example using https://whatismyipaddress.com'],
     'auth_token': ['See doc: https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrygettingauthtoken.htm'],
     'db_password': ['Min length 12 characters, 2 lowercase, 2 uppercase, 2 numbers, 2 special characters. Ex: LiveLab__12345'],
     'license_model': ['BRING_YOUR_OWN_LICENSE or LICENSE_INCLUDED'],
