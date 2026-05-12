@@ -167,8 +167,8 @@ if declare -p | grep -q "__TO_FILL__"; then
     # PUBLIC_IP_FILTER
     if [ "$TF_VAR_public_ip_filter" == "__TO_FILL__" ]; then
         title "Config - Public IP Filter"
-        echo "The setup will have an Internet gateway with port 80/443 open to the internet."
-        echo "What is the IP Range of the machine who can access these open ports"
+        echo "The setup will include an Internet Gateway that allows HTTP and HTTPS traffic on ports 80 and 443 from the internet."
+        echo "What is the IP Range of the machines who can access these ports:"
         echo "[1] all the machines on the internet -> 0.0.0.0/0"
         echo "[2] just my laptop"
         echo "[3] other"
