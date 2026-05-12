@@ -590,7 +590,7 @@ table_comments = {
     'dns_name': ['SSL/TLS - Webserver DNS Name used by the installation (ex: www.mydomain.com)'],
     'dns_zone_name': ['SSL/TLS - OCI DNS Zone Name (ex:mydomain.com)'],
     'tls': ['SSL/TLS - Method to create the certificate (new_http_01 or new_dns_01 or existing_ocid) '], 
-    'your_public_ssh_key': ['Your ssh public key (associated with your private key stored in your laptop) that will be added in .ssh/authorized host in the bastion. Goal: clone the git repository on your laptop for Vibe Coding']
+    'your_public_ssh_key': ['Your ssh public key (associated with your private key stored in your laptop) that will be added in .ssh/authorized host in the bastion.', 'Goal: clone the git repository on your laptop for Vibe Coding']
 }
 
 def tf_var_comment(contents, param):
