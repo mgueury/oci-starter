@@ -32,29 +32,32 @@ function setup_bastion_dir() {
     elif [ -d src/app/db ]; then
         cp -R src/app/db $BASTION_DIR/app/.
     fi
-
     cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
 
-    if [ "$TF_VAR_deploy_type" == "public_compute" ] then
-        if -d src/compute; then 
+    if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
+        if [ -d src/compute ]; then 
             cp -R src/compute/* $BASTION_DIR/.
         fi
-    fi    
+    fi
 }
 
 function scp_bastion() {
-    scp_or_rsync $BASTION_DIR/compute    
-    RESULT=$?
-    if [ $RESULT -eq 0 ]; then
-        echo "Success - scp $BASTION_DIR/compute"
-    else
-        return 1 
-    fi  
     {%- if test_name %}
     # Get Lock CleanUp
     ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"          
+    if [ $RESULT -eq 0 ]; then
+        echo "Success - lock $BASTION_DIR"
+    else
+        return 1 
+    fi
     {%- endif %}
-    scp_or_rsync $BASTION_DIR/app
+    scp_or_rsync "$BASTION_DIR/*"
+    RESULT=$?
+    if [ $RESULT -eq 0 ]; then
+        echo "Success - scp $BASTION_DIR"
+    else
+        return 1 
+    fi
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
