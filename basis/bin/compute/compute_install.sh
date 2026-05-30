@@ -40,6 +40,9 @@ EOT
 
     # Resize the boot volume (if >47GB)
     sudo /usr/libexec/oci-growfs -y
+
+    # Workaround : Force the ol8_oci_included (sometimes it is deactivated)
+    sudo dnf config-manager --enable ol8_oci_included
 fi
 
 if ! grep -q "# Build Bastion" $HOME/.bashrc; then
