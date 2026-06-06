@@ -10,6 +10,7 @@ import time
 import pprint
 import httpx
 import oci_openai 
+from typing import Any
 
 COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
 REGION = os.getenv("TF_VAR_region")
@@ -118,6 +119,13 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
             tools = await client.get_tools()
             print( "-- tools ------------------------------------------------------------")
             pprint.pprint( tools )
+            # Filter tools.
+            tools_filtered = []
+            for tool in tools:
+                if tools_list==None or tool.name in tools_list:
+                    tools_filtered.append( tool )
+            print( "-- tools_filtered ---------------------------------------------------")
+            pprint.pprint( tools_filtered )
             break
         except Exception as e:
             print(f"Connection failed {attempt}: {e}")            
@@ -130,13 +138,11 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
 
     agent = create_react_agent(
         model=llm,
-        tools=tools,
+        tools=tools_filtered,
         prompt=prompt,
         name=agent_name
     ) 
-
-    return agent
-
+    return agent    
 prompt = """You are an agent that use the tools you got access to.
 
 INSTRUCTIONS:
