@@ -44,7 +44,8 @@ function setup_bastion_dir() {
 function scp_bastion() {
     {%- if test_name %}
     # Get Lock CleanUp
-    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"          
+    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"   
+    RESULT=$?       
     if [ $RESULT -eq 0 ]; then
         echo "Success - lock $BASTION_DIR"
     else
