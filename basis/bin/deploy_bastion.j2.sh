@@ -42,7 +42,7 @@ function setup_bastion_dir() {
 }
 
 function scp_bastion() {
-    {%- if test_name %}
+    {%- if test_name and deploy_type!="public_compute" %}
     # Get Lock CleanUp
     ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"   
     RESULT=$?       
