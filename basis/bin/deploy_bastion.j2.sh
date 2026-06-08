@@ -49,13 +49,14 @@ function scp_bastion() {
     # - Build is done on Bastion
     # - This takes as condition that an normal build did happen on the bastion before and has copied the compute/test_bastion_lock.sh before
     # Get Lock CleanUp
-    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"   
+    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "echo SSH bastion - Connected"   
     RESULT=$?       
     if [ $RESULT -eq 0 ]; then
         echo "Success - lock $BASTION_DIR"
     else
         return 1 
     fi
+    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"   
     {%- endif %}
     scp_or_rsync "$BASTION_DIR/*"
     RESULT=$?
