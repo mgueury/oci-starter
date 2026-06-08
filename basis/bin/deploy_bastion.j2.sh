@@ -42,21 +42,27 @@ function setup_bastion_dir() {
 }
 
 function scp_bastion() {
-    {%- if test_name and deploy_type!="public_compute" and build_host=="bastion" %}
+    {%- if test_name and deploy_type!="public_compute" %}
     # If 
     # - During TestSuite
     # - Public_compute got his own bastion (=compute) and does not need to lock it.
     # - Build is done on Bastion
     # - This takes as condition that an normal build did happen on the bastion before and has copied the compute/test_bastion_lock.sh before
     # Get Lock CleanUp
-    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "echo SSH bastion - Connected"   
+    ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "echo"   
     RESULT=$?       
     if [ $RESULT -eq 0 ]; then
-        echo "Success - lock $BASTION_DIR"
+        echo "Success - SSH Bastion"
     else
         return 1 
     fi
     ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "bash compute/test_bastion_lock.sh $TEST_NAME"   
+    RESULT=$?       
+    if [ $RESULT -eq 0 ]; then
+        echo "Success - lock $BASTION_DIR"
+    else
+        echo "Warning - lock failed $BASTION_DIR"
+    fi
     {%- endif %}
     scp_or_rsync "$BASTION_DIR/*"
     RESULT=$?
