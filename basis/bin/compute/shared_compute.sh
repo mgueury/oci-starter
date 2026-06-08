@@ -473,7 +473,7 @@ export -f install_cline_cli
 
 install_docker_tools() {
     # docker 
-    sudo yum install -y docker
+    sudo dnf install -y docker
     sudo touch /etc/containers/nodocker
 
     # oci cli
