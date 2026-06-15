@@ -3,7 +3,7 @@
 langchain_oci==0.2.1
 langchain_openai
 oci-openai
-langgraph-cli[inmem]
+langgraph-cli
 langchain_mcp_adapters
 
 # OAuth Caching 
