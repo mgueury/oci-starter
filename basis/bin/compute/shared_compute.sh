@@ -549,7 +549,7 @@ export -f docker_login
 # -- k8s_create_ocirsecret --------------------------------------------------
 
 k8s_create_ocirsecret() {
-    echo "<docker_login>"
+    echo "<k8s_create_ocirsecret>"
     kubectl delete secret ocirsecret  --ignore-not-found=true
     if [ "$TF_VAR_auth_token" == "" ]; then
         docker_token         
