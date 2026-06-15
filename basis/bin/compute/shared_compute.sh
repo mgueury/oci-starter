@@ -519,6 +519,19 @@ copy_replace_apply_target_oke() {
 }
 export -f copy_replace_apply_target_oke 
 
+# -- docker_token -----------------------------------------------------------
+
+docker_token() {
+    # Create a temporary docker auth_token (valid for 1 hour)...
+    if [ "$DOCKER_TOKEN" == "" ]; then
+        export DOCKER_TOKEN=`oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token`
+        echo "DOCKER_TOKEN=$DOCKER_TOKEN" | cut -c 1-50
+    else
+        echo "DOCKER_TOKEN already set."
+    fi
+}
+export -f docker_token
+
 # -- docker_login -----------------------------------------------------------
 
 docker_login() {
@@ -526,11 +539,26 @@ docker_login() {
     get_docker_prefix
     # Login only if needed
     if ! docker system info 2>/dev/null | grep -q "Username"; then
-        oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
+        docker_token
+        echo $DOCKER_TOKEN | docker login -u BEARER_TOKEN --password-stdin ${OCIR_HOST}
     fi
     exit_on_error "Docker Login"
 }
 export -f docker_login
+
+# -- k8s_create_ocirsecret --------------------------------------------------
+
+k8s_create_ocirsecret() {
+    echo "<docker_login>"
+    kubectl delete secret ocirsecret  --ignore-not-found=true
+    if [ "$TF_VAR_auth_token" == "" ]; then
+        docker_token         
+        kubectl create secret docker-registry ocirsecret --docker-server=$OCIR_HOST --docker-username="BEARER_TOKEN" --docker-password="$DOCKER_TOKEN" --docker-email="$TF_VAR_email"
+    else
+        kubectl create secret docker-registry ocirsecret --docker-server=$OCIR_HOST --docker-username="$OBJECT_STORAGE_NAMESPACE/$TF_VAR_username" --docker-password="$TF_VAR_auth_token" --docker-email="$TF_VAR_email"
+    fi  
+}
+export -f k8s_create_ocirsecret
 
 # -- ocir_docker_push_app -------------------------------------------------------
 ocir_docker_push_app() {
