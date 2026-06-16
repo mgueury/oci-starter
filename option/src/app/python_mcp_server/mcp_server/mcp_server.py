@@ -1,13 +1,28 @@
 import os
 from typing import Any
-
 import oracledb
+import uvicorn
 from fastmcp import FastMCP  # Import FastMCP, the quickstart server base
-
-mcp = FastMCP("MCP Server")  # Initialize an MCP server instance with a descriptive name
 
 def log( s ): 
     print( s, flush=True )
+
+# -- FastMCP
+mcp = FastMCP("MCP Server")  # Initialize an MCP server instance with a descriptive name
+
+# --  FastAPI for health and ready URLs 
+app = FastAPI()
+app.mount("/", mcp.http_app())
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+@app.get("/ready")
+async def ready():
+    return {"status": "ready"}
+
+app.mount("/", mcp.http_app())
 
 @mcp.tool()
 def send_email(to: str, subject: str, body: str) -> dict[str, str]:
@@ -45,5 +60,5 @@ def get_dept() -> list[dict[str, Any]]:
         connection.close()
 
 if __name__ == "__main__":
-    # mcp.run(transport="stdio")  # Run the server, using standard input/output for communication
-    mcp.run(transport="http", host="0.0.0.0", port=2025)
+    uvicorn.run( app, host="0.0.0.0", port=2025 )
+    
