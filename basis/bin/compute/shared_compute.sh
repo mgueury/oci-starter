@@ -524,7 +524,14 @@ export -f copy_replace_apply_target_oke
 docker_token() {
     # Create a temporary docker auth_token (valid for 1 hour)...
     if [ "$DOCKER_TOKEN" == "" ]; then
-        export DOCKER_TOKEN=`oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token`
+        for attempt in {1..10}; do
+            export DOCKER_TOKEN=`oci raw-request --region $TF_VAR_region --http-method GET --target-uri "https://${OCIR_HOST}/20180419/docker/token" | jq -r .data.token`
+            if [ "$DOCKER_TOKEN" != "" ]; then
+                break
+            fi
+            echo "<docker_token> Error getting token. Waiting 5 seconds. (attempt $attempt/10)."
+            sleep 5
+        done    
         echo "DOCKER_TOKEN=$DOCKER_TOKEN" | cut -c 1-50
     else
         echo "DOCKER_TOKEN already set."
