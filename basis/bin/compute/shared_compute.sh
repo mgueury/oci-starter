@@ -730,3 +730,35 @@ EOF
   fi
 }
 export -f livelab_oci_config
+
+# -- port_owner ------------------------------------------------------------
+port_owner() {
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -nP -iTCP:"$PORT" -sTCP:LISTEN 2>/dev/null || true
+    elif command -v ss >/dev/null 2>&1; then
+        ss -ltnp "sport = :$PORT" 2>/dev/null || true
+    fi
+}
+export -f port_owner
+
+# -- port_wait ------------------------------------------------------------
+port_wait() {
+    PORT=$1
+    for attempt in {1..10}; do
+        PORT_OWNER=$(port_owner)
+        if [ -z "$PORT_OWNER" ]; then
+            break
+        fi
+        echo "Port $PORT is already in use. Waiting 5 seconds before starting FastAPI (attempt $attempt/10)."
+        echo "$PORT_OWNER"
+        sleep 5
+    done
+
+    PORT_OWNER=$(port_owner)
+    if [ -n "$PORT_OWNER" ]; then
+        echo "ERROR: Port $PORT is still in use after 10 attempts." 
+        echo "$PORT_OWNER"
+        exit 1
+    fi
+}
+export -f port_wait

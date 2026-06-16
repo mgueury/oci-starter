@@ -70,6 +70,7 @@ async def inject_user_context(
     # print( f"<inject_user_context> auth_header={auth_header}", flush=True )
     # modified_request = request.override( headers = { "Authorization": f"User {user_id}" } )
     cleaned_args = remove_empty_parameter_names(request.args)
+    # Forward the original request credentials to every MCP tool call.
     modified_request = request.override(
         args=cleaned_args,
         headers={ "Authorization": auth_header },
@@ -102,6 +103,7 @@ async def inject_user_context(
 
 async def init( agent_name, prompt, tools_list, callback_handler=None ) -> StateGraph:
 
+    # Build the graph once at process startup; app.py streams runs from this object.
     # Waiting is important, since after reboot the MCP server could start afterwards.
     delay = 10
     for attempt in range(1, 30):
