@@ -273,7 +273,7 @@ function startSSE(reqBody, onMessage, onDone) {
             let chunk = new TextDecoder().decode(value);
             pending += chunk;
             // Handle SSE events: lines like `data: {...}\n\n`
-            let parts = pending.replace("\r\n", '\n').split('\n\n');
+            let parts = pending.replaceAll('\r\n', '\n').split('\n\n');
             pending = parts.pop(); // Last piece (possibly incomplete)
             for (let part of parts) {
                 let lines = part.split('\n');
