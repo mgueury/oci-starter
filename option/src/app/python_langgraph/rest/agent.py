@@ -12,12 +12,17 @@ import httpx
 import oci_openai 
 from typing import Any
 
-COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
-REGION = os.getenv("TF_VAR_region")
-MCP_SERVER_URL = os.getenv("MCP_SERVER_URL") or "http://localhost:2025/mcp"
+def get_env( name ):
+    value = os.getenv( name )
+    print( f"Env {name}={value}")
+    return value
+
+COMPARTMENT_OCID = get_env("TF_VAR_compartment_ocid")
+REGION = get_env("TF_VAR_region")
+MCP_SERVER_URL = get_env("MCP_SERVER_URL") or "http://localhost:2025/mcp"
 if REGION == "eu-amsterdam-1":
     REGION = "eu-frankfurt-1"
-AUTH_TYPE = os.getenv("AUTH_TYPE") or "INSTANCE_PRINCIPAL"
+AUTH_TYPE = get_env("AUTH_TYPE") or "INSTANCE_PRINCIPAL"
 
 # auth = oci_openai.OciInstancePrincipalAuth()
 # llm = ChatOpenAI(
@@ -106,7 +111,7 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
     # Build the graph once at process startup; app.py streams runs from this object.
     # Waiting is important, since after reboot the MCP server could start afterwards.
     delay = 10
-    for attempt in range(1, 30):
+    for attempt in range(1, 10):
         try:
             print(f"Connecting to MCP {attempt}...")
             client = MultiServerMCPClient(

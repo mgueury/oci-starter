@@ -2,7 +2,10 @@ import os
 from typing import Any
 import oracledb
 import uvicorn
-from fastmcp import FastMCP  # Import FastMCP, the quickstart server base
+from fastapi import FastAPI
+from fastmcp.utilities.lifespan import combine_lifespans
+
+from fastmcp import FastMCP
 
 def log( s ): 
     print( s, flush=True )
@@ -61,4 +64,3 @@ def get_dept() -> list[dict[str, Any]]:
 
 if __name__ == "__main__":
     uvicorn.run( app, host="0.0.0.0", port=2025 )
-    
