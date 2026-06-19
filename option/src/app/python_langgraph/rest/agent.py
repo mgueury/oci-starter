@@ -157,6 +157,7 @@ INSTRUCTIONS:
 - When using a MCP tool, take care not to  pass empty parameters name like "", or {"":{}}
 - To draw a diagram, use mermaid   
 - If not, use MarkDown to give a clear and short answer to the user.
+- Do not call the same tools twice with the same parameters
 """
 
 agent = asyncio.run(init("agent", prompt, None))
