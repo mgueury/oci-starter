@@ -4,17 +4,12 @@ locals {
 }
 
 resource "null_resource" "genai_project" {
-    triggers = {
-        project_id_filename = local.project_id_filename
-        compartment_id = var.lz_app_cmp_ocid
-    }
-
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
         environment = {
-            COMPARTMENT_ID  = var.lz_app_cmp_ocid
-            DISPLAY_NAME    = "${var.prefix}-project"
-            PROJECT_ID_FILE = local.project_id_filename
+            COMPARTMENT_ID  = "${var.lz_app_cmp_ocid}"
+            DISPLAY_NAME = "${var.prefix}-project"
+            PROJECT_ID_FILE = "${local.project_id_filename}"
         }
         command = <<-EOT
         set -euo pipefail
