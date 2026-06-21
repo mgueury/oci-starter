@@ -69,6 +69,6 @@ data "local_file" "project_file" {
 }
 
 locals {
-    project_ocid = data.local_file.content
+    project_ocid = data.local_file.output.content
 }
 
