@@ -4,21 +4,20 @@ locals {
 }
 
 resource "null_resource" "genai_project" {
+    triggers = {
+        project_id_filename = local.project_id_filename
+    }
+
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
-        environment = {
-            COMPARTMENT_ID  = "${var.lz_app_cmp_ocid}"
-            DISPLAY_NAME = "${var.prefix}-project"
-            PROJECT_ID_FILE = "${local.project_id_filename}"
-        }
         command = <<-EOT
         set -euo pipefail
 
         project_id="$(
             oci generative-ai generative-ai-project create \
-            --compartment-id "$COMPARTMENT_ID" \
-            --display-name "$DISPLAY_NAME" \
-            --description "$DISPLAY_NAME" \
+            --compartment-id ""${var.lz_app_cmp_ocid}"" \
+            --display-name "${var.prefix}-project" \
+            --description "${var.prefix}-project" \
             --wait-for-state SUCCEEDED \
             --wait-interval-seconds 10 \
             --max-wait-seconds 120 \
@@ -26,7 +25,7 @@ resource "null_resource" "genai_project" {
             --raw-output
         )"
 
-        printf '%s\n' "$project_id" > "$PROJECT_ID_FILE"
+        printf '%s\n' "$project_id" > "${local.project_id_filename}"
         echo "Created Generative AI project: $project_id"
         EOT
     }
