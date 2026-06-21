@@ -6,6 +6,7 @@ locals {
 resource "null_resource" "genai_project" {
     triggers = {
         project_id_filename = local.project_id_filename
+        compartment_id = var.lz_app_cmp_ocid
     }
 
     provisioner "local-exec" {
