@@ -42,7 +42,7 @@ FIXED_LOVS: dict[str, list[str]] = {
 }
 
 COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
-PROJECT_OCID = os.getenv("TF_VAR_project_ocid")
+PROJECT_OCID = os.getenv("TF_VAR_project_ocid") or os.getenv("PROJECT_OCID")
 
 _CONFIG_LOCK = threading.Lock()
 _CONFIG_WARNING: str | None = None
