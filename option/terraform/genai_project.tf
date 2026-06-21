@@ -21,7 +21,7 @@ resource "null_resource" "genai_project" {
             --wait-for-state SUCCEEDED \
             --wait-interval-seconds 10 \
             --max-wait-seconds 120 \
-            --query 'data.id' \
+            --query 'data.resources[0].identifier' \
             --raw-output
         )"
 
