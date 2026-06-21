@@ -25,7 +25,7 @@ resource "null_resource" "genai_project" {
             --raw-output
         )"
 
-        printf '%s\n' "$project_id" > "${local.project_id_filename}"
+        printf '%s' "$project_id" > "${local.project_id_filename}"
         echo "Created Generative AI project: $project_id"
         EOT
     }
