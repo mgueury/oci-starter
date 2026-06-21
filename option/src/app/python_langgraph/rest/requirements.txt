@@ -2,12 +2,15 @@
 # Issue with 0.2.2 version with openai-gpt-oss
 langchain_oci==0.2.1
 langchain_openai
+openai
+httpx
 oci-openai
 langgraph
 langchain_mcp_adapters
 fastapi
 uvicorn[standard]
 aiohttp
+oci
 
 # OAuth Caching 
 aiocache

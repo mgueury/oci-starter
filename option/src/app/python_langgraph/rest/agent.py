@@ -6,23 +6,26 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_mcp_adapters.interceptors import MCPToolCallRequest
 import asyncio
 import os
-import time
 import pprint
 import httpx
 import oci_openai 
 from typing import Any
+from config import get_effective_config
 
 def get_env( name ):
     value = os.getenv( name )
     print( f"Env {name}={value}")
     return value
 
-COMPARTMENT_OCID = get_env("TF_VAR_compartment_ocid")
-REGION = get_env("TF_VAR_region")
-MCP_SERVER_URL = get_env("MCP_SERVER_URL") or "http://localhost:2025/mcp"
-if REGION == "eu-amsterdam-1":
-    REGION = "eu-frankfurt-1"
-AUTH_TYPE = get_env("AUTH_TYPE") or "INSTANCE_PRINCIPAL"
+COMPARTMENT_OCID = ""
+PROJECT_OCID = ""
+VECTOR_STORE_ID = ""
+SEMANTIC_STORE_ID = ""
+REGION = ""
+GENAI_MODEL = ""
+MCP_SERVER_URL = ""
+MCP_AUTH_TYPE = ""
+AUTH_TYPE = ""
 
 # auth = oci_openai.OciInstancePrincipalAuth()
 # llm = ChatOpenAI(
@@ -35,18 +38,51 @@ AUTH_TYPE = get_env("AUTH_TYPE") or "INSTANCE_PRINCIPAL"
 #     ),
 # )
 
-llm = ChatOCIGenAI(
-    auth_type="API_KEY" if "LIVELABS" in os.environ else AUTH_TYPE,
-    model_id="openai.gpt-oss-120b",
-    # model_id="meta.llama-4-scout-17b-16e-instruct",
-    # model_id="cohere.command-a-03-2025",
-    service_endpoint="https://inference.generativeai."+REGION+".oci.oraclecloud.com",
-    # model_id="xai.grok-4.3",
-    # service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
-    compartment_id=COMPARTMENT_OCID,
-    is_stream=False,
-    model_kwargs={"temperature": 0}
-)
+def normalize_region(region: str) -> str:
+    if region == "eu-amsterdam-1":
+        return "eu-frankfurt-1"
+    return region
+
+
+def apply_runtime_config(config: dict[str, str] | None = None) -> None:
+    global COMPARTMENT_OCID, PROJECT_OCID, VECTOR_STORE_ID, SEMANTIC_STORE_ID
+    global REGION, GENAI_MODEL, MCP_SERVER_URL, MCP_AUTH_TYPE, AUTH_TYPE
+
+    app_config = config or get_effective_config()
+    PROJECT_OCID = os.getenv("PROJECT_OCID") or ""
+    COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
+    VECTOR_STORE_ID = app_config["VECTOR_STORE_ID"]
+    SEMANTIC_STORE_ID = app_config["SEMANTIC_STORE_ID"]
+    REGION = normalize_region(app_config["REGION"])
+    GENAI_MODEL = app_config["GENAI_MODEL"]
+    MCP_SERVER_URL = app_config["MCP_SERVER_URL"]
+    MCP_AUTH_TYPE = app_config["MCP_AUTH_TYPE"]
+    AUTH_TYPE = app_config["AUTH_TYPE"]
+
+    print(f"Config REGION={REGION}")
+    print(f"Config GENAI_MODEL={GENAI_MODEL}")
+    print(f"Config PROJECT_OCID={PROJECT_OCID}")
+    print(f"Config COMPARTMENT_OCID={COMPARTMENT_OCID}")
+    print(f"Config VECTOR_STORE_ID={VECTOR_STORE_ID}")
+    print(f"Config SEMANTIC_STORE_ID={SEMANTIC_STORE_ID}")
+    print(f"Config MCP_SERVER_URL={MCP_SERVER_URL}")
+    print(f"Config MCP_AUTH_TYPE={MCP_AUTH_TYPE}")
+    print(f"Config AUTH_TYPE={AUTH_TYPE}")
+
+
+def build_llm() -> ChatOCIGenAI:
+    return ChatOCIGenAI(
+        auth_type="API_KEY" if "LIVELABS" in os.environ else AUTH_TYPE,
+        model_id=GENAI_MODEL,
+        # model_id="meta.llama-4-scout-17b-16e-instruct",
+        # model_id="cohere.command-a-03-2025",
+        service_endpoint="https://inference.generativeai."+REGION+".oci.oraclecloud.com",
+        # model_id="xai.grok-4.3",
+        # service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+        compartment_id=COMPARTMENT_OCID,
+        is_stream=False,
+        model_kwargs={"temperature": 0}
+    )
 
 def remove_empty_parameter_names(args: dict[str, Any] | None) -> dict[str, Any]:
     """Remove tool arguments whose parameter name is empty or only whitespace."""
@@ -76,10 +112,8 @@ async def inject_user_context(
     # modified_request = request.override( headers = { "Authorization": f"User {user_id}" } )
     cleaned_args = remove_empty_parameter_names(request.args)
     # Forward the original request credentials to every MCP tool call.
-    modified_request = request.override(
-        args=cleaned_args,
-        headers={ "Authorization": auth_header },
-    )
+    headers = {"Authorization": auth_header} if MCP_AUTH_TYPE == "BEARER" and auth_header else {}
+    modified_request = request.override(args=cleaned_args, headers=headers)
     try:
         return await handler(modified_request)
     except Exception as first_error:
@@ -111,6 +145,18 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
     # Build the graph once at process startup; app.py streams runs from this object.
     # Waiting is important, since after reboot the MCP server could start afterwards.
     delay = 10
+    client = None
+    tools_filtered = []
+    llm = build_llm()
+    if not MCP_SERVER_URL:
+        print("MCP_SERVER_URL is not configured; starting agent without MCP tools")
+        return create_react_agent(
+            model=llm,
+            tools=[],
+            prompt=prompt,
+            name=agent_name
+        )
+
     for attempt in range(1, 10):
         try:
             print(f"Connecting to MCP {attempt}...")
@@ -137,11 +183,10 @@ async def init( agent_name, prompt, tools_list, callback_handler=None ) -> State
         except Exception as e:
             print(f"Connection failed {attempt}: {e}")            
             print(f"Waiting for {delay} seconds before the next attempt...")
-            time.sleep(delay)
+            await asyncio.sleep(delay)
 
     if client==None:
-        print("ERROR: connection to MCP Failed")
-        exit(1)
+        raise RuntimeError("ERROR: connection to MCP Failed")
 
     agent = create_react_agent(
         model=llm,
@@ -160,4 +205,28 @@ INSTRUCTIONS:
 - Do not call the same tools twice with the same parameters
 """
 
-agent = asyncio.run(init("agent", prompt, None))
+async def build_agent() -> StateGraph:
+    apply_runtime_config(get_effective_config())
+    return await init("agent", prompt, None)
+
+
+class AgentRuntime:
+    def __init__(self, graph: StateGraph):
+        self._graph = graph
+        self._reload_lock = asyncio.Lock()
+
+    async def astream(self, *args, **kwargs):
+        graph = self._graph
+        async for state in graph.astream(*args, **kwargs):
+            yield state
+
+    async def reload(self) -> None:
+        async with self._reload_lock:
+            self._graph = await build_agent()
+
+
+agent = AgentRuntime(asyncio.run(build_agent()))
+
+
+async def reload_agent_config() -> None:
+    await agent.reload()

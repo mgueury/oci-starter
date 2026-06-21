@@ -14,7 +14,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
-from agent import agent
+from agent import agent, reload_agent_config
+from config import ConfigError, get_lov, get_lov_labels, list_configuration_parameters, save_config
 
 
 app = FastAPI(title="LangGraph Agent")
@@ -183,6 +184,52 @@ async def health() -> dict[str, str]:
 @app.get("/ready")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/config/parameters")
+async def read_configuration(
+    _auth_user: AuthUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    try:
+        return list_configuration_parameters()
+    except ConfigError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.put("/config/parameters")
+async def update_configuration(
+    payload: dict[str, Any] = Body(default_factory=dict),
+    _auth_user: AuthUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    try:
+        save_config(payload)
+        await reload_agent_config()
+        return list_configuration_parameters()
+    except ConfigError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Configuration saved, but the agent could not be reloaded: {exc}",
+        ) from exc
+
+
+@app.get("/config/lov/{field_name}")
+async def read_configuration_lov(
+    field_name: str,
+    region: str | None = None,
+    auth_type: str | None = None,
+    _auth_user: AuthUser = Depends(get_current_user),
+) -> dict[str, Any]:
+    values = {
+        "REGION": region,
+        "AUTH_TYPE": auth_type,
+    }
+    return {
+        "field": field_name,
+        "values": get_lov(field_name, values),
+        "lov_labels": get_lov_labels(field_name, values),
+    }
 
 
 @app.post("/threads")

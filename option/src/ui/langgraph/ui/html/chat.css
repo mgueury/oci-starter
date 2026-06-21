@@ -573,6 +573,10 @@ form button[type="submit"],
     transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
 
+a.icon-button {
+    text-decoration: none;
+}
+
 #mic-button,
 form button[type="submit"] {
     width: 52px;
@@ -630,6 +634,17 @@ form button[type="submit"] img {
     height: 38px;
     border-radius: 50%;
     box-shadow: 0 12px 28px rgba(23, 16, 10, .12);
+}
+
+#config-link {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+}
+
+#config-link img {
+    width: 19px;
+    height: 19px;
 }
 
 .sr-only {
