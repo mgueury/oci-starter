@@ -15,7 +15,7 @@ resource "null_resource" "genai_project" {
 
         project_id="$(
             oci generative-ai generative-ai-project create \
-            --compartment-id ""${var.lz_app_cmp_ocid}"" \
+            --compartment-id ""${local.lz_app_cmp_ocid}"" \
             --display-name "${var.prefix}-project" \
             --description "${var.prefix}-project" \
             --wait-for-state SUCCEEDED \
