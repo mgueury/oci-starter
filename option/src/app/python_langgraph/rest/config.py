@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 import oci
 import oci_openai
+from fastapi import APIRouter, Body, HTTPException
 from openai import OpenAI
 
 CONFIG_FILE = Path(os.getenv("APP_CONFIG_FILE", Path(__file__).with_name("config.json")))
@@ -18,6 +19,7 @@ CONFIG_FIELDS: list[dict[str, str]] = [
     {"name": "SEMANTIC_STORE_ID", "label": "Semantic store", "type": "LOV", "optional": "true"},
     {"name": "MCP_SERVER_URL", "label": "MCP server URL", "type": "TEXT", "optional": "true"},
     {"name": "MCP_AUTH_TYPE", "label": "MCP authentication", "type": "LOV"},
+    {"name": "MCP_BEARER_TOKEN", "label": "Static MCP bearer token", "type": "PASSWORD", "optional": "true"},
     {"name": "AUTH_TYPE", "label": "OCI authentication", "type": "LOV"},
 ]
 
@@ -60,6 +62,7 @@ def env_config() -> dict[str, str]:
         "SEMANTIC_STORE_ID": os.getenv("SEMANTIC_STORE_ID") or "",
         "MCP_SERVER_URL": os.getenv("MCP_SERVER_URL") or "",
         "MCP_AUTH_TYPE": os.getenv("MCP_AUTH_TYPE") or "NONE",
+        "MCP_BEARER_TOKEN": os.getenv("MCP_BEARER_TOKEN") or "",
         "AUTH_TYPE": os.getenv("AUTH_TYPE") or "INSTANCE_PRINCIPAL",
     }
 
@@ -205,13 +208,62 @@ def list_configuration_parameters() -> dict[str, Any]:
     return response
 
 
+config_router = APIRouter()
+
+
+async def reload_agent_config() -> None:
+    return None
+
+
+@config_router.get("/config/parameters")
+async def read_configuration() -> dict[str, Any]:
+    try:
+        return list_configuration_parameters()
+    except ConfigError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@config_router.put("/config/parameters")
+async def update_configuration(
+    payload: dict[str, Any] = Body(default_factory=dict),
+) -> dict[str, Any]:
+    try:
+        save_config(payload)
+        await reload_agent_config()
+        return list_configuration_parameters()
+    except ConfigError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Configuration saved, but the agent could not be reloaded: {exc}",
+        ) from exc
+
+
+@config_router.get("/config/lov/{field_name}")
+async def read_configuration_lov(
+    field_name: str,
+    region: str | None = None,
+    auth_type: str | None = None,
+) -> dict[str, Any]:
+    values = {
+        "REGION": region,
+        "AUTH_TYPE": auth_type,
+    }
+    return {
+        "field": field_name,
+        "values": get_lov(field_name, values),
+        "lov_labels": get_lov_labels(field_name, values),
+    }
+
+
 def _build_oci_signer(auth_type: str) -> Any:
     if auth_type == "RESOURCE_PRINCIPAL":
         return oci.auth.signers.get_resource_principals_signer()
     return oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
 
 
-def oci_genai_client() -> Any:
+def inference_client() -> Any:
     region = CONFIG.get("REGION")
     if not region:
         raise ConfigError("REGION is not configured")
@@ -229,18 +281,25 @@ def _build_openai_auth() -> Any:
     return oci_openai.OciInstancePrincipalAuth()
 
 
-def oci_openai_client() -> OpenAI:
+def openai_client() -> OpenAI:
     region = CONFIG.get("REGION")
     if not region:
         raise ConfigError("REGION is not configured")
     if not PROJECT_OCID:
         raise ConfigError("PROJECT_OCID is not configured")    
 
+    from oci_genai_auth import OciInstancePrincipalAuth, OciResourcePrincipalAuth
+
+    if CONFIG.get("AUTH_TYPE") == "RESOURCE_PRINCIPAL":
+        auth = OciResourcePrincipalAuth()
+    else:
+        auth = OciInstancePrincipalAuth()
+
     return OpenAI(
-        base_url=f"https://inference.generativeai.{region}.oci.oraclecloud.com/20231130/openai/v1",
+        base_url=f"https://generativeai.{region}.oci.oraclecloud.com/20231130/openai/v1",
         api_key="unused",
         http_client=httpx.Client(
-            auth=_build_openai_auth(),
+            auth=auth,
             headers={
                 "opc-compartment-id": COMPARTMENT_OCID,
             },
@@ -313,14 +372,14 @@ def _openai_page_items(response: Any) -> list[Any]:
 
 def get_vector_stores() -> tuple[list[str], dict[str, str]]:
     try:
-        client = oci_openai_client()
+        client = openai_client()
         response = client.vector_stores.list()
         print(f"Debug: {response}", flush=True)
         items = _openai_page_items(response)
         labels = {
             store_id: _display_name(store, store_id)
             for store in items
-            if (store_id := _resource_identifier(store, "id", "vector_store_id"))
+            if (store_id := _resource_identifier(store, "id", "vector_store_id")) and store.status=="completed"
         }
         stores = sorted(labels, key=lambda store_id: labels[store_id].lower())
     except Exception as exc:
@@ -335,7 +394,7 @@ def get_vector_stores() -> tuple[list[str], dict[str, str]]:
 
 def get_semantic_stores() -> tuple[list[str], dict[str, str]]:
     try:
-        client = oci_genai_client()
+        client = inference_client()
 
         # sort_by="displayName" cause HTTP-400
         response = oci.pagination.list_call_get_all_results(
@@ -345,10 +404,12 @@ def get_semantic_stores() -> tuple[list[str], dict[str, str]]:
             sort_order="ASC",
         )
         items = getattr(response.data, "items", response.data)
+        # for store in items:
+        #    print( store )        
         labels = {
             store_id: _display_name(store, store_id)
             for store in items
-            if (store_id := _resource_identifier(store, "id"))
+            if (store_id := _resource_identifier(store, "id")) and store.lifecycle_state=="ACTIVE"
         }
         stores = sorted(labels, key=lambda store_id: labels[store_id].lower())
     except Exception as exc:
@@ -363,17 +424,19 @@ def get_semantic_stores() -> tuple[list[str], dict[str, str]]:
 
 def get_genai_models() -> tuple[list[str], dict[str, str]]:
     try:
-        client = oci_genai_client()
+        client = inference_client()
 
         response = oci.pagination.list_call_get_all_results(
             client.list_models,
             compartment_id=COMPARTMENT_OCID,
         )
         items = getattr(response.data, "items", response.data)
+        # for model in items:
+        #    print( model )               
         labels = {
             model_id: _display_name(model, model_id)
             for model in items
-            if (model_id := _model_identifier(model))
+            if (model_id := _model_identifier(model)) and model.lifecycle_state=="ACTIVE" and model.time_on_demand_retired==None and "CHAT" in model.capabilities
         }
         models = sorted(labels, key=lambda model_id: labels[model_id].lower())
     except Exception as exc:

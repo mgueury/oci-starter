@@ -107,13 +107,13 @@ function renderField(parameter) {
             .join('');
     } else {
         control = document.createElement('input');
-        control.type = 'text';
+        control.type = parameter.type === 'PASSWORD' ? 'password' : 'text';
         control.value = parameter.value || '';
     }
 
     control.id = id;
     control.name = parameter.name;
-    control.autocomplete = 'off';
+    control.autocomplete = parameter.type === 'PASSWORD' ? 'new-password' : 'off';
     if (parameter.optional === 'true') {
         const optionShell = document.createElement('div');
         optionShell.className = 'config-optional-control';
