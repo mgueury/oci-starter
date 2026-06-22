@@ -15,11 +15,10 @@ from fastapi.responses import StreamingResponse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from agent import agent, reload_agent_config
-from config import ConfigError, get_lov, get_lov_labels, list_configuration_parameters, save_config
-
+from config import config_router
 
 app = FastAPI(title="LangGraph Agent")
-
+app.include_router(config_router)
 
 # Minimal user object passed through LangGraph runtime config to agent.py.
 @dataclass
