@@ -206,6 +206,10 @@ resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
   #Optional
   description   = "${var.prefix}-semantic-store"
   freeform_tags = local.freeform_tags
+  refresh_schedule {
+    #Required
+    type = "ON_CREATE"
+  }
 }
 
 // -- Locals --------------------------------------------------------------------------- 
