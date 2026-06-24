@@ -120,7 +120,7 @@ resource "oci_database_tools_database_tools_connection" "starter_dbtools_connect
   display_name      = "${var.prefix}-dbtools-connection"
   type              = "ORACLE_DATABASE"
   connection_string = local.db_url_ip
-  user_name         = "admin"
+  user_name         = "ADMIN"
   user_password {
     value_type = "SECRETID"
     # The user password to use exists as a secret in an OCI Vault
@@ -144,7 +144,7 @@ resource "oci_database_tools_database_tools_connection" "starter_dbtools_connect
   display_name      = "${var.prefix}-dbtools-connection2"
   type              = "ORACLE_DATABASE"
   connection_string = local.local_db_url
-  user_name         = "admin"
+  user_name         = "ADMIN"
   user_password {
     value_type = "SECRETID"
     # The user password to use exists as a secret in an OCI Vault
@@ -209,7 +209,11 @@ resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
     connection_type = "DATABASE_TOOLS_CONNECTION"
     schemas {
       #Required
-      name = "admin"
+      name = "ADMIN"
+    }
+    schemas {
+      #Required
+      name = "SH"
     }
   }
 
