@@ -109,7 +109,7 @@ resource "oci_database_tools_database_tools_connection" "starter_dbtools_connect
   compartment_id    = local.lz_db_cmp_ocid
   display_name      = "${var.prefix}-dbtools-connection"
   type              = "ORACLE_DATABASE"
-  connection_string = local.db_url
+  connection_string = local.local_db_url
   user_name         = "admin"
   user_password {
     value_type = "SECRETID"
@@ -133,7 +133,7 @@ resource "oci_database_tools_database_tools_connection" "starter_dbtools_connect
   compartment_id    = local.lz_db_cmp_ocid
   display_name      = "${var.prefix}-dbtools-connection2"
   type              = "ORACLE_DATABASE"
-  connection_string = local.db_url
+  connection_string = local.local_db_url
   user_name         = "admin"
   user_password {
     value_type = "SECRETID"
