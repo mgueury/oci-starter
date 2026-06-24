@@ -157,7 +157,7 @@ output "database_tools_connection" {
 }
 
 output "database_tools_connection2" {
-  value = oci_database_tools_database_tools_connection2.starter_dbtools_connection
+  value = oci_database_tools_database_tools_connection.starter_dbtools_connection2
 }
 
 # Connection - Data Sources
@@ -178,5 +178,39 @@ output "database_tools_connections" {
 }
 
 output "database_tools_connections2" {
-  value = data.oci_database_tools_database_tools_connections2.starter_database_tools_connections
+  value = data.oci_database_tools_database_tools_connections.starter_database_tools_connections2
+}
+
+// -- Semantic Store ------------------------------------------------------------
+
+resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
+  #Required
+  compartment_id = local.lz_database_cmp_ocid
+  data_source {
+    #Required
+    connection_type          = "DATABASE_TOOLS_CONNECTION"
+    enrichment_connection_id = oci_database_tools_database_tools_connection.starter_dbtools_connection.id
+    querying_connection_id   = oci_database_tools_database_tools_connection.starter_dbtools_connection2.id
+  }
+  display_name = "${var.prefix}-semantic-store"
+  
+  schemas {
+    #Required
+    connection_type = "DATABASE_TOOLS_CONNECTION"
+    schemas {
+      #Required
+      name = "admin"
+    }
+  }
+
+  #Optional
+  description   = "${var.prefix}-semantic-store"
+  freeform_tags = local.freeform_tags
+  refresh_schedule {
+    #Required
+    type = "INTERVAL"
+
+    #Optional
+    value = var.semantic_store_refresh_schedule_value
+  }
 }
