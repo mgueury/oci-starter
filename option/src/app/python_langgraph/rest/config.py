@@ -12,14 +12,26 @@ from openai import OpenAI
 
 CONFIG_FILE = Path(os.getenv("APP_CONFIG_FILE", Path(__file__).with_name("config.json")))
 
+DEFAULT_AGENT_PROMPT = """You are an agent that use the tools you got access to.
+
+INSTRUCTIONS:
+- Assist ONLY with research-related tasks, DO NOT do any math.
+- When using a MCP tool, take care not to  pass empty parameters name like "", or {"":{}}
+- To draw a diagram, use mermaid   
+- If not, use MarkDown to give a clear and short answer to the user.
+- Do not call the same tools twice
+- Call maximum 3 tools at the same time
+"""
+
 CONFIG_FIELDS: list[dict[str, str]] = [
     {"name": "REGION", "label": "Region", "type": "LOV"},
     {"name": "GENAI_MODEL", "label": "GenAI model", "type": "LOV"},
+    {"name": "AGENT_PROMPT", "label": "Agent prompt", "type": "TEXTAREA"},
     {"name": "VECTOR_STORE_ID", "label": "Vector store", "type": "LOV", "optional": "true"},
     {"name": "SEMANTIC_STORE_ID", "label": "Semantic store", "type": "LOV", "optional": "true"},
     {"name": "MCP_SERVER_URL", "label": "MCP server URL", "type": "TEXT", "optional": "true"},
     {"name": "MCP_AUTH_TYPE", "label": "MCP authentication", "type": "LOV"},
-    {"name": "MCP_BEARER_TOKEN", "label": "Static MCP bearer token", "type": "PASSWORD", "optional": "true"},
+    {"name": "MCP_STATIC_BEARER_TOKEN", "label": "Static MCP bearer token", "type": "PASSWORD", "optional": "true"},
     {"name": "AUTH_TYPE", "label": "OCI authentication", "type": "LOV"},
 ]
 
@@ -40,14 +52,12 @@ OCI_REGIONS: list[dict[str, str]] = [
 FIXED_LOVS: dict[str, list[str]] = {
     "REGION": [region["id"] for region in OCI_REGIONS],
     "AUTH_TYPE": ["INSTANCE_PRINCIPAL", "RESOURCE_PRINCIPAL"],
-    "MCP_AUTH_TYPE": ["NONE", "BEARER"],
+    "MCP_AUTH_TYPE": ["BEARER_TOKEN_PROPAGATION", "NONE", "STATIC_BEARER_TOKEN"],
 }
-
-COMPARTMENT_OCID = os.getenv("TF_VAR_compartment_ocid")
-PROJECT_OCID = os.getenv("TF_VAR_project_ocid") or os.getenv("PROJECT_OCID")
 
 _CONFIG_LOCK = threading.Lock()
 _CONFIG_WARNING: str | None = None
+_AGENT_RELOAD_CALLBACK: Any | None = None
 
 
 class ConfigError(ValueError):
@@ -58,11 +68,12 @@ def env_config() -> dict[str, str]:
     return {
         "REGION": os.getenv("REGION") or os.getenv("TF_VAR_region") or "eu-frankfurt-1",
         "GENAI_MODEL": os.getenv("GENAI_MODEL") or "openai.gpt-oss-120b",
+        "AGENT_PROMPT": os.getenv("AGENT_PROMPT") or DEFAULT_AGENT_PROMPT,
         "VECTOR_STORE_ID": os.getenv("VECTOR_STORE_ID") or "",
         "SEMANTIC_STORE_ID": os.getenv("SEMANTIC_STORE_ID") or "",
         "MCP_SERVER_URL": os.getenv("MCP_SERVER_URL") or "",
-        "MCP_AUTH_TYPE": os.getenv("MCP_AUTH_TYPE") or "NONE",
-        "MCP_BEARER_TOKEN": os.getenv("MCP_BEARER_TOKEN") or "",
+        "MCP_AUTH_TYPE": os.getenv("MCP_AUTH_TYPE") or "BEARER_TOKEN_PROPAGATION",
+        "MCP_STATIC_BEARER_TOKEN": os.getenv("MCP_STATIC_BEARER_TOKEN") or "",
         "AUTH_TYPE": os.getenv("AUTH_TYPE") or "INSTANCE_PRINCIPAL",
     }
 
@@ -92,9 +103,10 @@ def _complete_config(values: dict[str, str]) -> dict[str, str]:
 
 
 def initial_config() -> dict[str, str]:
+    values = env_config()
     if CONFIG_FILE.exists():
-        return _complete_config(_read_raw_config())
-    return _complete_config(env_config())
+        values.update(_read_raw_config())
+    return _complete_config(values)
 
 
 def _write_raw_config(values: dict[str, str]) -> None:
@@ -107,7 +119,48 @@ def _write_raw_config(values: dict[str, str]) -> None:
 
 def get_effective_config() -> dict[str, str]:
     with _CONFIG_LOCK:
-        return dict(CONFIG)
+        return _complete_config(CONFIG)
+
+
+def normalize_region(region: str) -> str:
+    if region == "eu-amsterdam-1":
+        return "eu-frankfurt-1"
+    return region
+
+
+def config(variable_name: str) -> str:
+    return CONFIG.get(variable_name)
+
+
+def require_config(variable_names: list[str] | tuple[str, ...]) -> None:
+    missing = []
+    for variable_name in variable_names:
+        if not config(variable_name):
+            missing.append(variable_name)
+
+    if missing:
+        raise ConfigError(f"{', '.join(missing)} is not configured")
+
+
+def refresh_runtime_globals(values: dict[str, str] | None = None) -> None:
+    runtime_config = values if values is not None else CONFIG
+    CONFIG.update(
+        {
+            field_name: runtime_config.get(field_name, "")
+            for field_name in FIELD_NAMES
+            if field_name in runtime_config
+        }
+    )
+    CONFIG.update(
+        {
+            "PROJECT_OCID": os.getenv("TF_VAR_project_ocid") or os.getenv("PROJECT_OCID") or "",
+            "COMPARTMENT_OCID": os.getenv("TF_VAR_compartment_ocid") or "",
+            "DB_USER": os.getenv("DB_USER") or "",
+            "DB_PASSWORD": os.getenv("DB_PASSWORD") or "",
+            "DB_URL": os.getenv("DB_URL") or "",
+            "REGION": normalize_region(runtime_config.get("REGION", "")),
+        }
+    )
 
 
 def save_config(updates: dict[str, Any]) -> dict[str, str]:
@@ -126,7 +179,9 @@ def save_config(updates: dict[str, Any]) -> dict[str, str]:
         for name, value in updates.items():
             next_values[name] = "" if value is None else str(value).strip()
 
-        CONFIG = dict(next_values)
+        CONFIG.clear()
+        CONFIG.update(next_values)
+        refresh_runtime_globals(CONFIG)
         try:
             _write_raw_config(next_values)
             _CONFIG_WARNING = None
@@ -145,7 +200,9 @@ def get_config_warning() -> str | None:
 
 
 CONFIG: dict[str, str] = initial_config()
-
+for key, value in CONFIG.items():
+    print(f"Config {key}={value}")
+refresh_runtime_globals(CONFIG)
 
 def get_lov(field_name: str, values: dict[str, Any] | None = None) -> list[str]:
     if field_name in FIXED_LOVS:
@@ -153,13 +210,11 @@ def get_lov(field_name: str, values: dict[str, Any] | None = None) -> list[str]:
     values_list, _labels = get_dynamic_lov(field_name, values)
     return values_list
 
-
 def get_lov_labels(field_name: str, values: dict[str, Any] | None = None) -> dict[str, str]:
     if field_name == "REGION":
         return region_labels()
     _values_list, labels = get_dynamic_lov(field_name, values)
     return labels
-
 
 def get_dynamic_lov(
     field_name: str,
@@ -185,6 +240,7 @@ def update_config_for_lov(values: dict[str, Any] | None) -> None:
         for key in ("REGION", "AUTH_TYPE"):
             if values.get(key):
                 CONFIG[key] = str(values[key]).strip()
+        refresh_runtime_globals(CONFIG)
 
 
 def list_configuration_parameters() -> dict[str, Any]:
@@ -211,8 +267,14 @@ def list_configuration_parameters() -> dict[str, Any]:
 config_router = APIRouter()
 
 
+def set_agent_reload_callback(callback: Any) -> None:
+    global _AGENT_RELOAD_CALLBACK
+    _AGENT_RELOAD_CALLBACK = callback
+
+
 async def reload_agent_config() -> None:
-    return None
+    if _AGENT_RELOAD_CALLBACK is not None:
+        await _AGENT_RELOAD_CALLBACK()
 
 
 @config_router.get("/config/parameters")
@@ -264,57 +326,54 @@ def _build_oci_signer(auth_type: str) -> Any:
 
 
 def inference_client() -> Any:
-    region = CONFIG.get("REGION")
-    if not region:
-        raise ConfigError("REGION is not configured")
+    require_config(["REGION"])
+    auth_type = config("AUTH_TYPE")
 
     return oci.generative_ai.GenerativeAiClient(
         config={},
-        signer=_build_oci_signer(CONFIG.get("AUTH_TYPE", "")),
-        service_endpoint=f"https://generativeai.{region}.oci.oraclecloud.com",
+        signer=_build_oci_signer(auth_type),
+        service_endpoint=f"https://generativeai.{config('REGION')}.oci.oraclecloud.com",
     )
 
 
 def _build_openai_auth() -> Any:
-    if CONFIG.get("AUTH_TYPE") == "RESOURCE_PRINCIPAL":
+    if config("AUTH_TYPE") == "RESOURCE_PRINCIPAL":
         return oci_openai.OciResourcePrincipalAuth()
     return oci_openai.OciInstancePrincipalAuth()
 
 
 def openai_client() -> OpenAI:
-    region = CONFIG.get("REGION")
-    if not region:
-        raise ConfigError("REGION is not configured")
-    if not PROJECT_OCID:
-        raise ConfigError("PROJECT_OCID is not configured")    
+    require_config(["REGION", "PROJECT_OCID"])
+    auth_type = config("AUTH_TYPE")
+    compartment_ocid = config("COMPARTMENT_OCID")
 
     from oci_genai_auth import OciInstancePrincipalAuth, OciResourcePrincipalAuth
 
-    if CONFIG.get("AUTH_TYPE") == "RESOURCE_PRINCIPAL":
+    if auth_type == "RESOURCE_PRINCIPAL":
         auth = OciResourcePrincipalAuth()
     else:
         auth = OciInstancePrincipalAuth()
 
     return OpenAI(
-        base_url=f"https://generativeai.{region}.oci.oraclecloud.com/20231130/openai/v1",
+        base_url=f"https://generativeai.{config('REGION')}.oci.oraclecloud.com/20231130/openai/v1",
         api_key="unused",
         http_client=httpx.Client(
             auth=auth,
             headers={
-                "opc-compartment-id": COMPARTMENT_OCID,
+                "opc-compartment-id": compartment_ocid,
             },
         ),
-        project=PROJECT_OCID,
+        project=config("PROJECT_OCID"),
     )
 
 
 def _model_identifier(model: Any) -> str:
-    for attribute in ("id", "model_id", "display_name"):
+    for attribute in ("name", "display_name", "displayName", "model_name", "modelName", "model_id", "modelId", "id"):
         value = getattr(model, attribute, None)
         if value:
             return str(value)
     if isinstance(model, dict):
-        for attribute in ("id", "model_id", "display_name"):
+        for attribute in ("name", "display_name", "displayName", "model_name", "modelName", "model_id", "modelId", "id"):
             value = model.get(attribute)
             if value:
                 return str(value)
@@ -374,7 +433,7 @@ def get_vector_stores() -> tuple[list[str], dict[str, str]]:
     try:
         client = openai_client()
         response = client.vector_stores.list()
-        print(f"Debug: {response}", flush=True)
+        # print(f"Debug: {response}", flush=True)
         items = _openai_page_items(response)
         labels = {
             store_id: _display_name(store, store_id)
@@ -385,7 +444,7 @@ def get_vector_stores() -> tuple[list[str], dict[str, str]]:
     except Exception as exc:
         if isinstance(exc, ConfigError):
             raise
-        print(f"Unable to load OCI vector stores for region {CONFIG.get('REGION')}: {exc}", flush=True)
+        print(f"Unable to load OCI vector stores for region {config('REGION')}: {exc}", flush=True)
         stores = []
         labels = {}
 
@@ -399,7 +458,7 @@ def get_semantic_stores() -> tuple[list[str], dict[str, str]]:
         # sort_by="displayName" cause HTTP-400
         response = oci.pagination.list_call_get_all_results(
             client.list_semantic_stores,
-            compartment_id=COMPARTMENT_OCID,
+            compartment_id=config("COMPARTMENT_OCID"),
             sort_by="displayName",
             sort_order="ASC",
         )
@@ -415,7 +474,7 @@ def get_semantic_stores() -> tuple[list[str], dict[str, str]]:
     except Exception as exc:
         if isinstance(exc, ConfigError):
             raise
-        print(f"Unable to load OCI semantic stores for region {CONFIG.get('REGION')}: {exc}", flush=True)
+        print(f"Unable to load OCI semantic stores for region {config('REGION')}: {exc}", flush=True)
         stores = []
         labels = {}
 
@@ -428,7 +487,7 @@ def get_genai_models() -> tuple[list[str], dict[str, str]]:
 
         response = oci.pagination.list_call_get_all_results(
             client.list_models,
-            compartment_id=COMPARTMENT_OCID,
+            compartment_id=config("COMPARTMENT_OCID"),
         )
         items = getattr(response.data, "items", response.data)
         # for model in items:
@@ -442,7 +501,7 @@ def get_genai_models() -> tuple[list[str], dict[str, str]]:
     except Exception as exc:
         if isinstance(exc, ConfigError):
             raise
-        print(f"Unable to load OCI GenAI models for region {CONFIG.get('REGION')}: {exc}", flush=True)
+        print(f"Unable to load OCI GenAI models for region {config('REGION')}: {exc}", flush=True)
         models = []
         labels = {}
 

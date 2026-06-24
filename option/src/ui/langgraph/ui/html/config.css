@@ -76,7 +76,8 @@
 }
 
 .config-field input,
-.config-field select {
+.config-field select,
+.config-field textarea {
     width: 100%;
     min-height: 46px;
     padding: 10px 12px;
@@ -84,6 +85,13 @@
     border-radius: 6px;
     background: #fffaf0;
     color: var(--ink);
+}
+
+.config-field textarea {
+    height: clamp(180px, 30vh, 360px);
+    resize: vertical;
+    overflow-y: auto;
+    line-height: 1.4;
 }
 
 .config-optional-control {
@@ -103,18 +111,21 @@
 }
 
 .config-optional-control input:not([type="checkbox"]),
-.config-optional-control select {
+.config-optional-control select,
+.config-optional-control textarea {
     min-width: 0;
 }
 
 .config-optional-control input:disabled,
-.config-optional-control select:disabled {
+.config-optional-control select:disabled,
+.config-optional-control textarea:disabled {
     color: rgba(60, 49, 40, .52);
     background: rgba(241, 231, 214, .55);
 }
 
 .config-field input:focus-visible,
-.config-field select:focus-visible {
+.config-field select:focus-visible,
+.config-field textarea:focus-visible {
     outline: 2px solid var(--brass);
     outline-offset: 3px;
 }
@@ -175,7 +186,8 @@
     }
 
     .config-optional-control input:not([type="checkbox"]),
-    .config-optional-control select {
+    .config-optional-control select,
+    .config-optional-control textarea {
         grid-column: 1 / -1;
     }
 }

@@ -105,6 +105,10 @@ function renderField(parameter) {
         control.innerHTML = values
             .map((value) => optionHtml(value, parameter.value, parameter.lov_labels || {}))
             .join('');
+    } else if (parameter.type === 'TEXTAREA') {
+        control = document.createElement('textarea');
+        control.rows = 8;
+        control.value = parameter.value || '';
     } else {
         control = document.createElement('input');
         control.type = parameter.type === 'PASSWORD' ? 'password' : 'text';
