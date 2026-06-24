@@ -211,6 +211,6 @@ resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
     type = "INTERVAL"
 
     #Optional
-    value = var.semantic_store_refresh_schedule_value
+    value = "PT1H"
   }
 }
