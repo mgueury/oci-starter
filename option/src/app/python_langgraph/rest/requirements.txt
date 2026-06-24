@@ -11,6 +11,7 @@ fastapi
 uvicorn[standard]
 aiohttp
 oci
+oci_genai_auth
 
 # OAuth Caching 
 aiocache
