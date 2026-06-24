@@ -62,7 +62,7 @@ resource "oci_vault_secret" "starter_secret_atp" {
 // -- Database Tools ----------------------------------------------------------
 
 data "oci_database_tools_database_tools_endpoint_services" "starter_database_tools_endpoint_services" {
-  compartment_id = local.lz_database_cmp_ocid
+  compartment_id = local.lz_db_cmp_ocid
   state = "ACTIVE"
 }
 
@@ -74,7 +74,7 @@ data "oci_database_tools_database_tools_endpoint_service" "starter_database_tool
 
 resource "oci_database_tools_database_tools_private_endpoint" "starter_database_tools_private_endpoint" {
   #Required
-  compartment_id      = local.lz_database_cmp_ocid
+  compartment_id      = local.lz_db_cmp_ocid
   display_name        = "${var.prefix}-dbtools-private-endpoint"
   endpoint_service_id = data.oci_database_tools_database_tools_endpoint_service.starter_database_tools_endpoint_service.id
   subnet_id           = oci_core_subnet.starter_private_subnet.id
@@ -84,7 +84,7 @@ resource "oci_database_tools_database_tools_private_endpoint" "starter_database_
 }
 
 data "oci_database_tools_database_tools_private_endpoints" "starter_database_tools_private_endpoints" {
-  compartment_id  = local.lz_database_cmp_ocid
+  compartment_id  = local.lz_db_cmp_ocid
   state           = "ACTIVE"
   subnet_id       = oci_core_subnet.starter_private_subnet.id
   display_name    = oci_database_tools_database_tools_private_endpoint.starter_database_tools_private_endpoint.display_name
@@ -106,7 +106,7 @@ output "private_endpoint_d" {
 
 # Connection - Resource
 resource "oci_database_tools_database_tools_connection" "starter_dbtools_connection" {
-  compartment_id    = local.lz_database_cmp_ocid
+  compartment_id    = local.lz_db_cmp_ocid
   display_name      = "${var.prefix}-dbtools-connection"
   type              = "ORACLE_DATABASE"
   connection_string = local.db_url
@@ -130,7 +130,7 @@ resource "oci_database_tools_database_tools_connection" "starter_dbtools_connect
 
 # Connection - Resource
 resource "oci_database_tools_database_tools_connection" "starter_dbtools_connection2" {
-  compartment_id    = local.lz_database_cmp_ocid
+  compartment_id    = local.lz_db_cmp_ocid
   display_name      = "${var.prefix}-dbtools-connection2"
   type              = "ORACLE_DATABASE"
   connection_string = local.db_url
@@ -162,13 +162,13 @@ output "database_tools_connection2" {
 
 # Connection - Data Sources
 data "oci_database_tools_database_tools_connections" "starter_database_tools_connections" {
-  compartment_id = local.lz_database_cmp_ocid
+  compartment_id = local.lz_db_cmp_ocid
   display_name   = oci_database_tools_database_tools_connection.starter_dbtools_connection.display_name
   state          = "ACTIVE"
 }
 
 data "oci_database_tools_database_tools_connections" "starter_database_tools_connections2" {
-  compartment_id = local.lz_database_cmp_ocid
+  compartment_id = local.lz_db_cmp_ocid
   display_name   = oci_database_tools_database_tools_connection.starter_dbtools_connection.display_name
   state          = "ACTIVE"
 }
@@ -185,7 +185,7 @@ output "database_tools_connections2" {
 
 resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
   #Required
-  compartment_id = local.lz_database_cmp_ocid
+  compartment_id = local.lz_db_cmp_ocid
   data_source {
     #Required
     connection_type          = "DATABASE_TOOLS_CONNECTION"
