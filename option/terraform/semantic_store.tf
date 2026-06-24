@@ -218,5 +218,5 @@ resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
 // -- Locals --------------------------------------------------------------------------- 
 
 locals {
-  local_semantic_store_id = oci_generative_ai_semantic_store.starter_semantic_store.id
+  local_semantic_store_ocid = oci_generative_ai_semantic_store.starter_semantic_store.id
 }
