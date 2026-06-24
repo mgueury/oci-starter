@@ -55,7 +55,7 @@ resource "oci_vault_secret" "starter_secret_atp" {
     stage   = "CURRENT"
   }
   key_id      = local.vault_key_ocid
-  secret_name = "atp-password-${random_string.id.result}"
+  secret_name = "atp-pwd-${random_string.id.result}"
   vault_id    = local.vault_ocid
 }
 
@@ -213,4 +213,10 @@ resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
     #Optional
     value = "PT1H"
   }
+}
+
+// -- Locals --------------------------------------------------------------------------- 
+
+locals {
+  local_semantic_store_id = oci_generative_ai_semantic_store.starter_semantic_store.id
 }
