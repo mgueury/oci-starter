@@ -12,6 +12,7 @@ uvicorn[standard]
 aiohttp
 oci
 oci_genai_auth
+oracledb
 
 # OAuth Caching 
 aiocache
