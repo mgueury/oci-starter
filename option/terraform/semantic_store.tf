@@ -201,10 +201,6 @@ resource "oci_generative_ai_semantic_store" "starter_semantic_store" {
       #Required
       name = "ADMIN"
     }
-    schemas {
-      #Required
-      name = "SH"
-    }
   }
 
   #Optional
