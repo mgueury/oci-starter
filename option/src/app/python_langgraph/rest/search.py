@@ -199,7 +199,7 @@ def search_database(question: str) -> dict[str, Any]:
     client = None
     connection = None
     try:
-        require_config(["DB_USER", "DB_PASSWORD", "DB_URL", "REGION", "SEMANTIC_STORE_ID"])
+        require_config(["DB_USER", "DB_PASSWORD", "DB_URL", "REGION", "SEMANTIC_STORE_OCID"])
         service_endpoint = f"https://inference.generativeai.{config('REGION')}.oci.oraclecloud.com"
 
         signer = build_oci_signer()
@@ -219,7 +219,7 @@ def search_database(question: str) -> dict[str, Any]:
 
         resp = client.generate_sql_from_nl(
             details,
-            config('SEMANTIC_STORE_ID'),
+            config('SEMANTIC_STORE_OCID'),
         )
 
         print("HTTP status:", resp.status)
@@ -249,6 +249,7 @@ def search_database(question: str) -> dict[str, Any]:
                 cursor.execute(sql)
                 columns = [column[0].lower() for column in cursor.description or []]
                 rows = cursor.fetchall()
+                log(f"<search_database> after running sql: {rows}")                  
                 return {
                     "sql": sql,
                     "result": [
@@ -277,6 +278,6 @@ def get_search_tools() -> list[Any]:
     tools = []
     if config("VECTOR_STORE_ID"):
         tools.append(search_vector_store)
-    if config("SEMANTIC_STORE_ID"):
+    if config("SEMANTIC_STORE_OCID"):
         tools.append(search_database)
     return tools

@@ -177,7 +177,7 @@ async function refreshLov(fieldName, loadingMessage, errorMessage) {
 function refreshStores() {
     return Promise.all([
         refreshLov('VECTOR_STORE_ID', 'Loading vector stores...', 'Unable to load vector stores.'),
-        refreshLov('SEMANTIC_STORE_ID', 'Loading semantic stores...', 'Unable to load semantic stores.'),
+        refreshLov('SEMANTIC_STORE_OCID', 'Loading semantic stores...', 'Unable to load semantic stores.'),
     ]);
 }
 

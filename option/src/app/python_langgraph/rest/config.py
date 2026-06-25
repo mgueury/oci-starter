@@ -17,7 +17,16 @@ DEFAULT_AGENT_PROMPT = """You are an agent that use the tools you got access to.
 INSTRUCTIONS:
 - Assist ONLY with research-related tasks, DO NOT do any math.
 - When using a MCP tool, take care not to  pass empty parameters name like "", or {"":{}}
-- To draw a diagram, use mermaid   
+- To draw a diagram, use mermaid.
+- For Mermaid bar charts, use the xychart diagram type, not a top-level "bar" diagram.
+  Example:
+  ```mermaid
+  xychart
+      title "Employees by Department"
+      x-axis "Department" ["Dept 10", "Dept 20", "Dept 30"]
+      y-axis "Number of Employees"
+      bar [3, 5, 6]
+  ```
 - If not, use MarkDown to give a clear and short answer to the user.
 - Do not call the same tools twice
 - Call maximum 3 tools at the same time
@@ -28,7 +37,7 @@ CONFIG_FIELDS: list[dict[str, str]] = [
     {"name": "GENAI_MODEL", "label": "GenAI model", "type": "LOV"},
     {"name": "AGENT_PROMPT", "label": "Agent prompt", "type": "TEXTAREA"},
     {"name": "VECTOR_STORE_ID", "label": "Vector store", "type": "LOV", "optional": "true"},
-    {"name": "SEMANTIC_STORE_ID", "label": "Semantic store", "type": "LOV", "optional": "true"},
+    {"name": "SEMANTIC_STORE_OCID", "label": "Semantic store", "type": "LOV", "optional": "true"},
     {"name": "MCP_SERVER_URL", "label": "MCP server URL", "type": "TEXT", "optional": "true"},
     {"name": "MCP_AUTH_TYPE", "label": "MCP authentication", "type": "LOV"},
     {"name": "MCP_STATIC_BEARER_TOKEN", "label": "Static MCP bearer token", "type": "PASSWORD", "optional": "true"},
@@ -70,7 +79,7 @@ def env_config() -> dict[str, str]:
         "GENAI_MODEL": os.getenv("GENAI_MODEL") or "openai.gpt-oss-120b",
         "AGENT_PROMPT": os.getenv("AGENT_PROMPT") or DEFAULT_AGENT_PROMPT,
         "VECTOR_STORE_ID": os.getenv("VECTOR_STORE_ID") or "",
-        "SEMANTIC_STORE_ID": os.getenv("SEMANTIC_STORE_ID") or "",
+        "SEMANTIC_STORE_OCID": os.getenv("SEMANTIC_STORE_OCID") or "",
         "MCP_SERVER_URL": os.getenv("MCP_SERVER_URL") or "",
         "MCP_AUTH_TYPE": os.getenv("MCP_AUTH_TYPE") or "BEARER_TOKEN_PROPAGATION",
         "MCP_STATIC_BEARER_TOKEN": os.getenv("MCP_STATIC_BEARER_TOKEN") or "",
@@ -223,7 +232,7 @@ def get_dynamic_lov(
     if field_name == "VECTOR_STORE_ID":
         update_config_for_lov(values)
         return get_vector_stores()
-    if field_name == "SEMANTIC_STORE_ID":
+    if field_name == "SEMANTIC_STORE_OCID":
         update_config_for_lov(values)
         return get_semantic_stores()
     if field_name == "GENAI_MODEL":
