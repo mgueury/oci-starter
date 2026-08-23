@@ -22,6 +22,13 @@ export ARG1=$1
 export ARG2=$2
 export ARG3=$3
 
+. "$BIN_DIR/lifecycle_lock.sh"
+
+acquire_lifecycle_lock() {
+    lifecycle_lock_acquire "$1" || exit 1
+    lifecycle_lock_register_cleanup
+}
+
 if [ -z $ARG1 ]; then
     COMMAND_FILE=$TARGET_DIR/command.txt 
     if [ -f $COMMAND_FILE ]; then
@@ -74,6 +81,7 @@ elif [ "$ARG1" == "help" ]; then
     exit
 
 elif [ "$ARG1" == "build" ]; then
+    acquire_lifecycle_lock "build"
     if [ "$ARG2" == "app" ]; then
         . ./starter.sh env -silent
         build_deploy_apps
@@ -84,6 +92,7 @@ elif [ "$ARG1" == "build" ]; then
         $BIN_DIR/build_all.sh ${@:2} 2>&1 | tee $LOG_NAME
     fi    
 elif [ "$ARG1" == "rm" ]; then
+    acquire_lifecycle_lock "resource-manager"
     if [ "$ARG2" == "build" ]; then 
         export TF_VAR_infra_as_code="build_resource_manager"
         $BIN_DIR/terraform_apply.sh 
@@ -97,6 +106,7 @@ elif [ "$ARG1" == "rm" ]; then
         echo "Unknown command: $ARG1 $ARG2"
     fi    
 elif [ "$ARG1" == "destroy" ]; then
+    acquire_lifecycle_lock "destroy"
     if [ -f $TARGET_DIR/resource_manager_stackid ]; then
         # From the shell that created a RM Stack
         $BIN_DIR/terraform_destroy.sh 
@@ -132,6 +142,7 @@ elif [ "$ARG1" == "ssh" ]; then
         echo "Unknown command: $ARG1 $ARG2"
     fi    
 elif [ "$ARG1" == "destroy_build" ]; then
+    acquire_lifecycle_lock "destroy-build"
     . $BIN_DIR/shared_bash_function.sh
 
     # Destroy
@@ -160,8 +171,10 @@ elif [ "$ARG1" == "terraform" ]; then
     if [ "$ARG2" == "plan" ]; then
         $BIN_DIR/terraform_plan.sh ${@:3}
     elif [ "$ARG2" == "apply" ]; then
+        acquire_lifecycle_lock "terraform-apply"
         $BIN_DIR/terraform_apply.sh ${@:3}
     elif [ "$ARG2" == "destroy" ]; then
+        acquire_lifecycle_lock "terraform-destroy"
         $BIN_DIR/terraform_destroy.sh ${@:3}  
     else 
         echo "Unknown command: $ARG1 $ARG2"
@@ -181,8 +194,10 @@ elif [ "$ARG1" == "frm" ]; then # From Resource Manager
     resource_manager_variables_json
 
 elif [ "$ARG1" == "start" ]; then
+    acquire_lifecycle_lock "start"
     $BIN_DIR/start_stop.sh start $ARG1 $ARG2
 elif [ "$ARG1" == "stop" ]; then
+    acquire_lifecycle_lock "stop"
     $BIN_DIR/start_stop.sh start $ARG1 $ARG2
 elif [ "$ARG1" == "generate" ]; then
     if [ "$ARG2" == "auth_token" ]; then
@@ -191,6 +206,7 @@ elif [ "$ARG1" == "generate" ]; then
         echo "Unknown command: $ARG1 $ARG2"
     fi    
 elif [ "$ARG1" == "deploy" ]; then
+    acquire_lifecycle_lock "deploy"
     if [ "$ARG2" == "compute" ]; then
         $BIN_DIR/deploy_compute.sh
     elif [ "$ARG2" == "bastion" ]; then
