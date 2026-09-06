@@ -614,6 +614,10 @@ export -f get_docker_prefix
 # -- docker_build ------------------------------------------------------------
 docker_build() {
     local APP=$1
+    if [ "$DOCKER_DEFAULT_PLATFORM" == "" ]; then
+       # Used with build_host bastion
+       export DOCKER_DEFAULT_PLATFORM=$(echo "linux/$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')")
+    fi
     if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then
         docker build --platform $DOCKER_DEFAULT_PLATFORM -f Dockerfile.native -t ${TF_VAR_prefix}-${APP}:latest . 
     else
