@@ -1245,7 +1245,6 @@ def jinja2_replace_template_prefix( template_param, prefix ):
                 else:
                     environment = Environment(loader=FileSystemLoader([subdir,"option/src/j2_macro"]))
                     template = environment.get_template(filename)
-                    db_param = jinja2_db_params.get( params.get('db_family') )
                     content = template.render( template_param )
                     with open(output_file_path, mode="w", encoding="utf-8") as output_file:
                         output_file.write(content)
@@ -1268,6 +1267,14 @@ def jinja2_replace_template():
     if db_param is None:
         template_param = params
     else:
+        # Get better naming for Oracle DBs
+        if db_param.get("dbName") == "Oracle":
+            if params.get('db_type') == "autonomous":
+                db_param["dbName"]="Oracle Autonomous Database"
+            elif params.get('db_type') == "database":
+                db_param["dbName"]="Oracle Base Database"
+            elif params.get('db_type') == "pluggable":
+                db_param["dbName"]="Oracle Pluggable Database"
         template_param = {**params, **db_param}
 
     # Transform deploy_type in readable name
