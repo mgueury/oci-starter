@@ -27,7 +27,7 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
       methods = [ "ANY" ]
       backend {
         type = "STOCK_RESPONSE_BACKEND"
-        body   = "Function {{ language }}"
+        body   = "{{ deploy_name }} - {{ dbName }} - {{ language }}"
         status = 200
       }
     }    

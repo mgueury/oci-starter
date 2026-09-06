@@ -5,7 +5,7 @@ const port = 8080
 {{ m.import() }}
 
 app.get('/info', (req, res) => {
-    res.send('NodeJS - Express - {{ dbName }}')
+    res.send("{{ deploy_name }} - {{ dbName }} - Node.JS - Express")
 })
 
 app.get('/dept', async (req, res) => {
@@ -16,3 +16,4 @@ app.get('/dept', async (req, res) => {
 app.listen(port, () => {
     console.log(`OCI Starter: listening on port ${port}`)
 })
+

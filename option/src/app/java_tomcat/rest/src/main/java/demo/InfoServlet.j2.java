@@ -26,6 +26,6 @@ public class InfoServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.getWriter().append("Java - Tomcat (Servlet/JSP) - {{ dbName }}");
+		response.getWriter().append("{{ deploy_name }} - {{ dbName }} - Java - Tomcat (Servlet/JSP)");
 	}
 }

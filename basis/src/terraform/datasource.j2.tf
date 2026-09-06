@@ -98,6 +98,13 @@ data "oci_core_shapes" "shapes" {
   }  
 }
 
+# CPU Architecture
+variable "cpu_architecture" {
+  type        = string
+  default     = "amd64"
+  description = "Compilation env architecture: amd64 or arm64."
+}
+
 # 1. Retrieve all Availability Domains
 data "oci_identity_availability_domains" "ads" {
   compartment_id = var.tenancy_ocid

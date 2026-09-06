@@ -1,64 +1,87 @@
-// Load the REST URL 
-function loadRest() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("json").innerHTML =
-                this.responseText;
-            let jsonValue = JSON.parse( this.responseText );    
-            json2table(jsonValue);
-        }
-    };
-    xhttp.open("GET", "app/dept", true);
-    xhttp.send();
+const status = document.getElementById('status');
+const serviceDescription = document.getElementById('service-description');
+const serviceDetails = document.getElementById('service-details');
 
-    var xhttp2 = new XMLHttpRequest();
-    xhttp2.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("info").innerHTML =
-                this.responseText;
-        }
-    };
-    xhttp2.open("GET", "app/info", true);
-    xhttp2.send();
+async function loadRest() {
+  status.className = 'status';
+  status.innerHTML = '<span class="status-dot"></span>Checking service status…';
+  try {
+    const [departmentsResult, infoResult] = await Promise.allSettled([
+      fetch('app/dept'),
+      fetch('app/info')
+    ]);
+    if (infoResult.status !== 'fulfilled' || !infoResult.value.ok) throw new Error('Service information unavailable');
+
+    const info = parseServiceInfo(await infoResult.value.text());
+    serviceDescription.textContent = renderServiceDescription(info);
+    document.getElementById('info').textContent = 'Service available';
+    renderServiceDetails(info);
+    status.className = 'status connected';
+    status.innerHTML = '<span class="status-dot"></span>Service available';
+
+    if (departmentsResult.status !== 'fulfilled' || !departmentsResult.value.ok) throw new Error('Department data unavailable');
+    json2table(await departmentsResult.value.json());
+  } catch (error) {
+    if (error.message === 'Service information unavailable') {
+      serviceDescription.textContent = 'Service information could not be retrieved.';
+      document.getElementById('info').textContent = 'Service status unavailable';
+      serviceDetails.replaceChildren();
+      status.className = 'status error';
+      status.innerHTML = '<span class="status-dot"></span>Service unavailable';
+    }
+    document.getElementById('table').innerHTML = '<div class="loading">Unable to load department data. Please try again.</div>';
+  }
 }
 
-// Convert the json in a HTML Table 
-function json2table(jsonValue) {
-    // Extract value from table header. 
-    // ('Book ID', 'Book Name', 'Category' and 'Price')
-    let col = [];
-    for (let i = 0; i < jsonValue.length; i++) {
-        for (let key in jsonValue[i]) {
-            if (col.indexOf(key) === -1) {
-                col.push(key);
-            }
-        }
-    }
-
-    // Create table.
-    const table = document.createElement("table");
-
-    // Create table header row using the extracted headers above.
-    let tr = table.insertRow(-1);                   // table row.
-
-    for (let i = 0; i < col.length; i++) {
-        let th = document.createElement("th");      // table header.
-        th.innerHTML = col[i].toUpperCase();;
-        tr.appendChild(th);
-    }
-
-    // add json data to the table as rows.
-    for (let i = 0; i < jsonValue.length; i++) {
-        tr = table.insertRow(-1);
-        for (let j = 0; j < col.length; j++) {
-            let tabCell = tr.insertCell(-1);
-            tabCell.innerHTML = jsonValue[i][col[j]];
-        }
-    }
-
-    // Now, add the newly created table with json data, to a container.
-    const divData = document.getElementById('table');
-    divData.innerHTML = "";
-    divData.appendChild(table);
+function parseServiceInfo(value) {
+  const [deploy, database, language, framework, ip] = value
+    .split(' - ')
+    .map((part) => part.trim());
+  return { deploy, database, language, framework, ip };
 }
+
+function renderServiceDescription(info) {
+  const values = {
+    language: info.language || 'application',
+    deploy: info.deploy || 'platform',
+    database: info.database || 'data source'
+  };
+  return serviceDescription.dataset.template.replace(
+    /\{(language|deploy|database)\}/g,
+    (_match, key) => values[key]
+  );
+}
+
+function renderServiceDetails(info) {
+  const details = [
+    ['Deployment', info.deploy],
+    ['Database', info.database],
+    ['Language', info.language],
+    ['Framework', info.framework],
+    ['IP', info.ip]
+  ].filter(([, value]) => value);
+
+  serviceDetails.replaceChildren(...details.map(([label, value]) => {
+    const wrapper = document.createElement('div');
+    const term = document.createElement('dt');
+    const description = document.createElement('dd');
+    term.textContent = label;
+    description.textContent = value;
+    wrapper.append(term, description);
+    return wrapper;
+  }));
+}
+
+function json2table(rows) {
+  const container = document.getElementById('table');
+  if (!rows.length) { container.innerHTML = '<div class="loading">No departments found.</div>'; return; }
+  const columns = Object.keys(rows[0]);
+  const table = document.createElement('table');
+  const header = table.insertRow();
+  columns.forEach((column) => { const cell = document.createElement('th'); cell.textContent = column; header.appendChild(cell); });
+  rows.forEach((row) => { const tr = table.insertRow(); columns.forEach((column) => { const cell = tr.insertCell(); cell.textContent = row[column] ?? ''; }); });
+  container.replaceChildren(table);
+}
+
+document.getElementById('refresh').addEventListener('click', loadRest);
+loadRest();

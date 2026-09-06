@@ -18,7 +18,9 @@ resource "oci_functions_application" "starter_fn_application" {
   compartment_id = local.lz_app_cmp_ocid
   display_name   = "${var.prefix}-fn-application"
   subnet_ids     = [data.oci_core_subnet.starter_app_subnet.id]
-  shape          = startswith(var.instance_shape, "VM.Standard.A") ? "GENERIC_ARM" : "GENERIC_X86"
+  shape          = var.cpu_architecture == "arm64" ? "GENERIC_ARM" : "GENERIC_X86"  
+  # For Function, the CPU Architecture is based on the compiling env. Since there is no way to force podman to do cross compilation per default.
+  # shape          = startswith(var.instance_shape, "VM.Standard.A") ? "GENERIC_ARM" : "GENERIC_X86"
 
   image_policy_config {
     #Required

@@ -1108,6 +1108,36 @@ def create_group_common_dir():
 
 #----------------------------------------------------------------------------
 
+jinja2_deploy_param = {
+   "public_compute": {
+        "deploy_name": "Public Compute"
+   },
+   "private_compute": {
+        "deploy_name": "Private Compute"
+   },
+   "instance_pool": {
+        "deploy_name": "Instance Pool"
+   },
+   "kubernetes": {
+        "deploy_name": "OKE (Kubernetes)"
+   },
+   "function": {
+        "deploy_name": "Functions"
+   },
+   "hpc": {
+        "deploy_name": "HPC"
+   },
+   "datascience": {
+        "deploy_name": "Datascience"
+   },
+   "oic": {
+        "deploy_name": "Oracle Integration Cloud"
+   },
+   "hosted_app": {
+        "deploy_name": "Hosted Application"
+   }
+}
+
 jinja2_db_params = {
     "oracle": {
         "pomGroupId": "com.oracle.database.jdbc",
@@ -1115,7 +1145,6 @@ jinja2_db_params = {
         "pomVersion": "21.11.0.0",
         "jdbcDriverClassName": "oracle.jdbc.OracleDriver",
         "dbName": "Oracle",
-
     },
     "mysql": {
         "pomGroupId": "mysql",
@@ -1142,7 +1171,7 @@ jinja2_db_params = {
         "dbName": "NoSQL"
     },
     "none": {
-        "dbName": "No Database"
+        "dbName": "REST API (No Database)"
     }
 }
 
@@ -1232,6 +1261,7 @@ def jinja2_replace_template_prefix( template_param, prefix ):
 #----------------------------------------------------------------------------
 
 def jinja2_replace_template():
+    # Transform db_familiy in readable name
     db_param = jinja2_db_params.get( params.get('db_family') )
     # Find all outputs in terraform
 
@@ -1239,6 +1269,11 @@ def jinja2_replace_template():
         template_param = params
     else:
         template_param = {**params, **db_param}
+
+    # Transform deploy_type in readable name
+    deploy_param = jinja2_deploy_params.get( params.get('deploy_type') )
+    if deploy_param is not None:
+        template_param = {**template_param, **deploy_param}
 
     jinja2_replace_template_prefix( template_param, "j2" )
 
