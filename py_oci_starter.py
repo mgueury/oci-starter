@@ -1108,7 +1108,7 @@ def create_group_common_dir():
 
 #----------------------------------------------------------------------------
 
-jinja2_deploy_param = {
+jinja2_deploy_params = {
    "public_compute": {
         "deploy_name": "Public Compute"
    },
