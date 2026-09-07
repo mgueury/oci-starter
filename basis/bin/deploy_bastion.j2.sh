@@ -7,16 +7,19 @@ cd $PROJECT_DIR
 . starter.sh env -silent
 
 function scp_or_rsync() {
-    if command -v rsync &> /dev/null; then
+    if [ "$SCP_RETRY" == "0" ]; then
+        echo "SCP_RETRY=0. Forcing SCP"
+        scp -r -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path $1 opc@$BASTION_IP:/home/opc/.
+    elif command -v rsync &> /dev/null; then
 
         # Check whether rsync exists (Not installed by default on OL10)
         if ! ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path "opc@$BASTION_IP" 'command -v rsync >/dev/null 2>&1'; then
             echo "rsync not found. Installing..."
 
-            ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path "opc@$BASTION_IP" 'sudo dnf install -y rsync' || {
+            if ! ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path "opc@$BASTION_IP" 'sudo dnf install -y rsync'; then
                 echo "rsync installation failed"
                 return 1 
-            }
+            fi
         fi
 
         rsync -av -e "ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path" $1 opc@$BASTION_IP:.
@@ -85,19 +88,19 @@ function scp_bastion() {
 }
 
 # Try 5 times to copy the files / wait 5 secs between each try
-i=0
+export SCP_RETRY=10
 setup_bastion_dir
 while [ true ]; do
-    scp_bastion
+    scp_bastion i
     if [ $? -eq 0 ]; then
         break;
-    elif [ "$i" == "5" ]; then
+    elif [ "$SCP_RETRY" == "0" ]; then
         echo "deploy_bastion.sh: Maximum number of scp retries, ending."
         error_exit
     fi
     echo "Warning - scp_bastion failed. Retrying in 5 secs."
     sleep 5
-    i=$(($i+1))
+    export SCP_RETRY=$(($SCP_RETRY-1))
 done
 
 ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path opc@$BASTION_IP "set -o pipefail; bash compute/compute_install.sh 2>&1 | tee compute/compute_install.log"
