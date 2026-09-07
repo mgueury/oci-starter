@@ -107,7 +107,7 @@ elif [ "$ARG1" == "rm" ]; then
         echo "Unknown command: $ARG1 $ARG2"
     fi    
 elif [ "$ARG1" == "destroy" ]; then
-    if [ "$2" != "--called_by_resource_manager" ];
+    if [ "$2" != "--called_by_resource_manager" ]; then
         acquire_build_lock "destroy"
     fi    
     if [ -f $TARGET_DIR/resource_manager_stackid ]; then
