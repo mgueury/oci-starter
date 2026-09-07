@@ -107,7 +107,9 @@ elif [ "$ARG1" == "rm" ]; then
         echo "Unknown command: $ARG1 $ARG2"
     fi    
 elif [ "$ARG1" == "destroy" ]; then
-    acquire_build_lock "destroy"
+    if [ "$2" != "--called_by_resource_manager" ];
+        acquire_build_lock "destroy"
+    fi    
     if [ -f $TARGET_DIR/resource_manager_stackid ]; then
         # From the shell that created a RM Stack
         $BIN_DIR/terraform_destroy.sh 
