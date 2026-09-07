@@ -14,7 +14,8 @@ function scp_or_rsync() {
             echo "rsync not found. Installing..."
 
             ssh -o StrictHostKeyChecking=no -i $TF_VAR_ssh_private_path "opc@$BASTION_IP" 'sudo dnf install -y rsync' || {
-                error_exit "Failed to install rsync"
+                echo "rsync installation failed"
+                return 1 
             }
         fi
 
