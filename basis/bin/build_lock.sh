@@ -35,6 +35,7 @@ build_lock_acquire() {
         rm -rf "$BUILD_LOCK_DIR"
         return 1
     fi
+    echo "DEBUG: LOCK TAKEN"
 }
 
 # -- build_lock_release -----------------------------------------------------
