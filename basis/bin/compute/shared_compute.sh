@@ -268,7 +268,9 @@ export -f install_sqlcl
 # -- install_python  --------------------------------------------------------
 install_python() {
     sudo dnf install -y python3.12 python3.12-pip python3-devel wget
-    sudo update-alternatives --set python /usr/bin/python3.12
+    if sudo update-alternatives --query python >/dev/null 2>&1; then
+        sudo update-alternatives --set python /usr/bin/python3.12
+    fi
     curl -LsSf https://astral.sh/uv/install.sh | sh
     if [ ! -d myenv ]; then
         uv venv myenv
