@@ -26,23 +26,25 @@
   <h2>Codex</h2>
 
   <h3>macOS and Linux</h3>
-  <p>Clone the skill directly into your global Codex skills directory:</p>
+  <p>Download the skill archive, then extract it into your global Codex skills directory:</p>
   <pre><code class="language-sh">mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 cd "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
+curl -fL https://www.ocistarter.com/skill/oci-starter-skill.zip -o oci-starter-skill.zip
+unzip oci-starter-skill.zip</code></pre>
   <p>Restart Codex desktop, then ask it to use <code>$oci-starter-skill</code>, for example:</p>
   <pre><code>Use $oci-starter-skill to create a Python application for Kubernetes with OCI Starter.</code></pre>
 
   <h3>Windows (untested)</h3>
-  <p>In PowerShell, clone the skill into <code>%USERPROFILE%\.codex\skills</code>:</p>
+  <p>In PowerShell, download and extract the skill into <code>%USERPROFILE%\.codex\skills</code>:</p>
   <pre><code class="language-powershell">New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.codex\skills"
 Set-Location "$env:USERPROFILE\.codex\skills"
-git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
+Invoke-WebRequest "https://www.ocistarter.com/skill/oci-starter-skill.zip" -OutFile "oci-starter-skill.zip"
+Expand-Archive -Force "oci-starter-skill.zip" .</code></pre>
   <p>Restart Codex desktop and use the same prompt shown above.</p>
 
   <h2>ChatGPT Desktop</h2>
   <ol>
-    <li>Download <a href="https://github.com/mgueury/oci-starter-skill/archive/refs/heads/main.zip">oci-starter-skill-main.zip</a>.</li>
+    <li>Download <a href="/skill/oci-starter-skill.zip" download="oci-starter-skill.zip">oci-starter-skill.zip</a>.</li>
     <li>In ChatGPT desktop, open <strong>Plugins</strong> in the sidebar, open the <strong>Skills</strong> tab, then select <strong>Create</strong> → <strong>Upload</strong>.</li>
     <li>Select the ZIP archive and complete the scan or review process, if prompted.</li>
     <li>Start a new chat and ask ChatGPT to use <code>$oci-starter-skill</code>.</li>
@@ -53,22 +55,25 @@ git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
   <p>OpenCode discovers directory-based skills that contain <code>SKILL.md</code>. Keep the folder name <code>oci-starter-skill</code> so its skill ID remains <code>oci-starter-skill</code>.</p>
 
   <h3>Global installation (macOS and Linux)</h3>
-  <p>Clone the skill to make it available in all OpenCode projects:</p>
+  <p>Download and extract the skill to make it available in all OpenCode projects:</p>
   <pre><code class="language-sh">mkdir -p "$HOME/.config/opencode/skills"
 cd "$HOME/.config/opencode/skills"
-git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
+curl -fL https://www.ocistarter.com/skill/oci-starter-skill.zip -o oci-starter-skill.zip
+unzip oci-starter-skill.zip</code></pre>
 
   <h3>Project installation (macOS and Linux)</h3>
   <p>Make the skill available only in one project. Replace <code>my-project</code> with your project directory:</p>
   <pre><code class="language-sh">mkdir -p my-project/.opencode/skills
 cd my-project/.opencode/skills
-git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
+curl -fL https://www.ocistarter.com/skill/oci-starter-skill.zip -o oci-starter-skill.zip
+unzip oci-starter-skill.zip</code></pre>
 
   <h3>Windows (untested)</h3>
   <p>Use the corresponding OpenCode skill directory, typically <code>%USERPROFILE%\.config\opencode\skills</code> for a global installation, or <code>.opencode\skills</code> within a project. For example, in PowerShell:</p>
   <pre><code class="language-powershell">New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\opencode\skills"
 Set-Location "$env:USERPROFILE\.config\opencode\skills"
-git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
+Invoke-WebRequest "https://www.ocistarter.com/skill/oci-starter-skill.zip" -OutFile "oci-starter-skill.zip"
+Expand-Archive -Force "oci-starter-skill.zip" .</code></pre>
   <p>Restart OpenCode, then request the skill by name:</p>
   <pre><code>Use the oci-starter-skill to create a Python application for Kubernetes with OCI Starter.</code></pre>
 
@@ -78,18 +83,26 @@ git clone https://github.com/mgueury/oci-starter-skill.git</code></pre>
     <li>Confirm the installed copy also contains <code>scripts/oci_starter_url.py</code> and <code>references/options.md</code>.</li>
     <li>Restart the relevant desktop app after installing or updating the skill.</li>
     <li>If the skill is not discovered, check for an accidentally nested path such as <code>oci-starter-skill/oci-starter-skill/SKILL.md</code>.</li>
-    <li>When updating a cloned installation, run <code>git pull</code> from its <code>oci-starter-skill</code> directory, then restart the app.</li>
+    <li>When updating an installation, download a fresh copy of <a href="/skill/oci-starter-skill.zip" download="oci-starter-skill.zip">oci-starter-skill.zip</a>, replace the existing skill folder, and restart the app.</li>
   </ul>
   <p>For product-specific availability and upload permissions, see the official <a href="https://help.openai.com/en/articles/20001066-skills-in-chatgpt/">Skills in ChatGPT guide</a> and the <a href="https://opencode.ai/v2/docs/skills">OpenCode skills documentation</a>.</p>
 
   <script>
-    window.addEventListener('load', () => {
-      const download = document.createElement('a');
-      download.href = 'oci-starter-skill.zip';
-      download.download = 'oci-starter-skill.zip';
-      document.body.append(download);
-      download.click();
-      download.remove();
+    window.addEventListener('load', async () => {
+      try {
+        const response = await fetch('/skill/oci-starter-skill.zip');
+        if (!response.ok) throw new Error('Skill download failed');
+        const fileUrl = URL.createObjectURL(await response.blob());
+        const download = document.createElement('a');
+        download.href = fileUrl;
+        download.download = 'oci-starter-skill.zip';
+        document.body.append(download);
+        download.click();
+        download.remove();
+        URL.revokeObjectURL(fileUrl);
+      } catch (error) {
+        console.warn(error);
+      }
     });
   </script>
 </body>
