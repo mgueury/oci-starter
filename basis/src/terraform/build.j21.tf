@@ -33,7 +33,7 @@ resource "null_resource" "tf_env" {
     }
 {%- for param in to_fill_params %}
 {%- if param == "public_ip_filters" %}
-    append "# {{param}} skipped
+    # {{param}} skipped
 {%- elif param in terraform_variables %}
     append_export "TF_VAR_{{param}}" "${coalesce(var.{{param}},"-")}"
 {%- else %} 
