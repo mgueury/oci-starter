@@ -33,6 +33,6 @@ public class DeptResource {
     @Path("info")
     @Produces(MediaType.TEXT_PLAIN)
     public String getInfo() {
-        return "{{ deploy_name }} - {{ dbName }} - Java - {{ ui_type }} - Helidon";
+        return "{{ deploy_name }} - {{ dbName }} - Java - {{ ui_name }} - Helidon";
     }
 }

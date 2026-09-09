@@ -21,7 +21,7 @@ func dept(c *gin.Context) {
 }
 
 func info(c *gin.Context) {
-    var s string =  "{{ deploy_name }} - {{ dbName }} - Go - {{ ui_type }}"
+    var s string =  "{{ deploy_name }} - {{ dbName }} - Go - {{ ui_name }}"
     c.Data(http.StatusOK, "text/html", []byte(s))
 }
 

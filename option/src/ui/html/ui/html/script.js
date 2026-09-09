@@ -34,20 +34,21 @@ async function loadRest() {
 }
 
 function parseServiceInfo(value) {
-  const [deploy, database, language, framework, ip] = value
+  const [deploy, database, language, ui, framework, ip] = value
     .split(' - ')
     .map((part) => part.trim());
-  return { deploy, database, language, framework, ip };
+  return { deploy, database, language, ui, framework, ip };
 }
 
 function renderServiceDescription(info) {
   const values = {
     language: info.language || 'application',
     deploy: info.deploy || 'platform',
-    database: info.database || 'data source'
+    database: info.database || 'data source',
+    ui: info.ui || 'user interface'
   };
   return serviceDescription.dataset.template.replace(
-    /\{(language|deploy|database)\}/g,
+    /\{(language|deploy|database|ui)\}/g,
     (_match, key) => values[key]
   );
 }
@@ -57,6 +58,7 @@ function renderServiceDetails(info) {
     ['Deployment', info.deploy],
     ['Database', info.database],
     ['Language', info.language],
+    ['User Interface', info.ui],    
     ['Framework', info.framework],
     ['IP', info.ip]
   ].filter(([, value]) => value);

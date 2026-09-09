@@ -1312,6 +1312,11 @@ def jinja2_replace_template():
     if deploy_param is not None:
         template_param = {**template_param, **deploy_param}
 
+    # Transform ui_type in readable name
+    ui_param = jinja2_ui_params.get( params.get('ui_type') )
+    if ui_param is not None:
+        template_param = {**template_param, **ui_param}
+
     jinja2_replace_template_prefix( template_param, "j2" )
 
     template_param['terraform_outputs'], template_param['terraform_variables'], template_param['terraform_resources'], template_param['terraform_resources_part2'], template_param['terraform_locals'] = jinja2_find_in_terraform(output_dir +'/src/terraform')

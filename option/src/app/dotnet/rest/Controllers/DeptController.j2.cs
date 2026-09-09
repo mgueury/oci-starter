@@ -32,6 +32,6 @@ public class DeptController : ControllerBase
     [Route("info")]
     public String Info()
     {
-        return "{{ deploy_name }} - {{ dbName }} - .NET";
+        return "{{ deploy_name }} - {{ dbName }} - .NET - {{ ui_name  }}";
     }  
 }
