@@ -1153,7 +1153,7 @@ jinja2_ui_params = {
         "ui_name": "Angular"
    },
    "reactjs": {
-        "ui_name": "React.JS"
+        "ui_name": "React"
    },
    "jsp": {
         "ui_name": "Java Server Pages"
