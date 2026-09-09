@@ -12,10 +12,21 @@
     :not(pre) > code { background: #f4f4f4; padding: .1em .25em; }
     .notice { padding: 1rem; border-left: 4px solid #b7791f; background: #fffaf0; }
     .warning { padding: 1rem; border-left: 4px solid #b42318; background: #fff4f2; }
+    .guide-nav { margin: 0 0 2rem; padding: 1rem; border: 1px solid #ddd; background: #f8f8f8; }
+    .guide-nav strong { display: block; margin-bottom: .4rem; }
+    .guide-nav ul { margin: 0; padding-left: 1.25rem; }
   </style>
 </head>
 <body>
-  <p><a href="index.html">User Guide</a> · <a href="oci-starter-skill.html">OCI Starter Skill</a> · <a href="license.html">License</a></p>
+  <nav class="guide-nav" aria-label="User guide pages">
+    <strong>OCI Starter documentation</strong>
+    <ul>
+      <li><a href="index.html">User Guide</a></li>
+      <li><a href="known_issues.html" aria-current="page">Known Issues</a></li>
+      <li><a href="oci-starter-skill.html">OCI Starter Skill</a></li>
+      <li><a href="license.html">License</a></li>
+    </ul>
+  </nav>
 
   <h1>Known Issues</h1>
 
