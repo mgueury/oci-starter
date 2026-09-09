@@ -9,11 +9,11 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from "axios";
 
-const stackLabels = ['Deployment', 'Database', 'Language', 'Framework'];
+const stackLabels = ['Deployment', 'Database', 'Language', 'User Interface', 'Framework'];
 
 function getStackDetails(info) {
     const values = String(info || '').split(/\s+-\s+/).map((value) => value.trim()).filter(Boolean);
-    if (values.length >= 4) return values.slice(0, 4).map((value, index) => ({ label: stackLabels[index], value }));
+    if (values.length >= 5) return values.slice(0, 5).map((value, index) => ({ label: stackLabels[index], value }));
     return info ? [{ label: 'Stack', value: info }] : [];
 }
 
