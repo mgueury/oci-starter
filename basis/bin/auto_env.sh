@@ -129,6 +129,12 @@ complete -F _starter_completions ./starter.sh
 # Check the SHAPE
 unset MISMATCH_PLATFORM
 if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
+    if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
+        export TF_VAR_cpu_architecture="arm64"
+    else
+        export TF_VAR_cpu_architecture="amd64"
+    fi
+
     if [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
         # Resource Manager run on ARM processor. So, docker is in ARM mode too...
         export TF_VAR_instance_shape="VM.Standard.A1.Flex"

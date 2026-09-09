@@ -64,12 +64,7 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
 
 {%- if db_type != "none" %}
   environment_variables {
-    name  = "DB_URL"
-    type  = "PLAINTEXT"
-    value = local.local_db_url
-  }
-
-  environment_variables {
+    "DB_URL"= local.local_db_url
     name  = "JDBC_URL"
     type  = "PLAINTEXT"
     value = local.local_jdbc_url

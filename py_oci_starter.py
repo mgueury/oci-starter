@@ -205,7 +205,7 @@ def kubernetes_rules():
       params['deploy_type'] = longhand('deploy_type', {'oke': 'kubernetes', 'ci': 'container_instance'})
 
 def vcn_rules():
-    params['public_ip_filter'] = TO_FILL
+    params['public_ip_filters'] = TO_FILL
     if 'subnet_ocid' in params:
         params['web_subnet_ocid'] = params['subnet_ocid']
         params['app_subnet_ocid'] = params['subnet_ocid']
@@ -559,7 +559,7 @@ def env_sh_contents():
     tfvars.append(f'prefix="{prefix}"')
 
     for param in env_params:
-        if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filter", "your_public_ssh_key"]:
+        if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filters", "your_public_ssh_key"]:
             to_fill_params.append(param)
             tfvars.append('')
             tf_var_comment(tfvars, param)
@@ -579,7 +579,7 @@ def env_sh_contents():
 
 table_comments = {
     'prefix': ['Prefix to all resources created by terraform'],
-    'public_ip_filter': ['IP Range that can access port like 80/443 on the internet. Typically:', '- All internet - 0.0.0.0/0', '- or <your_laptop_ip>/32. Get your Laptop IP, by example, using https://whatismyipaddress.com'],
+    'public_ip_filters': ['An list of IP Ranges that can access port like 80/443 on the internet. Typically:', '- All internet - ["0.0.0.0/0"]', '- or ["123.45.67.89/32"]. Using your Laptop IP. To get your Laptop IP, use by example https://whatismyipaddress.com'],
     'auth_token': ['See doc: https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrygettingauthtoken.htm'],
     'db_password': ['Min length 12 characters, 2 lowercase, 2 uppercase, 2 numbers, 2 special characters. Ex: LiveLab__12345'],
     'license_model': ['BRING_YOUR_OWN_LICENSE or LICENSE_INCLUDED'],

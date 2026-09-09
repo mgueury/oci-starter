@@ -47,7 +47,6 @@ elif [ "$ARG1" == "help" ]; then
     echo "--- BUILD ------------------------------------------------------------------------------------"
     echo "./starter.sh build                    - Build and deploy all"
     echo "./starter.sh build app                - Build the application (APP)"
-    echo "./starter.sh build ui                 - Build the user interface (UI)"
     echo "./starter.sh unlock                   - Remove a stale build lock"
     echo "--- DESTROY ----------------------------------------------------------------------------------"
     echo "./starter.sh destroy                  - Destroy all"

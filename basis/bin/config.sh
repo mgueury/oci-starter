@@ -164,7 +164,7 @@ if has_to_fill_variables; then
         fi      
     fi
 
-    # PUBLIC_IP_FILTER
+    # PUBLIC_IP_FILTERS
     if [ "$TF_VAR_public_ip_filter" == "__TO_FILL__" ]; then
         title "Config - Public IP Filter"
         echo "The setup will include an Internet Gateway that allows HTTP and HTTPS traffic on ports 80 and 443 from the internet."
@@ -176,7 +176,7 @@ if has_to_fill_variables; then
 
         case "$choice" in
             1)
-                export TF_VAR_public_ip_filter="0.0.0.0/0"
+                export TF_VAR_public_ip_filters="[\"0.0.0.0/0\"]"
                 ;;
             2)
                 echo ""
@@ -186,11 +186,11 @@ if has_to_fill_variables; then
                 echo ""
 
                 read -rp "Enter your public IP address: " USER_IP
-                export TF_VAR_public_ip_filter="${USER_IP}/32"
+                export TF_VAR_public_ip_filters="[\"${USER_IP}/32\"]"
                 ;;
             3)
                 read -rp "Enter the IP range (example: 192.168.1.0/24): " IP_RANGE
-                export TF_VAR_public_ip_filter="$IP_RANGE"
+                export TF_VAR_public_ip_filters="[\"${IP_RANGE}\"]"
                 ;;
             *)
                 echo "Invalid option."
@@ -198,8 +198,8 @@ if has_to_fill_variables; then
                 ;;
         esac
 
-        echo "TF_VAR_public_ip_filter=${TF_VAR_public_ip_filter}"
-        store_terraform_tfvars public_ip_filter $TF_VAR_public_ip_filter 
+        echo "TF_VAR_public_ip_filters=${TF_VAR_public_ip_filters}"
+        store_terraform_tfvars public_ip_filters $TF_VAR_public_ip_filters 
     fi
 
 

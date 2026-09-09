@@ -1,7 +1,8 @@
 # --- Network ---
-variable "public_ip_filter" {
-  description = "IP Range that can access the public network"
-  default = "0.0.0.0/0"  
+variable "public_ip_filters" {
+  description = "CIDR ranges that can access the public network"
+  type        = set(string)
+  default     = ["0.0.0.0/0"]
 }
 
 # To use a existing VCN, add these variables in terraform.tfvars
@@ -112,14 +113,17 @@ resource "oci_core_security_list" "starter_security_list" {
     vcn_id         = data.oci_core_vcn.starter_vcn.id
     display_name   = "${var.prefix}-security-list"
 
-    ingress_security_rules {
-        protocol  = "6" // tcp
-        source    = var.public_ip_filter
-        stateless = false
+    dynamic "ingress_security_rules" {
+        for_each = var.public_ip_filters
+        content {
+            protocol  = "6" // tcp
+            source    = ingress_security_rules.value
+            stateless = false
 
-        tcp_options {
-            min = 443
-            max = 443
+            tcp_options {
+                min = 443
+                max = 443
+            }
         }
     }
 
@@ -134,14 +138,17 @@ resource "oci_core_security_list" "starter_security_list" {
         }
     }
 
-    ingress_security_rules {
-        protocol  = "6" // tcp
-        source    = var.public_ip_filter
-        stateless = false
+    dynamic "ingress_security_rules" {
+        for_each = var.public_ip_filters
+        content {
+            protocol  = "6" // tcp
+            source    = ingress_security_rules.value
+            stateless = false
 
-        tcp_options {
-            min = 3000
-            max = 3000
+            tcp_options {
+                min = 3000
+                max = 3000
+            }
         }
     }
 
@@ -157,14 +164,17 @@ resource "oci_core_security_list" "starter_security_list" {
     }
 
 
-    ingress_security_rules {
-        protocol  = "6" // tcp
-        source    = var.public_ip_filter
-        stateless = false
+    dynamic "ingress_security_rules" {
+        for_each = var.public_ip_filters
+        content {
+            protocol  = "6" // tcp
+            source    = ingress_security_rules.value
+            stateless = false
 
-        tcp_options {
-        min = 80
-        max = 80
+            tcp_options {
+                min = 80
+                max = 80
+            }
         }
     }
 
@@ -179,16 +189,19 @@ resource "oci_core_security_list" "starter_security_list" {
         }
     }
 
-    ingress_security_rules {
-        protocol  = "6" // tcp
-        source    = var.public_ip_filter
-        stateless = false
+    dynamic "ingress_security_rules" {
+        for_each = var.public_ip_filters
+        content {
+            protocol  = "6" // tcp
+            source    = ingress_security_rules.value
+            stateless = false
 
-        tcp_options {
-        min = 8080
-        max = 8080
+            tcp_options {
+                min = 8080
+                max = 8080
+            }
         }
-    }  
+    }
 
     ingress_security_rules {
         protocol  = "6" // tcp
