@@ -34,6 +34,6 @@ class DeptController {
     @Get(uri = "info") 
     @Produces(MediaType.TEXT_PLAIN)
     String info() {
-        return "{{ deploy_name }} - {{ dbName }} - Java - Micronaut";
+        return "{{ deploy_name }} - {{ dbName }} - Java - {{ ui_type }} - Micronaut";
     }
 }

@@ -1138,6 +1138,36 @@ jinja2_deploy_params = {
    }
 }
 
+jinja2_ui_params = {
+   "html": {
+        "ui_name": "HTML"
+   },
+   "jet": {
+        "ui_name": "Oracle JET"
+   },
+   "angular": {
+        "ui_name": "Angular"
+   },
+   "reactjs": {
+        "ui_name": "React.JS"
+   },
+   "jsp": {
+        "ui_name": "Java Server Pages"
+   },
+   "php": {
+        "ui_name": "PHP"
+   },
+   "api": {
+        "ui_name": "API"
+   },
+   "apex": {
+        "ui_name": "APEX"
+   },
+   "none": {
+        "ui_name": "None"
+   }
+}
+
 jinja2_db_params = {
     "oracle": {
         "pomGroupId": "com.oracle.database.jdbc",
