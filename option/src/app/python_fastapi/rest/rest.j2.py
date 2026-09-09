@@ -27,7 +27,7 @@ def dept():
 
 @app.get("/info", response_class=PlainTextResponse)
 def info():
-    return "{{ deploy_name }} - {{ dbName }} - Python - {{ ui_name  }} - FastAPI"
+    return "{{ deploy_name }} - {{ dbName }} - Python - {{ ui_name }} - FastAPI"
 
 
 if __name__ == "__main__":

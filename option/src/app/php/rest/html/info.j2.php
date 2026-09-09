@@ -1,1 +1,1 @@
-<?php echo ("{{ deploy_name }} - {{ dbName }} - PHP - {{ ui_name  }}"); ?> 
+<?php echo ("{{ deploy_name }} - {{ dbName }} - PHP - {{ ui_name }}"); ?> 
