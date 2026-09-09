@@ -1319,8 +1319,6 @@ def jinja2_replace_template():
     ui_param = jinja2_ui_params.get( params.get('ui_type') )
     if ui_param is not None:
         template_param = {**template_param, **ui_param}
-    print( "debug1 - " + params.get('ui_type'))
-    print( "debug2 - " + template_param.get('ui_name'))
 
     jinja2_replace_template_prefix( template_param, "j2" )
 
