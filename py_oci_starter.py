@@ -439,8 +439,6 @@ def readme_contents():
 
 Check LICENSE file (Apache 2.0)
 
-### Usage
-
 ### Commands
 - build_group.sh   : Build first the Common Resources (group_common), then other directories
 - destroy_group.sh : Destroy other directories, then the Common Resources
@@ -463,7 +461,13 @@ Check LICENSE file (Apache 2.0)
                 ]
     else:
         contents = ['''## OCI-Starter
-### Usage
+### User Guide
+
+Check
+- [Online User Guide](https://www.ocistarter.com/user_guide/)
+- or the directory user_guide 
+        
+### In short
 
 ### Commands
 - starter.sh             : Show the menu

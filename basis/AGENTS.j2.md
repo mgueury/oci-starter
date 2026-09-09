@@ -22,10 +22,4 @@ The intended flow is: configure `terraform.tfvars`, run `./starter.sh` (or
 `./starter.sh build`), then use the bastion/Compute access commands for
 deployment and troubleshooting.
 
-Rules are split into two documents:
-
-- **Generic implementation details (syntax/conventions):** `docs/RULES_GENERIC.md`
-- **Program-specific rules (APIs, tables, behavior):** `docs/RULES_PROGRAM.md`
-
-Use `RULES_GENERIC.md` when creating/changing code style and implementation patterns.
-Use `RULES_PROGRAM.md` when changing business behavior.
+User Guide is available in the user_guide directory.
