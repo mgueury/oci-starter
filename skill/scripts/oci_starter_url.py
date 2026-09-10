@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 
 ALLOWED = {
     "language": {"java", "node", "python", "dotnet", "go", "php", "ords", "apex", "none"},
-    "deploy_type": {"public_compute", "private_compute", "instance_pool", "kubernetes", "function", "container_instance", "hpc", "datascience", "oic"},
+    "deploy_type": {"public_compute", "private_compute", "instance_pool", "kubernetes", "hosted_app", "function", "container_instance", "hpc", "datascience", "oic"},
     "java_framework": {"springboot", "helidon", "helidon4", "tomcat", "micronaut"},
     "java_vm": {"jdk", "graalvm", "graalvm-native"}, "java_version": {"8", "11", "17", "21", "25"},
     "python_framework": {"fastapi", "langgraph", "responses"}, "kubernetes": {"oke", "docker"},

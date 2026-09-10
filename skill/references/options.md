@@ -29,7 +29,7 @@ Apply these values unless the user explicitly overrides them:
 | Input key | Allowed values |
 | --- | --- |
 | `language` | `java`, `node`, `python`, `dotnet`, `go`, `php`, `ords`, `apex`, `none` |
-| `deploy_type` | `public_compute`, `private_compute`, `instance_pool`, `kubernetes`, `function`, `container_instance` |
+| `deploy_type` | `public_compute`, `private_compute`, `instance_pool`, `kubernetes`, `hosted_app` (Hosted Application), `function`, `container_instance` |
 | `java_framework` | `springboot`, `helidon`, `helidon4`, `tomcat`, `micronaut` |
 | `java_vm` | `jdk`, `graalvm`, `graalvm-native` |
 | `java_version` | `8`, `11`, `17`, `21`, `25` |

@@ -44,7 +44,7 @@ To determine whether a setting is profile-backed, inspect the script structurall
 
 When the user requests an OCI Starter project, first identify whether an existing project already has a compatible OCI Starter scaffold. If not, conduct a short, conditional architecture interview. Ask only unresolved decisions:
 
-- workload and exposure: public/private compute, Kubernetes, function, container instance, instance pool, HPC, data science, or OIC;
+- workload and exposure: public/private compute, Kubernetes, Hosted Application, function, container instance, instance pool, HPC, data science, or OIC;
 - language and framework; UI/API type; database requirement;
 - for Kubernetes: managed vs virtual nodes;
 - for Java: framework, JVM, and Java version;
