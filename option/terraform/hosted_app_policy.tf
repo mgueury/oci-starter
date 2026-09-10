@@ -7,8 +7,9 @@ resource "oci_identity_policy" "starter_hosted_app_policy" {
     statements = [
         "allow service vulnerability-scanning-service to read compartments in compartment id ${local.lz_app_cmp_ocid}",
         "allow service vulnerability-scanning-service to read repos in compartment id ${local.lz_app_cmp_ocid}",
-        "allow any-user to read repos in compartment id ${local.lz_serv_cmp_ocid} where any( request.resource.type='generativeaihostedapplication', request.resource.type='generativeaihosteddeployment')",
-        "allow any-user to read vss-family in compartment id ${local.lz_serv_cmp_ocid} where any( request.resource.type='generativeaihostedapplication', request.resource.type='generativeaihosteddeployment')",
+        "allow any-user to read repos in compartment id ${local.lz_serv_cmp_ocid} where any( request.principal.type='generativeaihostedapplication', request.principal.type='generativeaihosteddeployment')",
+        "allow any-user to read vss-family in compartment id ${local.lz_serv_cmp_ocid} where any( request.principal.type='generativeaihostedapplication', request.principal.type='generativeaihosteddeployment')",
+        "allow any-user to use generative-ai-chat in compartment id ${local.lz_serv_cmp_ocid} where any( request.principal.type='generativeaihostedapplication', request.principal.type='generativeaihosteddeployment')",
     ]
     freeform_tags = local.freeform_tags
 }

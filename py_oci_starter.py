@@ -1012,7 +1012,8 @@ def create_output_dir():
             cp_terraform_apigw(None)
 
         elif params.get('deploy_type') == "hosted_app":
-            cp_terraform("hosted_app.j2.tf")
+            cp_terraform("hosted_app_part2.j2.tf")
+            output_copy_tree("../hosted_app", "src")            
             if 'group_common' not in params:
                 cp_terraform("hosted_app_policy.tf")
             cp_terraform_apigw(None)

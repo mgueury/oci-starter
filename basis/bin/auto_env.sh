@@ -100,7 +100,7 @@ if ! command -v rsync &> /dev/null; then
     error_exit "Unix command rsync not found. Please install it."
 fi
 
-if [ "$TF_VAR_deploy_type" == "kubernetes" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] || [ "$TF_VAR_deploy_type" == "function" ]; then
+if [ "$TF_VAR_deploy_type" == "kubernetes" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] || [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
     export DEPLOY_WITH_DOCKER="true"
     if ! command -v docker &> /dev/null; then
         if ! command -v podman &> /dev/null; then
