@@ -351,7 +351,7 @@ if [ -f $STATE_FILE ]; then
     fi
 
     # Container Instance
-    if [ "$TF_VAR_deploy_type" == "container_instance" ]; then
+    if [ "$TF_VAR_deploy_type" == "container_instance" ] || [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
         if [ -f $TARGET_DIR/docker_image_ui.txt ]; then
             export TF_VAR_docker_image_ui=`cat $TARGET_DIR/docker_image_ui.txt`
         else

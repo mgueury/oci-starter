@@ -26,8 +26,9 @@
       <li><a href="license.html">License</a></li>
     </ul>
   </nav>
-  <p>OCI Starter Skill is provided under the Universal Permissive License (UPL), Version 1.0.</p>
   <h1>OCI Starter Skill</h1>
+
+  <p><strong><a href="/skill/oci-starter-skill.zip">Download here.</a></strong></strong></p>
 
   <p>Use this skill to create applications and OCI Starter projects for Oracle Cloud Infrastructure. It guides an agent through choosing an OCI Starter architecture, downloading the appropriate scaffold, and implementing the application in it.</p>
 
@@ -98,24 +99,5 @@ Expand-Archive -Force "oci-starter-skill.zip" .</code></pre>
     <li>When updating an installation, download a fresh copy of <a href="/skill/oci-starter-skill.zip" download="oci-starter-skill.zip">oci-starter-skill.zip</a>, replace the existing skill folder, and restart the app.</li>
   </ul>
   <p>For product-specific availability and upload permissions, see the official <a href="https://help.openai.com/en/articles/20001066-skills-in-chatgpt/">Skills in ChatGPT guide</a> and the <a href="https://opencode.ai/v2/docs/skills">OpenCode skills documentation</a>.</p>
-
-  <script>
-    window.addEventListener('load', async () => {
-      try {
-        const response = await fetch('/skill/oci-starter-skill.zip');
-        if (!response.ok) throw new Error('Skill download failed');
-        const fileUrl = URL.createObjectURL(await response.blob());
-        const download = document.createElement('a');
-        download.href = fileUrl;
-        download.download = 'oci-starter-skill.zip';
-        document.body.append(download);
-        download.click();
-        download.remove();
-        URL.revokeObjectURL(fileUrl);
-      } catch (error) {
-        console.warn(error);
-      }
-    });
-  </script>
 </body>
 </html>

@@ -291,12 +291,12 @@ get_ui_url() {
         export UI_HTTP=$UI_URL
         export UI_URL=https://${TF_VAR_dns_name}/${TF_VAR_prefix}
         fi
-    elif [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "container_instance" ]; then  
+    elif [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] ||  [ "$TF_VAR_deploy_type" == "hosted_app" ]; then  
         export UI_URL=https://${APIGW_HOSTNAME}/${TF_VAR_prefix}
         if [ "$TF_VAR_tls" != "" ] && [ "$TF_VAR_certificate_ocid" != "" ]; then
         export UI_HTTP=$UI_URL
         export UI_URL=https://${TF_VAR_dns_name}/${TF_VAR_prefix}
-        fi   
+        fi  
     fi
 }
 

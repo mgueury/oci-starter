@@ -64,7 +64,6 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
 
 {%- if db_type != "none" %}
   environment_variables {
-    "DB_URL"= local.local_db_url
     name  = "JDBC_URL"
     type  = "PLAINTEXT"
     value = local.local_jdbc_url
@@ -148,13 +147,13 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   ###########################################################################
 
   inbound_auth_config {
-    inbound_auth_config_type = "IDCS_AUTH_CONFIG"
+    inbound_auth_config_type = "NO_AUTH_CONFIG"
 
-    idcs_config {
-      domain_url = var.hosted_app_idcs_domain_url
-      scope      = var.hosted_app_idcs_scope
-      audience   = var.hosted_app_idcs_audience
-    }
+    # idcs_config {
+    #   domain_url = var.hosted_app_idcs_domain_url
+    #   scope      = var.hosted_app_idcs_scope
+    #   audience   = var.hosted_app_idcs_audience
+    # }
   }
 
   ###########################################################################
@@ -217,13 +216,7 @@ resource "oci_generative_ai_hosted_application" "starter_ui_hosted_application" 
   display_name   = "${var.prefix}-ui-hosted-app"
 
   inbound_auth_config {
-    inbound_auth_config_type = "IDCS_AUTH_CONFIG"
-
-    idcs_config {
-      domain_url = var.hosted_app_idcs_domain_url
-      scope      = var.hosted_app_idcs_scope
-      audience   = var.hosted_app_idcs_audience
-    }
+    inbound_auth_config_type = "NO_AUTH_CONFIG"
   }
 
   networking_config {
@@ -323,13 +316,7 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
 {%- endif %}
 
   inbound_auth_config {
-    inbound_auth_config_type = "IDCS_AUTH_CONFIG"
-
-    idcs_config {
-      domain_url = var.hosted_app_idcs_domain_url
-      scope      = var.hosted_app_idcs_scope
-      audience   = var.hosted_app_idcs_audience
-    }
+    inbound_auth_config_type = "NO_AUTH_CONFIG"
   }
 
   networking_config {
