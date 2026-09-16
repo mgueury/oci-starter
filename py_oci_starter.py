@@ -1055,7 +1055,8 @@ def create_group_common_dir():
     create_dir_shared()
 
     # -- APP ----------------------------------------------------------------
-    output_remove("src/app/*")
+    output_rm_tree("src/app")
+    output_mkdir("src/app")
     output_copy_tree("option/src/app/group_common", "src/app")
 
     # -- Common -------------------------------------------------------------
@@ -1108,7 +1109,7 @@ def create_group_common_dir():
         cp_terraform_existing("compute_ocid", "compute.j2.tf")
 
     cp_terraform("container_instance_policy.tf")
-    cp_terraform("hosted_app_policy.tf")
+    # cp_terraform("hosted_app_policy.tf")
 
 #----------------------------------------------------------------------------
 
