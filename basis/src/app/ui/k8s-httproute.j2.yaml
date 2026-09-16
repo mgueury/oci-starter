@@ -1,7 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: ##TF_VAR_prefix##-ui-route
+  name: ##K8S_APP_PREFIX##-ui-route
 {%- if tls == "new_http_01" %}
   annotations:
     # These remain controller-specific (not part of Gateway API)
@@ -20,18 +20,18 @@ spec:
   - matches:
     - path:
         type: Exact
-        value: /##TF_VAR_prefix##
+        value: /##K8S_APP_PREFIX##
     filters:
     - type: RequestRedirect
       requestRedirect:
         path:
           type: ReplaceFullPath
-          replaceFullPath: /##TF_VAR_prefix##/
+          replaceFullPath: /##K8S_APP_PREFIX##/
         statusCode: 301
   - matches:
     - path:
         type: PathPrefix
-        value: /##TF_VAR_prefix##
+        value: /##K8S_APP_PREFIX##
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -39,6 +39,6 @@ spec:
           type: ReplacePrefixMatch
           replacePrefixMatch: /
     backendRefs:
-    - name: ##TF_VAR_prefix##-ui-service
+    - name: ##K8S_APP_PREFIX##-ui-service
       port: 80
 

@@ -17,8 +17,8 @@ if [ "$PROJECT_DIR" == "" ]; then
     exit 1
 fi
 
-# Ex: src/app/rest     -> rest     -> rest 
-# Ex: src/app/xxx/rest -> xxx/rest -> xxx-rest 
+# Ex: src/app/rest            -> rest            -> rest
+# Ex: src/app/restaurant/rest -> restaurant/rest -> restaurant-rest
 export APP_DIR="${SCRIPT_DIR#*/app/}"
 export APP_NAME="${APP_DIR//\//-}"
 cd $SCRIPT_DIR
@@ -29,6 +29,17 @@ if [ "$TF_VAR_deploy_type" == "" ]; then
 else 
     . $BIN_DIR/shared_bash_function.sh
 fi 
+
+# APP_PROJECT is empty for root components and is the first directory segment
+# for project-scoped components. Database credentials remain shared.
+if [[ "$APP_DIR" == */* ]]; then
+    export APP_PROJECT="${APP_DIR%%/*}"
+    export K8S_APP_PREFIX="${TF_VAR_prefix}-${APP_PROJECT}"
+else
+    export APP_PROJECT=""
+    export K8S_APP_PREFIX="${TF_VAR_prefix}"
+fi
+
 
 if [ -f $PROJECT_DIR/before_build.sh ]; then
     . $PROJECT_DIR/before_build.sh

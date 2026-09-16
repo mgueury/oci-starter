@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ##TF_VAR_prefix##-app-service
+  name: ##K8S_APP_PREFIX##-app-service
 spec:
   type: ExternalName
   externalName: ##ORDS_HOST##

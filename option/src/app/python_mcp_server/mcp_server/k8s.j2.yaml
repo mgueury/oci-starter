@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ##TF_VAR_prefix##-mcp-server-dep
+  name: ##K8S_APP_PREFIX-mcp-server-dep
   labels:
-      app: ##TF_VAR_prefix##-mcp-server
+      app: ##K8S_APP_PREFIX##-mcp-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ##TF_VAR_prefix##-mcp-server
+      app: ##K8S_APP_PREFIX##-mcp-server
   template:
     metadata:
       labels:
-        app: ##TF_VAR_prefix##-mcp-server
+        app: ##K8S_APP_PREFIX##-mcp-server
     spec:
       containers:
       - name: app
-        image: ##DOCKER_PREFIX##/##TF_VAR_prefix##-mcp_server:##DOCKER_IMG_VERSION##
+        image: ##DOCKER_PREFIX##/##K8S_APP_PREFIX##-mcp_server:##DOCKER_IMG_VERSION##
         ports:
         - containerPort: 2025
           name: app-port
@@ -24,17 +24,17 @@ spec:
         - name: DB_URL
           valueFrom:
             secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
+              name: ##K8S_APP_PREFIX##-db-secret
               key: db_url
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
+              name: ##K8S_APP_PREFIX##-db-secret
               key: db_user
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
+              name: ##K8S_APP_PREFIX##-db-secret
               key: db_password
 #        - name: POD_IP
 #          valueFrom:
@@ -44,12 +44,12 @@ spec:
         - name: TF_VAR_compartment_ocid
           valueFrom:
             secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
+              name: ##K8S_APP_PREFIX##-db-secret
               key: TF_VAR_compartment_ocid
         - name: TF_VAR_nosql_endpoint
           valueFrom:
             secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
+              name: ##K8S_APP_PREFIX##-db-secret
               key: TF_VAR_nosql_endpoint
 {%- endif %}
       imagePullSecrets:
@@ -58,10 +58,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ##TF_VAR_prefix##-mcp-server-service
+  name: ##K8S_APP_PREFIX-mcp-server-service
 spec:
   selector:
-    app: ##TF_VAR_prefix##-mcp-server
+    app: ##K8S_APP_PREFIX##-mcp-server
   ports:
   - name: http-service-port
     protocol: TCP
