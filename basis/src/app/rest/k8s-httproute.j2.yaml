@@ -1,7 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: ##K8S_APP_PREFIX##-rest-route
+  name: ##TF_VAR_prefix##-rest-route
 spec:
   parentRefs:
   - name: oke-gateway
@@ -14,7 +14,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /##K8S_APP_PREFIX##/app
+        value: /##TF_VAR_prefix##/app
     filters:
 {%- if language in [ "apex", "ords" ] %}    
     - type: RequestHeaderModifier
@@ -55,7 +55,7 @@ spec:
 {%- endif %}
 
     backendRefs:
-    - name: ##K8S_APP_PREFIX##-rest-service
+    - name: ##TF_VAR_prefix##-rest-service
       port:
 {%- if language in [ "apex", "ords" ] %}
         443
@@ -68,7 +68,7 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: ##K8S_APP_PREFIX##-service-entry
+  name: ##TF_VAR_prefix##-service-entry
 spec:
   hosts:
   - ##ORDS_HOST##
@@ -82,7 +82,7 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: ##K8S_APP_PREFIX##-destination-rule
+  name: ##TF_VAR_prefix##-destination-rule
 spec:
   host: ##ORDS_HOST##
   trafficPolicy:
@@ -93,9 +93,9 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: ##K8S_APP_PREFIX##-destination-rule2
+  name: ##TF_VAR_prefix##-destination-rule2
 spec:
-  host: ##K8S_APP_PREFIX##-rest-service
+  host: ##TF_VAR_prefix##-rest-service
   trafficPolicy:
     tls:
       mode: SIMPLE
