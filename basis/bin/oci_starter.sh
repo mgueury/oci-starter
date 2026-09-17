@@ -82,7 +82,7 @@ elif [ "$ARG1" == "help" ]; then
 
 elif [ "$ARG1" == "build" ]; then
     acquire_build_lock "build"
-    if [ "$ARG2" == "app" ]; then
+    if [ "$ARG2" == "app" ] || [ ! -d "${PROJECT_DIR}/src/terraform" ]; then
         . ./starter.sh env -silent
         build_deploy_apps
     else

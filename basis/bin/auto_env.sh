@@ -256,7 +256,13 @@ else
     if [ "$TF_VAR_deploy_type" == "kubernetes" ] || [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] || [ -f $PROJECT_DIR/src/terraform/oke.tf ]; then
         export TF_VAR_email=mail@domain.com
         auto_echo TF_VAR_email=$TF_VAR_email
-        export KUBECONFIG=$TARGET_DIR/kubeconfig_starter
+        # Check first if there is a kubeconfig in group_common/target dir
+        if [ -f ${PROJECT_DIR}/../group_common/target/kubeconfig_starter ]; then
+            export KUBECONFIG="$(realpath "${PROJECT_DIR}/../group_common/target/kubeconfig_starter")"
+        else 
+            # If not, it will be downloaded in $TARGET_DIR
+            export KUBECONFIG=${TARGET_DIR}/kubeconfig_starter
+        fi
     fi
 
     if [ "$TF_VAR_db_type" == "nosql" ]; then
