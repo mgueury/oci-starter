@@ -562,13 +562,15 @@ def env_sh_contents():
     tfvars.append(f'prefix="{prefix}"')
 
     for param in env_params:
-        print(param)
+        print(f"for - {param}")
         if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filters", "your_public_ssh_key"]:
+            print(f"for if - {param}")
             to_fill_params.append(param)
             tfvars.append('')
             tf_var_comment(tfvars, param)
             tfvars.append(f'{param}="{params[param]}"')
         else:
+            print(f"for else - {param}")
             fixed_params.append(param)
             tf_var_comment(fixed_tfvars, param)
             fixed_tfvars.append(f'# {param}="{params[param]}"')
@@ -577,6 +579,9 @@ def env_sh_contents():
         tfvars.append('')
         tfvars.append('# Compartment')
         tfvars.append('compartment_ocid="__TO_FILL__"')
+
+    print("-- fixed_tfvars --")
+    print(fixed_tfvars)
 
     tfvars.append('')
     return tfvars
