@@ -607,7 +607,7 @@ export -f install_docker_tools
 
 # -- get_docker_prefix ------------------------------------------------------
 get_docker_prefix() {
-    export DOCKER_PREFIX_NO_OCIR=${CONTAINER_PREFIX}
+    export DOCKER_PREFIX_NO_OCIR=${CONTAINER_PREFIX:-${TF_VAR_prefix}}
     export DOCKER_PREFIX=${OCIR_HOST}/${OBJECT_STORAGE_NAMESPACE}/${DOCKER_PREFIX_NO_OCIR}
     auto_echo DOCKER_PREFIX=$DOCKER_PREFIX
 }
