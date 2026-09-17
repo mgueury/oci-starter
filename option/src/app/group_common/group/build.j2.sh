@@ -170,3 +170,7 @@ EOT
 echo
 echo "File group_common_env.sh created."
 echo
+
+if [ -n "$OKE_OCID" ]; then
+   $BIN_DIR/config_oke.sh
+fi

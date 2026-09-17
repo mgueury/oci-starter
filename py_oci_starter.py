@@ -1086,6 +1086,8 @@ def create_group_common_dir():
 
     if 'oke' in a_group_common:
         cp_terraform_existing("oke_ocid", "oke.j2.tf")
+        output_mkdir("src/oke")
+        output_copy_tree("option/oke", "src/oke")        
 
     if 'fnapp' in a_group_common:
         cp_terraform_existing("fnapp_ocid", "function.j2.tf")
