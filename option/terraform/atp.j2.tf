@@ -43,7 +43,7 @@ data "oci_database_autonomous_database" "starter_atp" {
 }
 {%- endif %}
 
-{%- if group_name is not defined or db_type == "autonomous" %} %}
+{%- if group_name is not defined or db_type == "autonomous" %}
 // -- Locals ----------------------------------------------------------------
 locals {
   # Create List of 'name' values from source objet list
