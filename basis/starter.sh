@@ -7,11 +7,11 @@
 export PROJECT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export CURRENT_DIR=`pwd`
 
-if [ -f "$PROJECT_DIR/bin/oci-starter.sh" ]; then
+if [ -f "$PROJECT_DIR/bin/oci_starter.sh" ]; then
   export PATH="$PROJECT_DIR/bin:$PATH"
-elif [ -f "$PROJECT_DIR/../bin/oci-starter.sh" ]; then
+elif [ -f "$PROJECT_DIR/../bin/oci_starter.sh" ]; then
   export PATH="$PROJECT_DIR/../bin:$PATH"
-elif [ -f "$PROJECT_DIR/../group_common/bin/oci-starter.sh" ]; then
+elif [ -f "$PROJECT_DIR/../group_common/bin/oci_starter.sh" ]; then
   export PATH="$PROJECT_DIR/../group_common/bin:$PATH"
 fi
 
