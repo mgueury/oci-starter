@@ -34,8 +34,11 @@ else
 fi 
 
 # Function to parse a .tfvars file and export TF_VAR_ variables
-read_terraform_tfvars() {
-  # Read the file line by line, ignoring comments and empty lines
+process_terraform_tfvars() {
+    if [ "$1" == "create_sh" ]; then
+        echo "# Generated from terraform.tfvars" > $TARGET_DIR/tf_vars.sh
+    fi
+    # Read the file line by line, ignoring comments and empty lines
     while read -r line; do
         if [[ "$line" =~ ^\s*# ]]; then
             :
@@ -48,8 +51,15 @@ read_terraform_tfvars() {
             value=$(echo "$value" | sed -E "s/^['\"](.*)['\"]$/\1/")
             # Check if key and value are not empty
             if [[ "$key" != "" && "$value" != "" ]]; then
-                export "TF_VAR_${key}"="${value}"
-                # echo "export TF_VAR_${key}=\"${value}\""
+                key_name="TF_VAR_${key}"
+                if [ "$1" == "create_sh" ]; then
+                    # Save the value after all 4 steps
+                    printf 'export %s="%s"\n' "${key_name}" "${!key_name}" >> $TARGET_DIR/tf_vars.sh
+
+                else
+                    # Export 
+                    export "${key_name}"="${value}"
+                fi
             fi
         fi
     done < "$PROJECT_DIR/terraform.tfvars"
@@ -58,21 +68,27 @@ read_terraform_tfvars() {
 
 # Environment Variables
 # In 4 places:
-# 1. target/tf_env.sh created by the terraform (created by the first build)
 auto_echo "Reading variables"
 auto_echo
 auto_echo "Order     File Name                             Settings from"
 auto_echo "-----     ---------                             -------------"
 
+# 1. target/tf_env.sh created by the terraform (created by the first build)
 if [ -f $TARGET_DIR/tf_env.sh ]; then
     . $TARGET_DIR/tf_env.sh
-    auto_echo "1         target/tf_env.sh                      Terraform apply"
+    auto_echo "1         \$PROJECT_DIR/target/tf_env.sh         Terraform apply"
+elif [ -f $PROJECT_DIR/../group_common/target/tf_env.sh ]; then
+    . $PROJECT_DIR/../group_common/target/tf_env.sh
+    auto_echo "1         ../group_common/target/tf_env.sh      Terraform apply"
+elif [ -f $PROJECT_DIR/../../group_common/target/tf_env.sh ]; then
+    . $PROJECT_DIR/../../group_common/target/tf_env.sh
+    auto_echo "1         ../../group_common/target/tf_env.sh   Terraform apply"
 else
-    auto_echo "1 SKIP    target/tf_env.sh                      Terraform apply"
+    auto_echo "1 SKIP    \$PROJECT_DIR/target/tf_env.sh         Terraform apply"
 fi 
 # 2. terraform.tfvars
 auto_echo "2         terraform.tfvars                      Project"  
-read_terraform_tfvars
+process_terraform_tfvars read
 # 3. $HOME/.oci_starter_profile
 if [ -f $HOME/.oci_starter_profile ]; then
     . $HOME/.oci_starter_profile
@@ -81,7 +97,10 @@ else
     auto_echo "3 SKIP    \$HOME/.oci_starter_profile            User Home"
 fi 
 # 4. for groups, also in group_common_env.sh
-if [ -f $PROJECT_DIR/../group_common_env.sh ]; then
+if [[ "$PROJECT_DIR" == */group_common ]]; then
+    # Do not load group_common_env.sh from group_common
+    auto_echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
+elif [ -f $PROJECT_DIR/../group_common_env.sh ]; then
     . $PROJECT_DIR/../group_common_env.sh
     auto_echo "4         ../group_common_env.sh                Group of Projects"
 elif [ -f $PROJECT_DIR/../../group_common_env.sh ]; then
@@ -90,6 +109,9 @@ elif [ -f $PROJECT_DIR/../../group_common_env.sh ]; then
 else
     auto_echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
 fi
+
+# Generate $TARGET_DIR/tf_vars.sh from terraform.tfvars with the __TO_FILL__ values found above
+process_terraform_tfvars create_sh
 
 # Check commands that are typically missing
 if ! command -v jq &> /dev/null; then
@@ -100,6 +122,7 @@ if ! command -v rsync &> /dev/null; then
     error_exit "Unix command rsync not found. Please install it."
 fi
 
+echo "TF_VAR_deploy_type=$TF_VAR_deploy_type"
 if [ "$TF_VAR_deploy_type" == "kubernetes" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] || [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
     export DEPLOY_WITH_DOCKER="true"
     if ! command -v docker &> /dev/null; then
@@ -256,7 +279,6 @@ else
     if [ "$TF_VAR_deploy_type" == "kubernetes" ] || [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] || [ -f $PROJECT_DIR/src/terraform/oke.tf ]; then
         export TF_VAR_email=mail@domain.com
         auto_echo TF_VAR_email=$TF_VAR_email
-        # Check first if there is a kubeconfig in group_common/target dir
         if [ -f ${PROJECT_DIR}/../group_common/target/kubeconfig_starter ]; then
             export KUBECONFIG="$(realpath "${PROJECT_DIR}/../group_common/target/kubeconfig_starter")"
         else 

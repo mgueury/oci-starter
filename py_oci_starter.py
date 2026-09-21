@@ -526,7 +526,7 @@ def env_param_list():
         exclude.extend(['java_vm', 'java_framework', 'java_version'])
     if 'group_name' in params:
         # exclude.extend(['ui_type', 'db_type', 'language', 'deploy_type', 'db_user', 'group_name'])
-        exclude.extend(['ui_type', 'language', 'deploy_type', 'group_name'])
+        exclude.extend(['ui_type', 'language', 'group_name'])
     else:
         exclude.append('group_common')
     if is_param_default_value('infra_as_code'):
@@ -979,6 +979,7 @@ def create_output_dir():
             cp_terraform_existing("fnapp_ocid", "function.j2.tf")
             if 'fnapp_ocid' not in params:
                 cp_terraform("log_group.tf")
+                cp_terraform("object_storage.tf")
             if params['language'] == "ords":
                 apigw_append = "apigw_fn_ords_append.j2.tf"
             else:
@@ -1094,6 +1095,7 @@ def create_group_common_dir():
         cp_terraform_existing("fnapp_ocid", "function.j2.tf")
         if 'fnapp_ocid' not in params:
             cp_terraform("log_group.tf")
+            cp_terraform("object_storage.tf")
 
     if 'apigw' in a_group_common:
         cp_terraform_existing("apigw_ocid", "apigw.j2.tf")
@@ -1110,6 +1112,11 @@ def create_group_common_dir():
 
     if 'public_compute' in a_group_common:
         cp_terraform_existing("compute_ocid", "compute.j2.tf")
+
+    if 'genai' in a_group_common:
+        cp_terraform_existing("project_ocid", "genai_project.tf")
+        # OCI Speech or OCI Vision / Asynchronous
+        cp_terraform("object_storage.tf")
 
     cp_terraform("container_instance_policy.tf")
     # cp_terraform("hosted_app_policy.tf")

@@ -91,6 +91,9 @@ spec:
         - name: MCP_SERVER_URL
           value: "http://##TF_VAR_gateway_ip##/##TF_VAR_prefix##/mcp_server/mcp"
 {%- endif %}
+        envFrom:
+        - configMapRef:
+            name: tf-vars-configmap
       imagePullSecrets:
       - name: ocirsecret        
 ---

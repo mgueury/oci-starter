@@ -43,7 +43,8 @@ function setup_bastion_dir() {
     elif [ -d src/app/db ]; then
         cp -R src/app/db $BASTION_DIR/app/.
     fi
-    cp $TARGET_DIR/tf_env.sh $BASTION_DIR/compute/.
+    # tf_env.sh + tf_vars.sh
+    cp $TARGET_DIR/tf_*.sh $BASTION_DIR/compute/.
 
     if [ "$TF_VAR_deploy_type" == "public_compute" ]; then
         if [ -d src/compute ]; then 

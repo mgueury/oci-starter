@@ -9,7 +9,8 @@ cd $PROJECT_DIR
 echo "COMPUTE_IP=$COMPUTE_IP"
 
 # Create the target/compute directory
-cp $TARGET_DIR/tf_env.sh $TARGET_DIR/compute/compute/.
+# tf_env.sh + tf_vars.sh
+cp $TARGET_DIR/tf_*.sh $TARGET_DIR/compute/compute/.
 
 if -d src/compute; then 
     cp -R src/compute/* $TARGET_DIR/compute/.

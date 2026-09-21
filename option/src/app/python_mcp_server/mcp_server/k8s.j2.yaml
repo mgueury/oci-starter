@@ -52,6 +52,9 @@ spec:
               name: ##TF_VAR_prefix##-db-secret
               key: TF_VAR_nosql_endpoint
 {%- endif %}
+        envFrom:
+        - configMapRef:
+            name: tf-vars-configmap
       imagePullSecrets:
       - name: ocirsecret        
 ---

@@ -97,17 +97,22 @@ append_tf_env() {
     echo "$1" >> $TARGET_DIR/tf_env.sh
 }
 
-# -- tf_env_configmap -------------------------------------------------------
+# -- export_to_configmap -------------------------------------------------------
 
-# Convert tf_env.sh to configmap
-tf_env_configmap() {
+export_to_configmap() {
+    # Convert tf_env.sh or tf_vars.sh to configmap
+    # tf_env.sh -> tf_env -> tf-env-configmap -> tf_env_configmap.yaml
+    local sh_name=$1
+    local base_name="${sh_name%.sh}"
+    local configmap_name="${base_name//_/-}-configmap"
+    local configmap_filename="${base_name}_configmap.yaml"    
     echo "apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tf-env-configmap
-data:" > $TARGET_OKE/tf_env_configmap.yaml
+  name: ${configmap_name}
+data:" > ${TARGET_OKE}/${configmap_filename}
 
-    grep -v '^#' $TARGET_DIR/tf_env.sh | grep '^export' | while read line; do
+    grep -v '^#' $TARGET_DIR/{sh_name}.sh | grep '^export' | while read line; do
         VAR=$(echo $line | sed 's/export //')
         KEY=$(echo $VAR | cut -d= -f1)
         VALUE=$(echo $VAR | cut -d= -f2- | sed 's/^"\(.*\)"$/\1/')
@@ -115,9 +120,10 @@ data:" > $TARGET_OKE/tf_env_configmap.yaml
             VAR_NAME="${VALUE:1}"
             VALUE="${!VAR_NAME}" 
         fi
-        echo "  $KEY: \"$VALUE\"" >> $TARGET_OKE/tf_env_configmap.yaml
+        echo "  $KEY: \"$VALUE\"" >> ${TARGET_OKE}/${configmap_filename}
     done
-    echo "tf_env_configmap.yaml created."
+    echo "${configmap_filename} created."
+    kubectl apply -f ${TARGET_OKE}/${configmap_filename}
 }
 
 # -- group_common_contain ---------------------------------------------------
@@ -676,6 +682,10 @@ append_done() {
 }
 
 build_deploy_apps() {
+    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
+       export_to_configmap tf_vars.sh
+    fi 
+
     # Build all apps
     if [ "$TF_VAR_build_host" != "bastion" ]; then
         for APP_NAME in `app_name_list_build`; do
@@ -701,5 +711,10 @@ build_deploy_apps() {
     elif [ "$TF_VAR_deploy_type" == "container_instance" ]; then
         $BIN_DIR/deploy_ci.sh
         exit_on_error "Deploy $TF_VAR_deploy_type"
+    fi
+
+    # Done
+    if [ -f $PROJECT_DIR/src/done.sh ]; then
+        $PROJECT_DIR/src/done.sh
     fi
 }

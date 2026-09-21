@@ -73,5 +73,5 @@ kubectl create secret generic ${TF_VAR_prefix}-db-secret --from-literal=db_user=
 k8s_create_ocirsecret
 
 # TF_ENV
-tf_env_configmap
-kubectl apply -f $TARGET_OKE/tf_env_configmap.yaml
+export_to_configmap tf_env.sh
+
