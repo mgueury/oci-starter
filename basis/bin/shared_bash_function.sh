@@ -117,7 +117,7 @@ metadata:
   name: ${configmap_name}
 data:" > ${TARGET_OKE}/${configmap_filename}
 
-    grep -v '^#' $TARGET_DIR/{sh_name}.sh | grep '^export' | while read line; do
+    grep -v '^#' $TARGET_DIR/${sh_name}.sh | grep '^export' | while read line; do
         VAR=$(echo $line | sed 's/export //')
         KEY=$(echo $VAR | cut -d= -f1)
         VALUE=$(echo $VAR | cut -d= -f2- | sed 's/^"\(.*\)"$/\1/')
