@@ -14,11 +14,11 @@ fi
 
 # -- title ------------------------------------------------------------------
 title() {
-  line='-------------------------------------------------------------------------'
-  NAME=$1
-  echo
-  echo "-- $NAME ${line:${#NAME}}"
-  echo  
+    line='-------------------------------------------------------------------------'
+    NAME=$1
+    echo
+    echo "-- $NAME ${line:${#NAME}}"
+    echo  
 }
 export -f title
 
@@ -701,6 +701,17 @@ k8s_create_ocirsecret() {
 }
 export -f k8s_create_ocirsecret
 
+# -- k8s_create_db_secret --------------------------------------------------
+
+k8s_create_db_secret() {
+    # Create secrets
+    kubectl delete secret ${TF_VAR_prefix}-db-secret --ignore-not-found=true
+    db_schema_get
+    kubectl create secret generic ${TF_VAR_prefix}-db-secret --from-literal=db_user=$DB_SCHEMA --from-literal=db_password=$TF_VAR_db_password --from-literal=db_url=$DB_URL --from-literal=jdbc_url=$JDBC_URL --from-literal=TF_VAR_compartment_ocid=$TF_VAR_compartment_ocid --from-literal=TF_VAR_nosql_endpoint=$TF_VAR_nosql_endpoint
+}
+export -f k8s_create_db_secret
+
+
 # -- ocir_docker_push_app -------------------------------------------------------
 ocir_docker_push_app() {
     # Docker Login
@@ -927,3 +938,29 @@ has_to_fill_variables() {
     return 1
 }
 export -f has_to_fill_variables
+
+# -- db_schema_get --------------------------------------------------
+db_schema_get() {
+    if [ "$TF_VAR_db_type" == "autonomous" ]; then
+        export DB_SCHEMA="${TF_VAR_prefix/-/_}"
+    else        
+        export DB_SCHEMA="$DB_USER"
+    fi
+}
+export -f db_schema_get
+
+# -- db_schema_create --------------------------------------------------
+db_schema_create() {
+    db_schema_get
+    if [ "$TF_VAR_db_type" == "autonomous" ]; then
+        cat > $TARGET_DIR/create_user.sql << EOF
+        create user &1 identified by "&2";
+        grant connect, resource, unlimited tablespace to &1;
+        exit 
+EOF
+        sqlplus $DB_USER/$DB_PASSWORD@DB "@$TARGET_DIR/create_user.sql" $DB_SCHEMA "$DB_PASSWORD" 
+    fi
+}
+export -f db_schema_create
+
+

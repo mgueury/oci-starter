@@ -66,8 +66,7 @@ if ! grep -q "TF_VAR_gateway_ip" $TARGET_DIR/tf_env.sh; then
 fi
 
 # Create secrets
-kubectl delete secret ${TF_VAR_prefix}-db-secret --ignore-not-found=true
-kubectl create secret generic ${TF_VAR_prefix}-db-secret --from-literal=db_user=$TF_VAR_db_user --from-literal=db_password=$TF_VAR_db_password --from-literal=db_url=$DB_URL --from-literal=jdbc_url=$JDBC_URL --from-literal=TF_VAR_compartment_ocid=$TF_VAR_compartment_ocid --from-literal=TF_VAR_nosql_endpoint=$TF_VAR_nosql_endpoint
+k8s_create_db_secret
 
 # Create ocirsecret with DOCKER_TOKEN 
 k8s_create_ocirsecret
