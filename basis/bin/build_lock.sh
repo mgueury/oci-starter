@@ -40,7 +40,6 @@ build_lock_acquire() {
 # -- build_lock_release -----------------------------------------------------
 build_lock_release() {
     if [ ! -d "$BUILD_LOCK_DIR" ]; then
-        echo "No OCI Starter build lock exists."
         return 0
     fi
     rm -rf "$BUILD_LOCK_DIR"
@@ -65,7 +64,6 @@ build_lock_unlock_stale() {
 
     BUILD_LOCK_DIR="$TARGET_DIR/build.lock"
     if [ ! -e "$BUILD_LOCK_DIR" ]; then
-        echo "No OCI Starter build lock exists."
         return 0
     fi
 
