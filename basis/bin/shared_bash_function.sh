@@ -101,7 +101,8 @@ append_tf_env() {
 
 export_to_configmap() {
     # Convert tf_env.sh or tf_vars.sh to configmap
-    # tf_env.sh -> tf_env -> tf-env-configmap -> tf_env_configmap.yaml
+    # tf_env.sh  -> tf_env  -> tf-env-configmap         -> tf_env_configmap.yaml
+    # tf_vars.sh -> tf_vars -> prefix-tf-vars-configmap -> tf_vars_configmap.yaml
     local sh_name=$1
     local base_name="${sh_name%.sh}"
     if [ "$sh_name" == "tf_vars.sh" ]; then
