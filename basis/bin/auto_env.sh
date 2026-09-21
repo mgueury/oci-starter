@@ -45,7 +45,7 @@ process_terraform_tfvars() {
     # - normal     terraform.tfvars -> export
     # - create_sh  terraform.tfvars -> tf_vars.sh
     if [ "$1" == "create_sh" ]; then
-        if [ -d $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
+        if [ -f $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
             # Start from GROUP_COMMON if it exist and overwrite the values
             cp $GROUP_COMMON_DIR/target/tf_vars.sh $TARGET_DIR/tf_vars.sh
         else
@@ -70,7 +70,8 @@ process_terraform_tfvars() {
                 if [ "$1" == "create_sh" ]; then
                     # Save the value after all 4 steps
                     if [ "$key_name" != "TF_VAR_public_ip_filters" ]; then
-                        sed -i "s/export ${key_name}=.*/# ${key_name} overwritten/" $TARGET_DIR/tf_vars.sh
+                        sed "s/export ${key_name}=.*/# ${key_name} overwritten/" $TARGET_DIR/tf_vars.sh > $TARGET_DIR/tf_vars.tmp 
+                        mv $TARGET_DIR/tf_vars.tmp $TARGET_DIR/tf_vars.sh                    
                         printf 'export %s="%s"\n' "${key_name}" "${!key_name}" >> $TARGET_DIR/tf_vars.sh
                     else
                         printf '# public_ip_filters skipped.\n' >> $TARGET_DIR/tf_vars.sh
