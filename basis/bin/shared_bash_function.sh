@@ -104,7 +104,11 @@ export_to_configmap() {
     # tf_env.sh -> tf_env -> tf-env-configmap -> tf_env_configmap.yaml
     local sh_name=$1
     local base_name="${sh_name%.sh}"
-    local configmap_name="${base_name//_/-}-configmap"
+    if [ "$sh_name" == "tf_vars.sh" ]; then
+        local configmap_name="${TF_VAR_prefix}-${base_name//_/-}-configmap"
+    else
+        local configmap_name="${base_name//_/-}-configmap"
+    fi
     local configmap_filename="${base_name}_configmap.yaml"    
     echo "apiVersion: v1
 kind: ConfigMap
