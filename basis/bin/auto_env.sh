@@ -11,6 +11,12 @@ export STATE_FILE=$TARGET_DIR/terraform.tfstate
 if [ ! -d $TARGET_DIR ]; then
     mkdir $TARGET_DIR
 fi
+if [ -d $PROJECT_DIR/../group_common ]; then
+   GROUP_COMMON_DIR=$PROJECT_DIR/../group_common
+elif [ -d $PROJECT_DIR/../../group_common ]; then  
+   GROUP_COMMON_DIR=$PROJECT_DIR../../group_common
+fi
+
 # BIN_DIR
 if [[ -z "${BIN_DIR}" ]]; then
     export BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -39,7 +45,12 @@ process_terraform_tfvars() {
     # - normal     terraform.tfvars -> export
     # - create_sh  terraform.tfvars -> tf_vars.sh
     if [ "$1" == "create_sh" ]; then
-        echo "# Generated from terraform.tfvars" > $TARGET_DIR/tf_vars.sh
+        if [ -d $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
+            # Start from GROUP_COMMON if it exist and overwrite the values
+            cp $GROUP_COMMON_DIR/target/tf_vars.sh $TARGET_DIR/tf_vars.sh
+        else
+            echo "# Generated from terraform.tfvars" > $TARGET_DIR/tf_vars.sh
+        fi
         chmod +x $TARGET_DIR/tf_vars.sh
     fi
     # Read the file line by line, ignoring comments and empty lines
@@ -58,7 +69,8 @@ process_terraform_tfvars() {
                 key_name="TF_VAR_${key}"
                 if [ "$1" == "create_sh" ]; then
                     # Save the value after all 4 steps
-                    if [ "$key_name" != "public_ip_filters" ]; then
+                    if [ "$key_name" != "TF_VAR_public_ip_filters" ]; then
+                        sed -i "s/export ${key_name}=.*/# ${key_name} overwritten/" $TARGET_DIR/tf_vars.sh
                         printf 'export %s="%s"\n' "${key_name}" "${!key_name}" >> $TARGET_DIR/tf_vars.sh
                     else
                         printf '# public_ip_filters skipped.\n' >> $TARGET_DIR/tf_vars.sh
@@ -84,12 +96,9 @@ auto_echo "-----     ---------                             -------------"
 if [ -f $TARGET_DIR/tf_env.sh ]; then
     . $TARGET_DIR/tf_env.sh
     auto_echo "1         \$PROJECT_DIR/target/tf_env.sh         Terraform apply"
-elif [ -f $PROJECT_DIR/../group_common/target/tf_env.sh ]; then
-    . $PROJECT_DIR/../group_common/target/tf_env.sh
-    auto_echo "1         ../group_common/target/tf_env.sh      Terraform apply"
-elif [ -f $PROJECT_DIR/../../group_common/target/tf_env.sh ]; then
-    . $PROJECT_DIR/../../group_common/target/tf_env.sh
-    auto_echo "1         ../../group_common/target/tf_env.sh   Terraform apply"
+elif [ -f $GROUP_COMMON_DIR/target/tf_env.sh ]; then
+    . $GROUP_COMMON_DIR/target/tf_env.sh
+    auto_echo "1         $GROUP_COMMON_DIR/tf_env.sh      Terraform apply"
 else
     auto_echo "1 SKIP    \$PROJECT_DIR/target/tf_env.sh         Terraform apply"
 fi 
@@ -106,15 +115,12 @@ fi
 # 4. for groups, also in group_common_env.sh
 if [[ "$PROJECT_DIR" == */group_common ]]; then
     # Do not load group_common_env.sh from group_common
-    auto_echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
-elif [ -f $PROJECT_DIR/../group_common_env.sh ]; then
-    . $PROJECT_DIR/../group_common_env.sh
-    auto_echo "4         ../group_common_env.sh                Group of Projects"
-elif [ -f $PROJECT_DIR/../../group_common_env.sh ]; then
-    . $PROJECT_DIR/../../group_common_env.sh
-    auto_echo "4         ../../group_common_env.sh             Group of Projects"
+    auto_echo "4 SKIP    group_common_env.sh                   Group of Projects" 
+elif [ -f $GROUP_COMMON_DIR/../group_common_env.sh ]; then
+    . $GROUP_COMMON_DIR/../group_common_env.sh
+    auto_echo "4         group_common_env.sh                   Group of Projects"
 else
-    auto_echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
+    auto_echo "4 SKIP    group_common_env.sh                   Group of Projects" 
 fi
 
 # Generate $TARGET_DIR/tf_vars.sh from terraform.tfvars with the __TO_FILL__ values found above
@@ -285,8 +291,8 @@ else
     if [ "$TF_VAR_deploy_type" == "kubernetes" ] || [ "$TF_VAR_deploy_type" == "function" ] || [ "$TF_VAR_deploy_type" == "container_instance" ] || [ -f $PROJECT_DIR/src/terraform/oke.tf ]; then
         export TF_VAR_email=mail@domain.com
         auto_echo TF_VAR_email=$TF_VAR_email
-        if [ -f ${PROJECT_DIR}/../group_common/target/kubeconfig_starter ]; then
-            export KUBECONFIG="$(realpath "${PROJECT_DIR}/../group_common/target/kubeconfig_starter")"
+        if [ -f ${GROUP_COMMON_DIR}/target/kubeconfig_starter ]; then
+            export KUBECONFIG="$(realpath "${GROUP_COMMON_DIR}/target/kubeconfig_starter")"
         else 
             # If not, it will be downloaded in $TARGET_DIR
             export KUBECONFIG=${TARGET_DIR}/kubeconfig_starter
