@@ -40,6 +40,7 @@ process_terraform_tfvars() {
     # - create_sh  terraform.tfvars -> tf_vars.sh
     if [ "$1" == "create_sh" ]; then
         echo "# Generated from terraform.tfvars" > $TARGET_DIR/tf_vars.sh
+        chmod +x $TARGET_DIR/tf_vars.sh
     fi
     # Read the file line by line, ignoring comments and empty lines
     while read -r line; do
