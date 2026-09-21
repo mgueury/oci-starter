@@ -33,8 +33,11 @@ else
     unset SILENT_MODE
 fi 
 
-# Function to parse a .tfvars file and export TF_VAR_ variables
+# Function to parse a .tfvars file and export TF_VAR_variables
 process_terraform_tfvars() {
+    # 2 modes 
+    # - normal     terraform.tfvars -> export
+    # - create_sh  terraform.tfvars -> tf_vars.sh
     if [ "$1" == "create_sh" ]; then
         echo "# Generated from terraform.tfvars" > $TARGET_DIR/tf_vars.sh
     fi
@@ -54,8 +57,11 @@ process_terraform_tfvars() {
                 key_name="TF_VAR_${key}"
                 if [ "$1" == "create_sh" ]; then
                     # Save the value after all 4 steps
-                    printf 'export %s="%s"\n' "${key_name}" "${!key_name}" >> $TARGET_DIR/tf_vars.sh
-
+                    if [ "$key_name" != "public_ip_filters" ]; then
+                        printf 'export %s="%s"\n' "${key_name}" "${!key_name}" >> $TARGET_DIR/tf_vars.sh
+                    else
+                        printf '# public_ip_filters skipped.\n' >> $TARGET_DIR/tf_vars.sh
+                    fi
                 else
                     # Export 
                     export "${key_name}"="${value}"
