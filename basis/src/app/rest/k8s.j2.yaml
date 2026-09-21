@@ -56,11 +56,6 @@ spec:
 #            fieldRef:
 #              fieldPath: status.podIP
 {%- if db_type == "nosql" %}
-        - name: TF_VAR_compartment_ocid
-          valueFrom:
-            secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
-              key: TF_VAR_compartment_ocid
         - name: TF_VAR_nosql_endpoint
           valueFrom:
             secretKeyRef:
@@ -73,11 +68,6 @@ spec:
             configMapKeyRef:
               name: tf-env-configmap
               key: TF_VAR_region
-        - name: TF_VAR_compartment_ocid
-          valueFrom:
-            configMapKeyRef:
-              name: tf-env-configmap
-              key: TF_VAR_compartment_ocid
 {%- endif %}
 {%- if python_framework == "langgraph" %}
         - name: MCP_SERVER_URL

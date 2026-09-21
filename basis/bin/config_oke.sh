@@ -5,9 +5,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR/..
 title "Config OKE"
 
-export TARGET_OKE=$TARGET_DIR/oke
-mkdir -p $TARGET_OKE
-
 # One time configuration
 if [ ! -f $KUBECONFIG ]; then
     create_kubeconfig

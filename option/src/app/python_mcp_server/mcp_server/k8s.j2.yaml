@@ -41,11 +41,6 @@ spec:
 #            fieldRef:
 #              fieldPath: status.podIP
 {%- if db_type == "nosql" %}
-        - name: TF_VAR_compartment_ocid
-          valueFrom:
-            secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
-              key: TF_VAR_compartment_ocid
         - name: TF_VAR_nosql_endpoint
           valueFrom:
             secretKeyRef:

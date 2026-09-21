@@ -153,6 +153,8 @@ if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
     if ! command -v kubectl &> /dev/null; then
         error_exit "Unix command kubectl not found. Please install it."
     fi
+    export TARGET_OKE=$TARGET_DIR/oke
+    mkdir -p $TARGET_OKE
 fi
 
 # Autocomplete in bash
