@@ -31,8 +31,8 @@ resource "null_resource" "tf_env" {
     }
     append ""
     append "# Terraform Variables"
-    append 'SCRIPT_DIR=$( cd -- "$( dirname -- "$BASH_SOURCE[0]" )" &> /dev/null && pwd )'
-    append ". \$SCRIPT_DIR/tf_vars.sh"
+    append 'TF_ENV_DIR=$( cd -- "$( dirname -- "$BASH_SOURCE[0]" )" &> /dev/null && pwd )'
+    append ". \$TF_ENV_DIR/tf_vars.sh"
     append "# Terraform Locals"
 {%- for key in terraform_locals %}
     append_export "{{key.upper()}}" "${local.local_{{key}}}"
