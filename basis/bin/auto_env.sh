@@ -45,7 +45,7 @@ process_terraform_tfvars() {
     # - normal     terraform.tfvars -> export
     # - create_sh  terraform.tfvars -> tf_vars.sh
     if [ "$1" == "create_sh" ]; then
-        if [ "$PROJECT_DIR" != */group_common] && [ -f $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
+        if [[ "$PROJECT_DIR" != */group_common ]] && [ -f $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
             # Start from GROUP_COMMON if it exist and overwrite the values
             cp $GROUP_COMMON_DIR/target/tf_vars.sh $TARGET_DIR/tf_vars.sh
         else
@@ -74,7 +74,7 @@ process_terraform_tfvars() {
                         mv $TARGET_DIR/tf_vars.tmp $TARGET_DIR/tf_vars.sh                    
                         printf 'export %s="%s"\n' "${key_name}" "${!key_name}" >> $TARGET_DIR/tf_vars.sh
                     else
-                        printf '# public_ip_filters skipped.\n' >> $TARGET_DIR/tf_vars.sh
+                        printf '# public_ip_filters skipped\n' >> $TARGET_DIR/tf_vars.sh
                     fi
                 else
                     # Export 

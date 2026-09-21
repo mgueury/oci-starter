@@ -111,6 +111,7 @@ export_to_configmap() {
         local configmap_name="${base_name//_/-}-configmap"
     fi
     local configmap_filename="${base_name}_configmap.yaml"    
+    title "Configmap - ${configmap_name}"    
     echo "apiVersion: v1
 kind: ConfigMap
 metadata:
