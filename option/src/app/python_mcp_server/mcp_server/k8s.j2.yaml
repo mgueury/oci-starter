@@ -36,6 +36,11 @@ spec:
             secretKeyRef:
               name: ##TF_VAR_prefix##-db-secret
               key: db_password
+        - name: PROJECT_OCID
+          valueFrom:
+            configMapKeyRef:
+              name: tf-env-configmap
+              key: PROJECT_OCID                
 #        - name: POD_IP
 #          valueFrom:
 #            fieldRef:

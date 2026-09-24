@@ -68,16 +68,21 @@ spec:
             configMapKeyRef:
               name: tf-env-configmap
               key: TF_VAR_region
+        - name: PROJECT_OCID
+          valueFrom:
+            configMapKeyRef:
+              name: tf-env-configmap
+              key: PROJECT_OCID              
 {%- endif %}
 {%- if python_framework == "langgraph" %}
         - name: MCP_SERVER_URL
           value: "http://##TF_VAR_prefix##-mcp-server-service:2025/mcp"
 {%- elif python_framework == "responses" %}
-        - name: TF_VAR_project_ocid
+        - name: PROJECT_OCID
           valueFrom:
             configMapKeyRef:
               name: tf-env-configmap
-              key: TF_VAR_project_ocid
+              key: PROJECT_OCID
         - name: MCP_SERVER_URL
           value: "http://##TF_VAR_gateway_ip##/##TF_VAR_prefix##/mcp_server/mcp"
 {%- endif %}

@@ -4,6 +4,10 @@
         {
             "key": "enableIngressGateway",
             "value": "false"
+        },
+        {
+            "key": "customizeConfigMap",
+            "value": "true"
         }
     ]
 }

@@ -3,12 +3,16 @@ import os
 import threading
 from pathlib import Path
 from typing import Any
+import logging
+from typing import Any
 
 import httpx
 import oci
 import oci_openai
 from fastapi import APIRouter, Body, HTTPException
 from openai import OpenAI
+
+logger = logging.getLogger(__name__)
 
 CONFIG_FILE = Path(os.getenv("APP_CONFIG_FILE", Path(__file__).with_name("config.json")))
 
@@ -288,10 +292,7 @@ async def reload_agent_config() -> None:
 
 @config_router.get("/config/parameters")
 async def read_configuration() -> dict[str, Any]:
-    try:
-        return list_configuration_parameters()
-    except ConfigError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return list_configuration_parameters()
 
 
 @config_router.put("/config/parameters")

@@ -46,6 +46,14 @@ function autoGrowTextarea() {
 }
 chatInput.addEventListener('input', autoGrowTextarea);
 
+function submitQueryParameter() {
+    const query = new URLSearchParams(window.location.search).get('q')?.trim();
+    if (!query || chatInput.disabled) return;
+
+    chatInput.value = query;
+    autoGrowTextarea();
+    chatForm.requestSubmit();
+}
 
 // -- Rendering ---
 
@@ -671,4 +679,5 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error("Could not load agents:", error));
     }
     updateDisplay();
+    submitQueryParameter();
 })();

@@ -154,6 +154,14 @@ if [ "$TF_VAR_auth_token" != "" ]; then
   append "export TF_VAR_auth_token=$TF_VAR_auth_token"
 fi   
 
+if [ "$TF_VAR_dns_name" != "" ]; then
+  append "export TF_VAR_dns_name=$TF_VAR_dns_name"
+fi   
+
+if [ "$TF_VAR_tls" != "" ]; then
+  append "export TF_VAR_tls=$TF_VAR_tls"
+fi   
+
 cat >> $GROUP_COMMON <<'EOT' 
 
 # Database Password

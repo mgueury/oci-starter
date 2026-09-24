@@ -1,0 +1,34 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+  namespace: gateway
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ##TF_VAR_certificate_email##
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+    - http01:
+        gatewayHTTPRoute:
+          # cert-manager creates a short-lived HTTPRoute on this Gateway for
+          # the ACME challenge. The Gateway's port 80 listener is public.
+          parentRefs:
+          - name: oke-gateway
+            namespace: gateway
+            kind: Gateway
+          serviceType: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gateway-tls
+  namespace: gateway
+spec:
+  secretName: gateway-tls
+  dnsNames:
+  - ##TF_VAR_dns_name##
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
