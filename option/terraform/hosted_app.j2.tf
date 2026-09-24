@@ -506,3 +506,70 @@ data "oci_generative_ai_hosted_deployments" "starter_mcp_hosted_deployments" {
 }
 
 {%- endif %}
+
+
+###############################################################################
+# Hosted Application service logs
+#
+# The log group is Terraform-managed. Each service log is bound to its Hosted
+# Application, so Terraform recreates it if that application is replaced.
+###############################################################################
+
+resource "oci_logging_log" "starter_rest_hosted_app_log" {
+  display_name = "${var.prefix}-rest-hosted-app_genai-hosted-deployment-log"
+  log_group_id = oci_logging_log_group.starter_log_group.id
+  log_type     = "SERVICE"
+  is_enabled   = true
+
+  configuration {
+    compartment_id = local.lz_app_cmp_ocid
+
+    source {
+      category    = "genai-hosted-deployment-log"
+      resource    = oci_generative_ai_hosted_application.starter_rest_hosted_application.id
+      service     = "genai-hosted-deployment-prod"
+      source_type = "OCISERVICE"
+    }
+  }
+}
+
+
+resource "oci_logging_log" "starter_ui_hosted_app_log" {
+  display_name = "${var.prefix}-ui-hosted-app_genai-hosted-deployment-log"
+  log_group_id = oci_logging_log_group.starter_log_group.id
+  log_type     = "SERVICE"
+  is_enabled   = true
+
+  configuration {
+    compartment_id = local.lz_app_cmp_ocid
+
+    source {
+      category    = "genai-hosted-deployment-log"
+      resource    = oci_generative_ai_hosted_application.starter_ui_hosted_application.id
+      service     = "genai-hosted-deployment-prod"
+      source_type = "OCISERVICE"
+    }
+  }
+}
+
+{%- if python_framework in [ "langgraph", "responses" ] %}
+
+resource "oci_logging_log" "starter_mcp_hosted_app_log" {
+  display_name = "${var.prefix}-mcp-hosted-app_genai-hosted-deployment-log"
+  log_group_id = oci_logging_log_group.starter_log_group.id
+  log_type     = "SERVICE"
+  is_enabled   = true
+
+  configuration {
+    compartment_id = local.lz_app_cmp_ocid
+
+    source {
+      category    = "genai-hosted-deployment-log"
+      resource    = oci_generative_ai_hosted_application.starter_mcp_hosted_application.id
+      service     = "genai-hosted-deployment-prod"
+      source_type = "OCISERVICE"
+    }
+  }
+}
+
+{%- endif %}

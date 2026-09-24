@@ -6,6 +6,9 @@ COPY html/ /usr/share/nginx/html
 {%- endif %}
 
 {%- if deploy_type == "hosted_app" %}
+# The Hosted Deployment root filesystem is read-only. The Nginx configuration
+# below writes all runtime state to /tmp and exposes the required probes.
+RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx_hosted_app.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
 {%- endif %}

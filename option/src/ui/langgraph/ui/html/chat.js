@@ -46,14 +46,6 @@ function autoGrowTextarea() {
 }
 chatInput.addEventListener('input', autoGrowTextarea);
 
-function submitQueryParameter() {
-    const query = new URLSearchParams(window.location.search).get('q')?.trim();
-    if (!query || chatInput.disabled) return;
-
-    chatInput.value = query;
-    autoGrowTextarea();
-    chatForm.requestSubmit();
-}
 
 // -- Rendering ---
 
@@ -261,6 +253,7 @@ function startSSE(reqBody, onMessage, onDone) {
         method: "POST",
         headers: { 
             "Content-Type": "application/json", 
+            "Accept": "text/event-stream",
             "Authorization": `User ${currentUser}`,
             "X-CSRF-TOKEN": csrfToken
         },
@@ -679,5 +672,4 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error("Could not load agents:", error));
     }
     updateDisplay();
-    submitQueryParameter();
 })();

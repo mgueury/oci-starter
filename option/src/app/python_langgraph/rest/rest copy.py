@@ -11,7 +11,7 @@ import uvicorn
 from aiocache import SimpleMemoryCache, cached
 from fastapi import Body, Depends, FastAPI, Header, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from agent import agent, reload_agent_config
