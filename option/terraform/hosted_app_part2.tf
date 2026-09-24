@@ -294,25 +294,3 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
 
   depends_on = [null_resource.build_deploy]
 }
-
-###############################################################################
-# Handoff from Terraform to the OCI SDK
-#
-# Existing deployments are removed from state without deletion. New and existing
-# deployments are subsequently created or updated by bin/hosted_app_cli.sh.
-###############################################################################
-
-removed {
-  from = oci_generative_ai_hosted_deployment.starter_rest_hosted_deployment
-  lifecycle { destroy = false }
-}
-
-removed {
-  from = oci_generative_ai_hosted_deployment.starter_ui_hosted_deployment
-  lifecycle { destroy = false }
-}
-
-removed {
-  from = oci_generative_ai_hosted_deployment.starter_mcp_hosted_deployment
-  lifecycle { destroy = false }
-}

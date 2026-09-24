@@ -257,26 +257,12 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
     target_cpu_threshold = 50
   }
 
-  
+
 
   # DB_URL and JDBC_URL are maintained by bin/hosted_app_cli.sh after each
   # image build. Terraform must not overwrite the SDK-managed values.
   lifecycle {
     ignore_changes = [environment_variables]
-  }
-
-  freeform_tags = local.freeform_tags
-}
-
-
-resource "oci_generative_ai_hosted_deployment" "starter_mcp_hosted_deployment" {
-  compartment_id        = local.lz_app_cmp_ocid
-  hosted_application_id = oci_generative_ai_hosted_application.starter_mcp_hosted_application.id
-
-  active_artifact {
-    artifact_type = "SIMPLE_DOCKER_ARTIFACT"
-    container_uri = local.mcp_container_uri
-    tag           = local.mcp_container_tag
   }
 
   freeform_tags = local.freeform_tags
@@ -396,44 +382,8 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
 
   freeform_tags = local.api_tags
 
-  depends_on = [
-    oci_generative_ai_hosted_deployment.starter_rest_hosted_deployment,
-    oci_generative_ai_hosted_deployment.starter_ui_hosted_deployment,
-{%- if python_framework in [ "langgraph", "responses" ] %}
-    oci_generative_ai_hosted_deployment.starter_mcp_hosted_deployment,
-{%- endif %}
-  ]
+  depends_on = [null_resource.build_deploy]
 }
-
-
-###############################################################################
-# Optional data sources
-###############################################################################
-
-data "oci_generative_ai_hosted_deployments" "starter_rest_hosted_deployments" {
-  compartment_id = local.lz_app_cmp_ocid
-  application_id = oci_generative_ai_hosted_application.starter_rest_hosted_application.id
-  id             = oci_generative_ai_hosted_deployment.starter_rest_hosted_deployment.id
-  state          = "ACTIVE"
-}
-
-data "oci_generative_ai_hosted_deployments" "starter_ui_hosted_deployments" {
-  compartment_id = local.lz_app_cmp_ocid
-  application_id = oci_generative_ai_hosted_application.starter_ui_hosted_application.id
-  id             = oci_generative_ai_hosted_deployment.starter_ui_hosted_deployment.id
-  state          = "ACTIVE"
-}
-
-{%- if python_framework in [ "langgraph", "responses" ] %}
-
-data "oci_generative_ai_hosted_deployments" "starter_mcp_hosted_deployments" {
-  compartment_id = local.lz_app_cmp_ocid
-  application_id = oci_generative_ai_hosted_application.starter_mcp_hosted_application.id
-  id             = oci_generative_ai_hosted_deployment.starter_mcp_hosted_deployment.id
-  state          = "ACTIVE"
-}
-
-{%- endif %}
 
 
 ###############################################################################
