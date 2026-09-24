@@ -6,55 +6,27 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   compartment_id = local.lz_app_cmp_ocid
   display_name   = "${var.prefix}-rest-hosted-app"
 
-  ###########################################################################
-  # Same environment variables as the old "rest" container
-  ###########################################################################
-
-{%- if db_type != "none" %}
-  environment_variables {
-    name  = "JDBC_URL"
-    type  = "PLAINTEXT"
-    value = local.local_jdbc_url
-  }
-
   environment_variables {
     name  = "DB_USER"
     type  = "PLAINTEXT"
-    value = var.db_user != null ? var.db_user : "{{ db_user }}"
+    value = jsonencode(var.db_user != null ? var.db_user : "admin")
   }
 
   environment_variables {
     name  = "DB_PASSWORD"
     type  = "PLAINTEXT"
-    value = var.db_password
+    value = jsonencode(var.db_password)
   }
 
   environment_variables {
     name  = "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL"
     type  = "PLAINTEXT"
-    value = local.local_jdbc_url
+    value = jsonencode(local.local_jdbc_url)
   }
-{%- endif %}
-
-{%- if db_type == "nosql" %}
-  environment_variables {
-    name  = "TF_VAR_compartment_ocid"
-    type  = "PLAINTEXT"
-    value = var.compartment_ocid
-  }
-
-  environment_variables {
-    name  = "TF_VAR_nosql_endpoint"
-    type  = "PLAINTEXT"
-    value = "nosql.${var.region}.oci.oraclecloud.com"
-  }
-{%- endif %}
-
-{%- if python_framework in [ "langgraph", "responses" ] %}
   environment_variables {
     name  = "TF_VAR_region"
     type  = "PLAINTEXT"
-    value = var.region
+    value = jsonencode(var.region)
   }
 
   environment_variables {
@@ -74,21 +46,12 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
     type  = "PLAINTEXT"
     value = jsonencode("RESOURCE_PRINCIPAL")
   }
-{%- endif %}
 
-{%- if python_framework == "langgraph" %}
   environment_variables {
     name  = "MCP_SERVER_URL"
     type  = "PLAINTEXT"
     value = jsonencode("${local.hosted_mcp_invoke_url}/mcp")
   }
-{%- elif python_framework == "responses" %}
-  environment_variables {
-    name  = "MCP_SERVER_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode("${local.hosted_mcp_invoke_url}/mcp")
-  }
-{%- endif %}
 
   ###########################################################################
   # Authentication
@@ -96,12 +59,6 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
 
   inbound_auth_config {
     inbound_auth_config_type = "NO_AUTH_CONFIG"
-
-    # idcs_config {
-    #   domain_url = var.hosted_app_idcs_domain_url
-    #   scope      = var.hosted_app_idcs_scope
-    #   audience   = var.hosted_app_idcs_audience
-    # }
   }
 
   ###########################################################################
@@ -127,21 +84,19 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   ###########################################################################
 
   scaling_config {
-    scaling_type        = "CPU"
-    min_replica         = 1
-    max_replica         = 1
+    scaling_type         = "CPU"
+    min_replica          = 1
+    max_replica          = 1
     target_cpu_threshold = 50
   }
 
-
+  freeform_tags = local.freeform_tags
 
   # The CLI preserves the Terraform bootstrap variables and updates DB_URL and
   # JDBC_URL after each image build. Terraform must not overwrite those values.
   lifecycle {
     ignore_changes = [environment_variables]
   }
-
-  freeform_tags = local.freeform_tags
 }
 
 
@@ -183,57 +138,26 @@ resource "oci_generative_ai_hosted_application" "starter_ui_hosted_application" 
 # MCP hosted application/deployment
 ###############################################################################
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
-
 resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application" {
   compartment_id = local.lz_app_cmp_ocid
   display_name   = "${var.prefix}-mcp-hosted-app"
-
-{%- if db_type != "none" %}
-  environment_variables {
-    name  = "DB_URL"
-    type  = "PLAINTEXT"
-    value = local.local_db_url
-  }
-
-  environment_variables {
-    name  = "JDBC_URL"
-    type  = "PLAINTEXT"
-    value = local.local_jdbc_url
-  }
-
   environment_variables {
     name  = "DB_USER"
     type  = "PLAINTEXT"
-    value = var.db_user != null ? var.db_user : "{{ db_user }}"
+    value = jsonencode(var.db_user != null ? var.db_user : "admin")
   }
 
   environment_variables {
     name  = "DB_PASSWORD"
     type  = "PLAINTEXT"
-    value = var.db_password
+    value = jsonencode(var.db_password)
   }
 
   environment_variables {
     name  = "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL"
     type  = "PLAINTEXT"
-    value = local.local_jdbc_url
+    value = jsonencode(local.local_jdbc_url)
   }
-{%- endif %}
-
-{%- if db_type == "nosql" %}
-  environment_variables {
-    name  = "TF_VAR_compartment_ocid"
-    type  = "PLAINTEXT"
-    value = var.compartment_ocid
-  }
-
-  environment_variables {
-    name  = "TF_VAR_nosql_endpoint"
-    type  = "PLAINTEXT"
-    value = "nosql.${var.region}.oci.oraclecloud.com"
-  }
-{%- endif %}
 
   inbound_auth_config {
     inbound_auth_config_type = "NO_AUTH_CONFIG"
@@ -257,32 +181,14 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
     target_cpu_threshold = 50
   }
 
-  
+  freeform_tags = local.freeform_tags
 
   # DB_URL and JDBC_URL are maintained by bin/hosted_app_cli.sh after each
   # image build. Terraform must not overwrite the SDK-managed values.
   lifecycle {
     ignore_changes = [environment_variables]
   }
-
-  freeform_tags = local.freeform_tags
 }
-
-
-resource "oci_generative_ai_hosted_deployment" "starter_mcp_hosted_deployment" {
-  compartment_id        = local.lz_app_cmp_ocid
-  hosted_application_id = oci_generative_ai_hosted_application.starter_mcp_hosted_application.id
-
-  active_artifact {
-    artifact_type = "SIMPLE_DOCKER_ARTIFACT"
-    container_uri = local.mcp_container_uri
-    tag           = local.mcp_container_tag
-  }
-
-  freeform_tags = local.freeform_tags
-}
-
-{%- endif %}
 
 
 ###############################################################################
@@ -296,11 +202,8 @@ locals {
 
   hosted_rest_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_rest_hosted_application.id}/actions/invoke"
 
-  hosted_ui_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_ui_hosted_application.id}/actions/invoke"
-
-{%- if python_framework in [ "langgraph", "responses" ] %}
+  hosted_ui_invoke_url  = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_ui_hosted_application.id}/actions/invoke"
   hosted_mcp_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_mcp_hosted_application.id}/actions/invoke"
-{%- endif %}
 }
 
 
@@ -309,9 +212,6 @@ locals {
 ###############################################################################
 
 resource "oci_apigateway_deployment" "starter_apigw_deployment" {
-{%- if tls is defined %}
-  count = var.certificate_ocid == null ? 0 : 1
-{%- endif %}
 
   compartment_id = local.lz_app_cmp_ocid
   display_name   = "${var.prefix}-apigw-deployment"
@@ -349,8 +249,6 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
       }
     }
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
-
     #########################################################################
     # MCP
     #
@@ -370,8 +268,6 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
         url  = "${local.hosted_mcp_invoke_url}/$${request.path[pathname]}"
       }
     }
-
-{%- endif %}
 
     #########################################################################
     # UI
@@ -396,108 +292,27 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
 
   freeform_tags = local.api_tags
 
-  depends_on = [
-    oci_generative_ai_hosted_deployment.starter_rest_hosted_deployment,
-    oci_generative_ai_hosted_deployment.starter_ui_hosted_deployment,
-{%- if python_framework in [ "langgraph", "responses" ] %}
-    oci_generative_ai_hosted_deployment.starter_mcp_hosted_deployment,
-{%- endif %}
-  ]
+  depends_on = [null_resource.build_deploy]
 }
-
 
 ###############################################################################
-# Optional data sources
-###############################################################################
-
-data "oci_generative_ai_hosted_deployments" "starter_rest_hosted_deployments" {
-  compartment_id = local.lz_app_cmp_ocid
-  application_id = oci_generative_ai_hosted_application.starter_rest_hosted_application.id
-  id             = oci_generative_ai_hosted_deployment.starter_rest_hosted_deployment.id
-  state          = "ACTIVE"
-}
-
-data "oci_generative_ai_hosted_deployments" "starter_ui_hosted_deployments" {
-  compartment_id = local.lz_app_cmp_ocid
-  application_id = oci_generative_ai_hosted_application.starter_ui_hosted_application.id
-  id             = oci_generative_ai_hosted_deployment.starter_ui_hosted_deployment.id
-  state          = "ACTIVE"
-}
-
-{%- if python_framework in [ "langgraph", "responses" ] %}
-
-data "oci_generative_ai_hosted_deployments" "starter_mcp_hosted_deployments" {
-  compartment_id = local.lz_app_cmp_ocid
-  application_id = oci_generative_ai_hosted_application.starter_mcp_hosted_application.id
-  id             = oci_generative_ai_hosted_deployment.starter_mcp_hosted_deployment.id
-  state          = "ACTIVE"
-}
-
-{%- endif %}
-
-
-###############################################################################
-# Hosted Application service logs
+# Handoff from Terraform to the OCI SDK
 #
-# The log group is Terraform-managed. Each service log is bound to its Hosted
-# Application, so Terraform recreates it if that application is replaced.
+# Existing deployments are removed from state without deletion. New and existing
+# deployments are subsequently created or updated by bin/hosted_app_cli.sh.
 ###############################################################################
 
-resource "oci_logging_log" "starter_rest_hosted_app_log" {
-  display_name = "${var.prefix}-rest-hosted-app_genai-hosted-deployment-log"
-  log_group_id = oci_logging_log_group.starter_log_group.id
-  log_type     = "SERVICE"
-  is_enabled   = true
-
-  configuration {
-    compartment_id = local.lz_app_cmp_ocid
-
-    source {
-      category    = "genai-hosted-deployment-log"
-      resource    = oci_generative_ai_hosted_application.starter_rest_hosted_application.id
-      service     = "genai-hosted-deployment-prod"
-      source_type = "OCISERVICE"
-    }
-  }
+removed {
+  from = oci_generative_ai_hosted_deployment.starter_rest_hosted_deployment
+  lifecycle { destroy = false }
 }
 
-
-resource "oci_logging_log" "starter_ui_hosted_app_log" {
-  display_name = "${var.prefix}-ui-hosted-app_genai-hosted-deployment-log"
-  log_group_id = oci_logging_log_group.starter_log_group.id
-  log_type     = "SERVICE"
-  is_enabled   = true
-
-  configuration {
-    compartment_id = local.lz_app_cmp_ocid
-
-    source {
-      category    = "genai-hosted-deployment-log"
-      resource    = oci_generative_ai_hosted_application.starter_ui_hosted_application.id
-      service     = "genai-hosted-deployment-prod"
-      source_type = "OCISERVICE"
-    }
-  }
+removed {
+  from = oci_generative_ai_hosted_deployment.starter_ui_hosted_deployment
+  lifecycle { destroy = false }
 }
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
-
-resource "oci_logging_log" "starter_mcp_hosted_app_log" {
-  display_name = "${var.prefix}-mcp-hosted-app_genai-hosted-deployment-log"
-  log_group_id = oci_logging_log_group.starter_log_group.id
-  log_type     = "SERVICE"
-  is_enabled   = true
-
-  configuration {
-    compartment_id = local.lz_app_cmp_ocid
-
-    source {
-      category    = "genai-hosted-deployment-log"
-      resource    = oci_generative_ai_hosted_application.starter_mcp_hosted_application.id
-      service     = "genai-hosted-deployment-prod"
-      source_type = "OCISERVICE"
-    }
-  }
+removed {
+  from = oci_generative_ai_hosted_deployment.starter_mcp_hosted_deployment
+  lifecycle { destroy = false }
 }
-
-{%- endif %}
