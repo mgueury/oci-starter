@@ -14,7 +14,7 @@ fi
 if [ -d $PROJECT_DIR/../terraform_common ]; then
    GROUP_COMMON_DIR=$PROJECT_DIR/../terraform_common
 elif [ -d $PROJECT_DIR/../../terraform_common ]; then  
-   GROUP_COMMON_DIR=$PROJECT_DIR../../terraform_common
+   GROUP_COMMON_DIR=$PROJECT_DIR/../../terraform_common
 fi
 
 # BIN_DIR
