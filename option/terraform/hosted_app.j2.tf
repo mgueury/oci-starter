@@ -12,12 +12,6 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
 
 {%- if db_type != "none" %}
   environment_variables {
-    name  = "JDBC_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode(local.local_jdbc_url)
-  }
-
-  environment_variables {
     name  = "DB_USER"
     type  = "PLAINTEXT"
     value = jsonencode(var.db_user != null ? var.db_user : "{{ db_user }}")
@@ -27,12 +21,6 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
     name  = "DB_PASSWORD"
     type  = "PLAINTEXT"
     value = jsonencode(var.db_password)
-  }
-
-  environment_variables {
-    name  = "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode(local.local_jdbc_url)
   }
 {%- endif %}
 
@@ -73,20 +61,6 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
     name  = "AUTH_TYPE"
     type  = "PLAINTEXT"
     value = jsonencode("RESOURCE_PRINCIPAL")
-  }
-{%- endif %}
-
-{%- if python_framework == "langgraph" %}
-  environment_variables {
-    name  = "MCP_SERVER_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode("${local.hosted_mcp_invoke_url}/mcp")
-  }
-{%- elif python_framework == "responses" %}
-  environment_variables {
-    name  = "MCP_SERVER_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode("${local.hosted_mcp_invoke_url}/mcp")
   }
 {%- endif %}
 
@@ -191,18 +165,6 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
 
 {%- if db_type != "none" %}
   environment_variables {
-    name  = "DB_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode(local.local_db_url)
-  }
-
-  environment_variables {
-    name  = "JDBC_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode(local.local_jdbc_url)
-  }
-
-  environment_variables {
     name  = "DB_USER"
     type  = "PLAINTEXT"
     value = jsonencode(var.db_user != null ? var.db_user : "{{ db_user }}")
@@ -214,11 +176,6 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
     value = jsonencode(var.db_password)
   }
 
-  environment_variables {
-    name  = "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL"
-    type  = "PLAINTEXT"
-    value = jsonencode(local.local_jdbc_url)
-  }
 {%- endif %}
 
 {%- if db_type == "nosql" %}
@@ -279,13 +236,10 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
 
 locals {
   hosted_application_base_url = "https://inference.generativeai.${var.region}.oci.oraclecloud.com/20251112/hostedApplications"
-
   hosted_rest_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_rest_hosted_application.id}/actions/invoke"
-
-  hosted_ui_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_ui_hosted_application.id}/actions/invoke"
-
+  hosted_ui_invoke_url   = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_ui_hosted_application.id}/actions/invoke"
 {%- if python_framework in [ "langgraph", "responses" ] %}
-  hosted_mcp_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_mcp_hosted_application.id}/actions/invoke"
+  hosted_mcp_invoke_url  = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_mcp_hosted_application.id}/actions/invoke"
 {%- endif %}
 }
 

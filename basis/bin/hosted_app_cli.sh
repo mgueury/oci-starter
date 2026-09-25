@@ -101,28 +101,31 @@ deployment_id_or_empty() {
     ' <<<"$json" || error "Expected at most one active Hosted Deployment"
 }
 
-merge_database_environment() {
+merge_runtime_environment() {
     local application_json=$1
-    jq --arg db_url "$DB_URL" --arg jdbc_url "$JDBC_URL" --arg project_ocid "$PROJECT_OCID" --arg mcp_server_url "${MCP_SERVER_URL:-}" '
-        def plaintext($value): {
+    jq --arg db_url "$DB_URL" --arg jdbc_url "$JDBC_URL" --arg javax_sql_datasource_url "$JDBC_URL" --arg project_ocid "$PROJECT_OCID" --arg mcp_server_url "${MCP_SERVER_URL:-}" '
+        def runtime_value($value): {
             name: $value.name,
             type: "PLAINTEXT",
-            value: ($value.value | tojson)
+            value: $value.value
         };
         (.data["environment-variables"] // .data.environmentVariables // []) as $variables
         | reduce $variables[] as $variable (
             {values: [], names: {}};
             if $variable.name == "DB_URL" then
-                .values += [plaintext({name: "DB_URL", value: $db_url})]
+                .values += [runtime_value({name: "DB_URL", value: $db_url})]
                 | .names.DB_URL = true
             elif $variable.name == "JDBC_URL" then
-                .values += [plaintext({name: "JDBC_URL", value: $jdbc_url})]
+                .values += [runtime_value({name: "JDBC_URL", value: $jdbc_url})]
                 | .names.JDBC_URL = true
+            elif $variable.name == "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL" then
+                .values += [runtime_value({name: "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL", value: $javax_sql_datasource_url})]
+                | .names.JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL = true
             elif $variable.name == "TF_VAR_project_ocid" then
-                .values += [plaintext({name: "TF_VAR_project_ocid", value: $project_ocid})]
+                .values += [runtime_value({name: "TF_VAR_project_ocid", value: $project_ocid})]
                 | .names.TF_VAR_project_ocid = true
             elif $variable.name == "MCP_SERVER_URL" and $mcp_server_url != "" then
-                .values += [plaintext({name: "MCP_SERVER_URL", value: $mcp_server_url})]
+                .values += [runtime_value({name: "MCP_SERVER_URL", value: $mcp_server_url})]
                 | .names.MCP_SERVER_URL = true
             else
                 .values += [$variable]
@@ -130,10 +133,11 @@ merge_database_environment() {
             end
         )
         | .values
-          + (if .names.DB_URL then [] else [plaintext({name: "DB_URL", value: $db_url})] end)
-          + (if .names.JDBC_URL then [] else [plaintext({name: "JDBC_URL", value: $jdbc_url})] end)
-          + (if .names.TF_VAR_project_ocid then [] else [plaintext({name: "TF_VAR_project_ocid", value: $project_ocid})] end)
-          + (if $mcp_server_url == "" or .names.MCP_SERVER_URL then [] else [plaintext({name: "MCP_SERVER_URL", value: $mcp_server_url})] end)
+          + (if .names.DB_URL then [] else [runtime_value({name: "DB_URL", value: $db_url})] end)
+          + (if .names.JDBC_URL then [] else [runtime_value({name: "JDBC_URL", value: $jdbc_url})] end)
+          + (if .names.JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL then [] else [runtime_value({name: "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL", value: $javax_sql_datasource_url})] end)
+          + (if .names.TF_VAR_project_ocid then [] else [runtime_value({name: "TF_VAR_project_ocid", value: $project_ocid})] end)
+          + (if $mcp_server_url == "" or .names.MCP_SERVER_URL then [] else [runtime_value({name: "MCP_SERVER_URL", value: $mcp_server_url})] end)
     ' <<<"$application_json"
 }
 
@@ -171,7 +175,7 @@ main() {
             mcp_application_id=$(single_active_id "$mcp_applications" "Hosted Application named ${TF_VAR_prefix}-mcp-hosted-app")
             MCP_SERVER_URL="https://inference.generativeai.${TF_VAR_region}.oci.oraclecloud.com/20251112/hostedApplications/${mcp_application_id}/actions/invoke/mcp"
         fi
-        merge_database_environment "$application_details" > "$TEMP_DIR/environment-variables.json"
+        merge_runtime_environment "$application_details" > "$TEMP_DIR/environment-variables.json"
         oci_genai hosted-application update \
             --hosted-application-id "$application_id" \
             --environment-variables "file://$TEMP_DIR/environment-variables.json" \
