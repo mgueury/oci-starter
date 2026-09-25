@@ -45,7 +45,7 @@ function setup_bastion_dir() {
     fi
     # tf_env.sh + tf_vars.sh
     cp $TARGET_DIR/tf_*.sh $BASTION_DIR/compute/.
-    if [ $GROUP_COMMON_DIR != "" ]; then
+    if [ ! -f $TARGET_DIR/tf_env.sh ] && [ $GROUP_COMMON_DIR != "" ]; then
         cp $GROUP_COMMON_DIR/target/tf_env.sh $BASTION_DIR/compute/.
     fi    
 
