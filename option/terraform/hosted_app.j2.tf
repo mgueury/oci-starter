@@ -14,25 +14,25 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   environment_variables {
     name  = "JDBC_URL"
     type  = "PLAINTEXT"
-    value = local.local_jdbc_url
+    value = jsonencode(local.local_jdbc_url)
   }
 
   environment_variables {
     name  = "DB_USER"
     type  = "PLAINTEXT"
-    value = var.db_user != null ? var.db_user : "{{ db_user }}"
+    value = jsonencode(var.db_user != null ? var.db_user : "{{ db_user }}")
   }
 
   environment_variables {
     name  = "DB_PASSWORD"
     type  = "PLAINTEXT"
-    value = var.db_password
+    value = jsonencode(var.db_password)
   }
 
   environment_variables {
     name  = "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL"
     type  = "PLAINTEXT"
-    value = local.local_jdbc_url
+    value = jsonencode(local.local_jdbc_url)
   }
 {%- endif %}
 
@@ -40,13 +40,13 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   environment_variables {
     name  = "TF_VAR_compartment_ocid"
     type  = "PLAINTEXT"
-    value = var.compartment_ocid
+    value = jsonencode(var.compartment_ocid)
   }
 
   environment_variables {
     name  = "TF_VAR_nosql_endpoint"
     type  = "PLAINTEXT"
-    value = "nosql.${var.region}.oci.oraclecloud.com"
+    value = jsonencode("nosql.${var.region}.oci.oraclecloud.com")
   }
 {%- endif %}
 
@@ -54,7 +54,7 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   environment_variables {
     name  = "TF_VAR_region"
     type  = "PLAINTEXT"
-    value = var.region
+    value = jsonencode(var.region)
   }
 
   environment_variables {
@@ -193,31 +193,31 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
   environment_variables {
     name  = "DB_URL"
     type  = "PLAINTEXT"
-    value = local.local_db_url
+    value = jsonencode(local.local_db_url)
   }
 
   environment_variables {
     name  = "JDBC_URL"
     type  = "PLAINTEXT"
-    value = local.local_jdbc_url
+    value = jsonencode(local.local_jdbc_url)
   }
 
   environment_variables {
     name  = "DB_USER"
     type  = "PLAINTEXT"
-    value = var.db_user != null ? var.db_user : "{{ db_user }}"
+    value = jsonencode(var.db_user != null ? var.db_user : "{{ db_user }}")
   }
 
   environment_variables {
     name  = "DB_PASSWORD"
     type  = "PLAINTEXT"
-    value = var.db_password
+    value = jsonencode(var.db_password)
   }
 
   environment_variables {
     name  = "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL"
     type  = "PLAINTEXT"
-    value = local.local_jdbc_url
+    value = jsonencode(local.local_jdbc_url)
   }
 {%- endif %}
 
@@ -225,13 +225,13 @@ resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application"
   environment_variables {
     name  = "TF_VAR_compartment_ocid"
     type  = "PLAINTEXT"
-    value = var.compartment_ocid
+    value = jsonencode(var.compartment_ocid)
   }
 
   environment_variables {
     name  = "TF_VAR_nosql_endpoint"
     type  = "PLAINTEXT"
-    value = "nosql.${var.region}.oci.oraclecloud.com"
+    value = jsonencode("nosql.${var.region}.oci.oraclecloud.com")
   }
 {%- endif %}
 
