@@ -30,7 +30,7 @@ locals {
 
 {%- if deploy_type == "kubernetes" and tls == "new_http_01" %}
 {%- if oke_ocid is defined %}
-# Policy defined in group_common
+# Policy defined in terraform_common
 {%- else %}
 # Todo: Better use Workload Access Principal - https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contenggrantingworkloadaccesstoresources.htm
 

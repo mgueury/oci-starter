@@ -283,13 +283,13 @@ fi
 
 if [ -d $TEST_HOME ]; then
     ELAPSED=0
-    while [ ! -f "${TEST_HOME}/group_common_env.sh" ] && [ $ELAPSED -lt 3600 ]; do
-        echo "Waiting 10 secs that group_common_env.sh is available."
+    while [ ! -f "${TEST_HOME}/terraform_common_env.sh" ] && [ $ELAPSED -lt 3600 ]; do
+        echo "Waiting 10 secs that terraform_common_env.sh is available."
         sleep 10
         ELAPSED=$((ELAPSED + 10))
     done
-    if [ ! -f "${TEST_HOME}/group_common_env.sh" ]; then
-        echo "ERROR: ${TEST_HOME}/group_common_env.sh not detected after 3600 secs"
+    if [ ! -f "${TEST_HOME}/terraform_common_env.sh" ]; then
+        echo "ERROR: ${TEST_HOME}/terraform_common_env.sh not detected after 3600 secs"
         exit 1
     fi
 
@@ -299,7 +299,7 @@ else
 fi
 # generate_only
 cd $TEST_HOME
-. ./group_common_env.sh
+. ./terraform_common_env.sh
 # export TEST_GRAALVM_NATIVE=TRUE
 loop_deploy
 # post_test_suite

@@ -64,6 +64,6 @@ loop_deploy() {
 pre_test_suite
 # pre_git_refresh
 cd $TEST_HOME
-. ./group_common_env.sh
+. ./terraform_common_env.sh
 loop_deploy
 post_test_suite

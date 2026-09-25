@@ -2,14 +2,14 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
-cd group_common
+cd terraform_common
 . bin/shared_bash_function.sh
 ./starter.sh build ${@}
-exit_on_error "group_common - starter.sh build"
+exit_on_error "terraform_common - starter.sh build"
 cd $SCRIPT_DIR
 
 for d in `ls -d */ | sort -g`; do
-    if [ "$d" != "group_common/" ]; then
+    if [ "$d" != "terraform_common/" ]; then
       echo "-- BUILD_ALL - $d ---------------------------------"
 
       cd $d

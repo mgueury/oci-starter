@@ -1,8 +1,8 @@
 {% import "build.j2_macro" as m with context %}
 {{ m.build_common() }}
 
-# Build the group_common_env.sh file.
-export GROUP_COMMON=../../../../group_common_env.sh
+# Build the terraform_common_env.sh file.
+export GROUP_COMMON=../../../../terraform_common_env.sh
 append () {
    echo "$1" >> $GROUP_COMMON
 }
@@ -73,7 +73,7 @@ if [ -z "$TF_VAR_log_group_ocid" ]; then
    get_id_from_tfstate "TF_VAR_log_group_ocid" "starter_log_group"
 fi   
 
-COMMON=,${TF_VAR_group_common},
+COMMON=,${TF_VAR_terraform_common},
 
 cat > $GROUP_COMMON <<'EOT' 
 export COMMON_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -168,15 +168,15 @@ cat >> $GROUP_COMMON <<'EOT'
 export TF_VAR_db_password="$TF_VAR_db_password"
 
 # SSH Keys
-if [ -f $COMMON_DIR/group_common/target/ssh_key_starter ]; then
-  export TF_VAR_ssh_public_key=$(cat $COMMON_DIR/group_common/target/ssh_key_starter.pub)
-  export TF_VAR_ssh_private_key=$(cat $COMMON_DIR/group_common/target/ssh_key_starter)
-  export TF_VAR_ssh_private_path=$COMMON_DIR/group_common/target/ssh_key_starter
+if [ -f $COMMON_DIR/terraform_common/target/ssh_key_starter ]; then
+  export TF_VAR_ssh_public_key=$(cat $COMMON_DIR/terraform_common/target/ssh_key_starter.pub)
+  export TF_VAR_ssh_private_key=$(cat $COMMON_DIR/terraform_common/target/ssh_key_starter)
+  export TF_VAR_ssh_private_path=$COMMON_DIR/terraform_common/target/ssh_key_starter
 fi  
 EOT
 
 echo
-echo "File group_common_env.sh created."
+echo "File terraform_common_env.sh created."
 echo
 
 if [ -n "$OKE_OCID" ]; then

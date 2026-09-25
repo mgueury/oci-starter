@@ -11,10 +11,10 @@ export STATE_FILE=$TARGET_DIR/terraform.tfstate
 if [ ! -d $TARGET_DIR ]; then
     mkdir $TARGET_DIR
 fi
-if [ -d $PROJECT_DIR/../group_common ]; then
-   GROUP_COMMON_DIR=$PROJECT_DIR/../group_common
-elif [ -d $PROJECT_DIR/../../group_common ]; then  
-   GROUP_COMMON_DIR=$PROJECT_DIR../../group_common
+if [ -d $PROJECT_DIR/../terraform_common ]; then
+   GROUP_COMMON_DIR=$PROJECT_DIR/../terraform_common
+elif [ -d $PROJECT_DIR/../../terraform_common ]; then  
+   GROUP_COMMON_DIR=$PROJECT_DIR../../terraform_common
 fi
 
 # BIN_DIR
@@ -45,7 +45,7 @@ process_terraform_tfvars() {
     # - normal     terraform.tfvars -> export
     # - create_sh  terraform.tfvars -> tf_vars.sh
     if [ "$1" == "create_sh" ]; then
-        if [[ "$PROJECT_DIR" != */group_common ]] && [ -f $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
+        if [[ "$PROJECT_DIR" != */terraform_common ]] && [ -f $GROUP_COMMON_DIR/target/tf_vars.sh ]; then
             # Start from GROUP_COMMON if it exist and overwrite the values
             cp $GROUP_COMMON_DIR/target/tf_vars.sh $TARGET_DIR/tf_vars.sh
         else
@@ -113,15 +113,15 @@ if [ -f $HOME/.oci_starter_profile ]; then
 else
     auto_echo "3 SKIP    \$HOME/.oci_starter_profile            User Home"
 fi 
-# 4. for groups, also in group_common_env.sh
-if [[ "$PROJECT_DIR" == */group_common ]]; then
-    # Do not load group_common_env.sh from group_common
-    auto_echo "4 SKIP    group_common_env.sh                   Group of Projects" 
-elif [ -f $GROUP_COMMON_DIR/../group_common_env.sh ]; then
-    . $GROUP_COMMON_DIR/../group_common_env.sh
-    auto_echo "4         group_common_env.sh                   Group of Projects"
+# 4. for groups, also in terraform_common_env.sh
+if [[ "$PROJECT_DIR" == */terraform_common ]]; then
+    # Do not load terraform_common_env.sh from terraform_common
+    auto_echo "4 SKIP    terraform_common_env.sh                   Group of Projects" 
+elif [ -f $GROUP_COMMON_DIR/../terraform_common_env.sh ]; then
+    . $GROUP_COMMON_DIR/../terraform_common_env.sh
+    auto_echo "4         terraform_common_env.sh                   Group of Projects"
 else
-    auto_echo "4 SKIP    group_common_env.sh                   Group of Projects" 
+    auto_echo "4 SKIP    terraform_common_env.sh                   Group of Projects" 
 fi
 
 # Generate $TARGET_DIR/tf_vars.sh from terraform.tfvars with the __TO_FILL__ values found above
@@ -157,6 +157,10 @@ if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
     mkdir -p $TARGET_OKE
 fi
 
+if [ "$TF_VAR_deploy_type" == "hosted_app" ] && ! command -v oci >/dev/null 2>&1; then
+    error_exit "OCI CLI not found. Install it before building a hosted app."
+fi
+
 # Autocomplete in bash
 _starter_completions()
 {
@@ -173,7 +177,13 @@ if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
         export TF_VAR_cpu_architecture="amd64"
     fi
 
-    if [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
+    if [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
+        # Generative AI Hosted Deployments only accept linux/amd64 artifacts.
+        # This must not depend on the architecture of a Terraform compute shape.
+        DOCKER_TARGET_PLATFORM="linux/amd64"
+        DESIRED_PLATFORM="X86_64"
+        HOST_ARCHITECTURES="x86_64 amd64"
+    elif [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
         # Resource Manager run on ARM processor. So, docker is in ARM mode too...
         export TF_VAR_instance_shape="VM.Standard.A1.Flex"
     else

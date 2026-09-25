@@ -16,7 +16,7 @@ Date: 2022-01-12
 - Added the "Group" options in advanced
   - it allows to create a common resources that can be reused by later projects
     Typically, Network, OKE, DB, APIGW, ...
-    - group_common
+    - terraform_common
     - starter_app1
     - starter_app2
     ...

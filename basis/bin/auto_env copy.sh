@@ -80,15 +80,15 @@ if [ -f $HOME/.oci_starter_profile ]; then
 else
     auto_echo "3 SKIP    \$HOME/.oci_starter_profile            User Home"
 fi 
-# 4. for groups, also in group_common_env.sh
-if [ -f $PROJECT_DIR/../group_common_env.sh ]; then
-    . $PROJECT_DIR/../group_common_env.sh
-    auto_echo "4         ../group_common_env.sh                Group of Projects"
-elif [ -f $PROJECT_DIR/../../group_common_env.sh ]; then
-    . $PROJECT_DIR/../../group_common_env.sh
-    auto_echo "4         ../../group_common_env.sh             Group of Projects"
+# 4. for groups, also in terraform_common_env.sh
+if [ -f $PROJECT_DIR/../terraform_common_env.sh ]; then
+    . $PROJECT_DIR/../terraform_common_env.sh
+    auto_echo "4         ../terraform_common_env.sh                Group of Projects"
+elif [ -f $PROJECT_DIR/../../terraform_common_env.sh ]; then
+    . $PROJECT_DIR/../../terraform_common_env.sh
+    auto_echo "4         ../../terraform_common_env.sh             Group of Projects"
 else
-    auto_echo "4 SKIP    ../group_common_env.sh                Group of Projects" 
+    auto_echo "4 SKIP    ../terraform_common_env.sh                Group of Projects" 
 fi
 
 # Check commands that are typically missing

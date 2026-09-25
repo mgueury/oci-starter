@@ -132,15 +132,15 @@ data:" > ${TARGET_OKE}/${configmap_filename}
     kubectl apply -f ${TARGET_OKE}/${configmap_filename}
 }
 
-# -- group_common_contain ---------------------------------------------------
+# -- terraform_common_contain ---------------------------------------------------
 
-# Check is the option '$1' is part of the TF_VAR_group_common
-# If the app is not a group_common one, return 1==false
-group_common_contain() {
-    if [ "$TF_VAR_group_common" == "" ]; then
+# Check is the option '$1' is part of the TF_VAR_terraform_common
+# If the app is not a terraform_common one, return 1==false
+terraform_common_contain() {
+    if [ "$TF_VAR_terraform_common" == "" ]; then
         return 1 
     fi  
-    COMMON=,${TF_VAR_group_common},
+    COMMON=,${TF_VAR_terraform_common},
     if [[ "$COMMON" == *",$1,"* ]]; then
         return 0
     else 

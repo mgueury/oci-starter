@@ -818,8 +818,8 @@ java_build_common() {
         cp $TARGET_DIR/jms_agent_deploy.sh $TARGET_DIR/compute/.
     fi
 
-    if [ -f $PROJECT_DIR/../group_common/target/jms_agent_deploy.sh ]; then
-        cp $PROJECT_DIR/../group_common/target/jms_agent_deploy.sh $TARGET_DIR/compute/.
+    if [ -f $PROJECT_DIR/../terraform_common/target/jms_agent_deploy.sh ]; then
+        cp $PROJECT_DIR/../terraform_common/target/jms_agent_deploy.sh $TARGET_DIR/compute/.
     fi
 }
 export -f java_build_common 

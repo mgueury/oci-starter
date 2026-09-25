@@ -276,9 +276,9 @@ build_option() {
         fi
     fi
 
-    # Prevent to start test build if the group_common was not finished
-    if [ ! -f $TEST_HOME/group_common_env.sh ]; then
-        echo "ERROR: $TEST_HOME/group_common_env.sh not found"
+    # Prevent to start test build if the terraform_common was not finished
+    if [ ! -f $TEST_HOME/terraform_common_env.sh ]; then
+        echo "ERROR: $TEST_HOME/terraform_common_env.sh not found"
         exit 1
     fi 
 
@@ -304,7 +304,7 @@ build_option() {
             -database $OPTION_DB \
             -db_password $TEST_DB_PASSWORD \
             -db_install $OPTION_DB_INSTALL \
-            -group_common $OPTION_GROUP_NAME \
+            -terraform_common $OPTION_GROUP_NAME \
             -infra_as_code $OPTION_INFRA_AS_CODE \
             -shape $OPTION_SHAPE \
             -tls $OPTION_TLS \
@@ -336,7 +336,7 @@ build_option() {
             -database $OPTION_DB \
             -db_password $TEST_DB_PASSWORD \
             -db_install $OPTION_DB_INSTALL \
-            -group_common $OPTION_GROUP_NAME \
+            -terraform_common $OPTION_GROUP_NAME \
             -infra_as_code $OPTION_INFRA_AS_CODE \
             -shape $OPTION_SHAPE \
             -tls $OPTION_TLS \
@@ -370,7 +370,7 @@ build_option() {
             -database $OPTION_DB \
             -db_password $TEST_DB_PASSWORD \
             -db_install $OPTION_DB_INSTALL \
-            -group_common $OPTION_GROUP_NAME \
+            -terraform_common $OPTION_GROUP_NAME \
             -infra_as_code $OPTION_INFRA_AS_CODE \
             -shape $OPTION_SHAPE \
             -tls $OPTION_TLS \
@@ -382,7 +382,7 @@ build_option() {
     RESULT=$?
     if [ $RESULT -eq 0 ] && [ -d output ]; then 
         mkdir output/target
-        cp $TEST_HOME/group_common/target/ssh* output/target/.
+        cp $TEST_HOME/terraform_common/target/ssh* output/target/.
         rm -Rf $TEST_DIR
         if [ -f ${TEST_DIR}_time.txt ]; then
             rm ${TEST_DIR}_*
@@ -414,8 +414,8 @@ build_option() {
 mkdir_deploy() {
     if [ ! -d $TEST_HOME/$OPTION_DEPLOY ]; then
         mkdir $TEST_HOME/$OPTION_DEPLOY
-        echo '. $PROJECT_DIR/../../group_common_env.sh' > $TEST_HOME/$OPTION_DEPLOY/group_common_env.sh
-        chmod +x $TEST_HOME/$OPTION_DEPLOY/group_common_env.sh
+        echo '. $PROJECT_DIR/../../terraform_common_env.sh' > $TEST_HOME/$OPTION_DEPLOY/terraform_common_env.sh
+        chmod +x $TEST_HOME/$OPTION_DEPLOY/terraform_common_env.sh
     fi
 }
 
@@ -443,10 +443,10 @@ pre_test_suite() {
     GROUP_NAME="ts${SHAPE_GROUP}"
 
     cd $TEST_HOME/oci-starter
-    ./oci_starter.sh -group_name $GROUP_NAME -group_common atp,mysql,psql,opensearch,nosql,database,fnapp,apigw,oke -compartment_ocid $EX_COMPARTMENT_OCID -db_password $TEST_DB_PASSWORD -shape $SHAPE_GROUP -ui_type none -language none
+    ./oci_starter.sh -group_name $GROUP_NAME -terraform_common atp,mysql,psql,opensearch,nosql,database,fnapp,apigw,oke -compartment_ocid $EX_COMPARTMENT_OCID -db_password $TEST_DB_PASSWORD -shape $SHAPE_GROUP -ui_type none -language none
     exit_on_error "oci_starter.sh"
-    mv output/group_common ../group_common
-    cd $TEST_HOME/group_common
+    mv output/terraform_common ../terraform_common
+    cd $TEST_HOME/terraform_common
     echo "# Test Suite use 2 nodes to avoid error: Too Many Pods (110 pods/node K8s limit)" >> terraform.tfvars
     echo "node_pool_size=2" >> terraform.tfvars
     echo "" >> terraform.tfvars
@@ -465,7 +465,7 @@ pre_git_refresh() {
 post_test_suite() {
     date
 
-    cd $TEST_HOME/group_common
+    cd $TEST_HOME/terraform_common
     ./starter.sh destroy --auto-approve
 }
 

@@ -31,7 +31,7 @@ BASIS_DIR = "basis"
 
 output_dir = "output"
 zip_dir = ""
-a_group_common = []
+a_terraform_common = []
 fixed_params = []
 to_fill_params = []
 
@@ -62,7 +62,7 @@ def prog_arg_dict():
 
 MANDATORY_OPTIONS = {
     CLI: ['-language', '-deploy_type'],
-    GROUP: ['-group_name','-group_common']
+    GROUP: ['-group_name','-terraform_common']
 }
 
 def mandatory_options(mode):
@@ -96,7 +96,7 @@ no_default_options = ['-compartment_ocid', '-oke_ocid', '-vcn_ocid',
                       '-ui', '-deploy', '-database', '-license', '-test_name']
 
 # hidden_options - allowed but not advertised
-hidden_options = ['-zip', '-group_common','-group_name']
+hidden_options = ['-zip', '-terraform_common','-group_name']
 
 rename_params = {
   'database': 'db_type',
@@ -254,13 +254,13 @@ def zip_rules():
         output_dir = "zip" + os.sep + params['zip'] + os.sep + zip_dir
         file_output('zip' + os.sep + params['zip'] + '.param', [json.dumps(params)])
 
-def group_common_rules():
-    if  params.get('group_common'):
-        if params.get('group_common')=='none':
-            params.pop('group_common')
+def terraform_common_rules():
+    if  params.get('terraform_common'):
+        if params.get('terraform_common')=='none':
+            params.pop('terraform_common')
         else:
-            global a_group_common
-            a_group_common=params.get('group_common').split(',')
+            global a_terraform_common
+            a_terraform_common=params.get('terraform_common').split(',')
 
 
 def shape_rules():
@@ -300,7 +300,7 @@ def build_host_rules():
 
 def apply_rules():
     zip_rules()
-    group_common_rules()
+    terraform_common_rules()
     language_rules()
     kubernetes_rules()
     ui_rules()
@@ -348,7 +348,7 @@ starter.sh
    -db_user (default admin)
    -deploy (mandatory) public_compute | compute | kubernetes | function | container_instance | hosted_app
    -fnapp_ocid (optional)
-   -group_common (optional) atp | database | mysql | psql | opensearch | nosql | fnapp | apigw | oke | jms
+   -terraform_common (optional) atp | database | mysql | psql | opensearch | nosql | fnapp | apigw | oke | jms
    -group_name (optional)
    -java_framework (default springboot | helidon | tomcat)
    -java_version (default 25 | 21 | 17 | 11 | 8)
@@ -439,21 +439,21 @@ def readme_contents():
 Check LICENSE file (Apache 2.0)
 
 ### Commands
-- build_group.sh   : Build first the Common Resources (group_common), then other directories
+- build_group.sh   : Build first the Common Resources (terraform_common), then other directories
 - destroy_group.sh : Destroy other directories, then the Common Resources
 
-- group_common
+- terraform_common
     - starter.sh build   : Create the Common Resources using Terraform
     - starter.sh destroy : Destroy the objects created by Terraform
     - terraform.tfvars   : Contains the settings of the project
 
 ### Directories
-- group_common/src : Sources files
+- terraform_common/src : Sources files
     - terraform    : Terraform scripts (Command: plan.sh / apply.sh)
 
 ### After Build
-- group_common_env.sh : File created during the build and imported in each application
-- app1                : Directory with an application using "group_common_env.sh"
+- terraform_common_env.sh : File created during the build and imported in each application
+- app1                : Directory with an application using "terraform_common_env.sh"
 - app2                : ...
 ...
     '''
@@ -497,7 +497,7 @@ Check
     contents.append('\n### Next Steps:')
     if TO_FILL in params.values():
         if 'group_name' in params:
-            contents.append("- Edit the file group_common/terraform.tfvars. Some variables need to be filled:")
+            contents.append("- Edit the file terraform_common/terraform.tfvars. Some variables need to be filled:")
         else:
             contents.append("- Edit the file terraform.tfvars. Some variables need to be filled:")
         contents.append("```")
@@ -508,7 +508,7 @@ Check
         contents.append("```")
     contents.append("\n- Run:")
     if 'group_name' in params:
-        contents.append("  # Build first the group common resources (group_common), then other directories")
+        contents.append("  # Build first the group common resources (terraform_common), then other directories")
         contents.append(f"  cd {params['group_name']}")
         contents.append("  ./build_group.sh")
     else:
@@ -528,7 +528,7 @@ def env_param_list():
         # exclude.extend(['ui_type', 'db_type', 'language', 'deploy_type', 'db_user', 'group_name'])
         exclude.extend(['ui_type', 'language', 'group_name'])
     else:
-        exclude.append('group_common')
+        exclude.append('terraform_common')
     if is_param_default_value('infra_as_code'):
         exclude.append('infra_as_code')
     if is_param_default_value('security'):
@@ -762,7 +762,7 @@ def cp_terraform_apigw(append_tf):
     output_replace('##APP_URL##', app_url,"src/terraform/container_instance_part2.j2.tf")
 
 #----------------------------------------------------------------------------
-# Create Directory (shared for group_common and output)
+# Create Directory (shared for terraform_common and output)
 def create_dir_shared():
     copy_basis()
     write_env_sh()
@@ -1007,7 +1007,7 @@ def create_output_dir():
 
         elif params.get('deploy_type') == "container_instance":
             cp_terraform("container_instance_part2.j2.tf")
-            if 'group_common' not in params:
+            if 'terraform_common' not in params:
                 cp_terraform("container_instance_policy.tf")
 
             # output_mkdir src/container_instance
@@ -1017,7 +1017,7 @@ def create_output_dir():
             cp_terraform("hosted_app.j2.tf")
             cp_terraform("log_group.tf")            
             output_copy_tree("option/hosted_app", "src")            
-            if 'group_common' not in params:
+            if 'terraform_common' not in params:
                 cp_terraform("hosted_app_policy.tf")
             cp_terraform_apigw(None)
 
@@ -1053,68 +1053,68 @@ def create_output_dir():
                 print(f"Error removing {current_dir}: {e}")    
 
 #----------------------------------------------------------------------------
-# Create group_common Directory
-def create_group_common_dir():
+# Create terraform_common Directory
+def create_terraform_common_dir():
     create_dir_shared()
 
     # -- APP ----------------------------------------------------------------
     output_rm_tree("src/app")
     output_mkdir("src/app")
-    output_copy_tree("option/src/app/group_common", "src/app")
+    output_copy_tree("option/src/app/terraform_common", "src/app")
 
     # -- Common -------------------------------------------------------------
-    if "atp" in a_group_common:
+    if "atp" in a_terraform_common:
         cp_terraform_existing("atp_ocid", "atp.j2.tf")
 
-    if "database" in a_group_common:
+    if "database" in a_terraform_common:
         cp_terraform_existing("db_ocid", "dbsystem.j2.tf")
         if 'db_ocid' not in params:
             output_replace_db_node_count()
 
-    if "db_free" in a_group_common:
+    if "db_free" in a_terraform_common:
         cp_terraform("db_free.j2.tf")
         output_copy_tree("option/src/db/db_free", "src/db")
 
-    if "mysql" in a_group_common:
+    if "mysql" in a_terraform_common:
         cp_terraform_existing("mysql_ocid", "mysql.j2.tf")
 
-    if "psql" in a_group_common:
+    if "psql" in a_terraform_common:
         cp_terraform_existing("psql_ocid", "psql.j2.tf")
 
-    if "opensearch" in a_group_common:
+    if "opensearch" in a_terraform_common:
         cp_terraform_existing("opensearch_ocid", "opensearch.j2.tf")
 
-    if "nosql" in a_group_common:
+    if "nosql" in a_terraform_common:
         cp_terraform_existing("nosql_ocid", "nosql.j2.tf")
 
-    if 'oke' in a_group_common:
+    if 'oke' in a_terraform_common:
         cp_terraform_existing("oke_ocid", "oke.j2.tf")
         output_mkdir("src/oke")
         output_copy_tree("option/oke", "src/oke")        
 
-    if 'fnapp' in a_group_common:
+    if 'fnapp' in a_terraform_common:
         cp_terraform_existing("fnapp_ocid", "function.j2.tf")
         if 'fnapp_ocid' not in params:
             cp_terraform("log_group.tf")
             cp_terraform("object_storage.tf")
 
-    if 'apigw' in a_group_common:
+    if 'apigw' in a_terraform_common:
         cp_terraform_existing("apigw_ocid", "apigw.j2.tf")
         if 'apigw_ocid' not in params:
             cp_terraform("log_group.tf")
 
-    if 'jms' in a_group_common:
+    if 'jms' in a_terraform_common:
         cp_terraform_existing("jms_ocid", "jms.j2.tf")
         if 'jms_ocid' not in params:
             cp_terraform("log_group.tf")
 
-    if 'private_compute' in a_group_common:
+    if 'private_compute' in a_terraform_common:
         cp_terraform_existing("compute_ocid", "compute.j2.tf")
 
-    if 'public_compute' in a_group_common:
+    if 'public_compute' in a_terraform_common:
         cp_terraform_existing("compute_ocid", "compute.j2.tf")
 
-    if 'genai' in a_group_common:
+    if 'genai' in a_terraform_common:
         cp_terraform_existing("project_ocid", "genai_project.tf")
         # OCI Speech or OCI Vision / Asynchronous
         cp_terraform("object_storage.tf")
@@ -1425,25 +1425,25 @@ output_dir_orig = output_dir
 
 # Create a group
 if 'group_name' in params:
-    create_group_common_dir()
+    create_terraform_common_dir()
     jinja2_replace_template()
-    # Iterate on all files to move them to 'group_common'
+    # Iterate on all files to move them to 'terraform_common'
     allfiles = os.listdir(output_dir)
     allfiles.remove('README.md')
     # Create a group directory
-    output_mkdir('group_common')
+    output_mkdir('terraform_common')
     for f in allfiles:
-        os.rename(output_dir + os.sep + f, output_dir + os.sep + 'group_common' + os.sep + f)
+        os.rename(output_dir + os.sep + f, output_dir + os.sep + 'terraform_common' + os.sep + f)
     output_copy_tree("option/group", ".")
 
 # Add parameters to the creation if the project is to be used with a group
-if 'group_common' in params:
+if 'terraform_common' in params:
     # For a new group, create the first application in a subdir
     if 'group_name' in params:
         del params['group_name']
         output_dir = output_dir + os.sep + params['prefix']
     # The application will use the Common Resources created by group_name above.
-    # del params['group_common']
+    # del params['terraform_common']
     params['vcn_ocid'] = TO_FILL
     params['web_subnet_ocid'] = TO_FILL
     params['app_subnet_ocid'] = TO_FILL
@@ -1452,7 +1452,7 @@ if 'group_common' in params:
     if params.get('db_type')!='none':
         params['bastion_ocid'] = TO_FILL
     to_ocid = { "atp": "atp_ocid", "database": "db_ocid", "mysql": "mysql_ocid", "psql": "psql_ocid", "opensearch": "opensearch_ocid", "nosql": "nosql_ocid", "oke": "oke_ocid", "fnapp": "fnapp_ocid", "apigw": "apigw_ocid", "jms": "jms_ocid", "public_compute": "compute_ocid", "private_compute": "compute_ocid"}
-    for x in a_group_common:
+    for x in a_terraform_common:
         if x in to_ocid:
             ocid = to_ocid[x]
             params[ocid] = TO_FILL

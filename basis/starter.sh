@@ -11,8 +11,8 @@ if [ -f "$PROJECT_DIR/bin/oci_starter.sh" ]; then
   export PATH="$PROJECT_DIR/bin:$PATH"
 elif [ -f "$PROJECT_DIR/../bin/oci_starter.sh" ]; then
   export PATH="$PROJECT_DIR/../bin:$PATH"
-elif [ -f "$PROJECT_DIR/../group_common/bin/oci_starter.sh" ]; then
-  export PATH="$PROJECT_DIR/../group_common/bin:$PATH"
+elif [ -f "$PROJECT_DIR/../terraform_common/bin/oci_starter.sh" ]; then
+  export PATH="$PROJECT_DIR/../terraform_common/bin:$PATH"
 fi
 
 (return 0 2>/dev/null) && SOURCED=1 || SOURCED=0

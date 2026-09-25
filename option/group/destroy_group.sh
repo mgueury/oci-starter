@@ -19,7 +19,7 @@ if [ "$1" != "--auto-approve" ]; then
 fi
 
 for d in */ ; do
-    if [ "$d" != "group_common/" ]; then
+    if [ "$d" != "terraform_common/" ]; then
       echo "-- DESTROY_GROUP - $d ---------------------------------"
       cd $d
       ./starter.sh destroy --auto-approve
@@ -27,5 +27,5 @@ for d in */ ; do
     fi
 done
 
-cd group_common
+cd terraform_common
 ./starter.sh destroy --auto-approve
