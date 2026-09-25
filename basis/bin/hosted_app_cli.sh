@@ -139,7 +139,7 @@ merge_database_environment() {
 
 main() {
     parse_arguments "$@"
-    require_environment HOSTED_APP_COMPARTMENT_OCID
+    require_environment TF_VAR_compartment_ocid
     require_environment TF_VAR_prefix
     require_environment TF_VAR_region
     require_environment DB_URL
@@ -155,7 +155,7 @@ main() {
     local display_name="${TF_VAR_prefix}-${APP_SUFFIX}-hosted-app"
     local applications application_id application_details mcp_applications mcp_application_id
     applications=$(oci_genai hosted-application-collection list-hosted-applications \
-        --compartment-id "$HOSTED_APP_COMPARTMENT_OCID" \
+        --compartment-id "$TF_VAR_compartment_ocid" \
         --display-name "$display_name" \
         --all)
     application_id=$(single_active_id "$applications" "Hosted Application named $display_name")
@@ -165,7 +165,7 @@ main() {
     if [ "$APP_SUFFIX" = "rest" ] || [ "$APP_SUFFIX" = "mcp" ]; then
         if [ "$APP_SUFFIX" = "rest" ]; then
             mcp_applications=$(oci_genai hosted-application-collection list-hosted-applications \
-                --compartment-id "$HOSTED_APP_COMPARTMENT_OCID" \
+                --compartment-id "$TF_VAR_compartment_ocid" \
                 --display-name "${TF_VAR_prefix}-mcp-hosted-app" \
                 --all)
             mcp_application_id=$(single_active_id "$mcp_applications" "Hosted Application named ${TF_VAR_prefix}-mcp-hosted-app")
@@ -190,14 +190,14 @@ main() {
 
     local deployments deployment_id
     deployments=$(oci_genai hosted-deployment-collection list-hosted-deployments \
-        --compartment-id "$HOSTED_APP_COMPARTMENT_OCID" \
+        --compartment-id "$TF_VAR_compartment_ocid" \
         --application-id "$application_id" \
         --all)
     deployment_id=$(deployment_id_or_empty "$deployments")
 
     if [ -z "$deployment_id" ]; then
         oci_genai hosted-deployment create \
-            --compartment-id "$HOSTED_APP_COMPARTMENT_OCID" \
+            --compartment-id "$TF_VAR_compartment_ocid" \
             --hosted-application-id "$application_id" \
             --active-artifact "file://$TEMP_DIR/active-artifact.json" \
             --freeform-tags "file://$TEMP_DIR/freeform-tags.json" \
