@@ -45,8 +45,8 @@ resource "null_resource" "tf_env" {
     append 'export TF_VAR_region="${local.current_region_name}"'
 {% if db_family == "nosql" %}
     append "# NoSQL"
-    append "get_region_domain"
-    append 'export TF_VAR_nosql_endpoint="nosql.$TF_VAR_region.oci.$REGION_DOMAIN"'
+    get_region_domain
+    append "export TF_VAR_nosql_endpoint=\"nosql.$TF_VAR_region.oci.$REGION_DOMAIN\""
 {%- endif %} 
     append "# Database"
     append "export DB_USER=\$TF_VAR_db_user" 
