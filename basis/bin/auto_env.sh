@@ -116,12 +116,12 @@ fi
 # 4. for groups, also in terraform_common_env.sh
 if [[ "$PROJECT_DIR" == */terraform_common ]]; then
     # Do not load terraform_common_env.sh from terraform_common
-    auto_echo "4 SKIP    terraform_common_env.sh                   Group of Projects" 
+    auto_echo "4 SKIP    terraform_common_env.sh               Group of Projects" 
 elif [ -f $GROUP_COMMON_DIR/../terraform_common_env.sh ]; then
     . $GROUP_COMMON_DIR/../terraform_common_env.sh
-    auto_echo "4         terraform_common_env.sh                   Group of Projects"
+    auto_echo "4         terraform_common_env.sh               Group of Projects"
 else
-    auto_echo "4 SKIP    terraform_common_env.sh                   Group of Projects" 
+    auto_echo "4 SKIP    terraform_common_env.sh               Group of Projects" 
 fi
 
 # Generate $TARGET_DIR/tf_vars.sh from terraform.tfvars with the __TO_FILL__ values found above
