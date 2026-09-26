@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth2-proxy-config
+  namespace: gateway
+type: Opaque
+data:
+  client-id: ##OCI_SSO_CLIENT_ID_B64##
+  client-secret: ##OCI_SSO_CLIENT_SECRET_B64##
+  cookie-secret: ##OCI_SSO_COOKIE_SECRET_B64##
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+    spec:
+      containers:
+      - name: oauth2-proxy
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.0
+        args:
+        - --provider=oidc
+        - --oidc-issuer-url=##TF_VAR_idcs_url##
+        # OCI Identity Domains returns the shared identity.oraclecloud.com
+        # issuer from a tenant-specific, TLS-validated discovery endpoint.
+        - --insecure-oidc-skip-issuer-verification=true
+        # OCI can set email_verified=false even after a successful login. This
+        # installation intentionally permits every authenticated user.
+        - --insecure-oidc-allow-unverified-email=true
+        - --redirect-url=https://##TF_VAR_dns_name##/oauth2/callback
+        - --scope=openid profile email
+        - --email-domain=*
+        # Envoy ext_authz permits the original application request only on 200.
+        - --upstream=static://200
+        - --http-address=0.0.0.0:4180
+        - --reverse-proxy=true
+        - --set-xauthrequest=true
+        - --cookie-name=__Host-oracloud-sso
+        - --cookie-secure=true
+        - --cookie-samesite=lax
+        - --cookie-path=/
+        - --cookie-refresh=1h
+        - --cookie-expire=8h
+        - --whitelist-domain=##TF_VAR_dns_name##
+        - --skip-provider-button=true
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-proxy-config
+              key: client-id
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-proxy-config
+              key: client-secret
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-proxy-config
+              key: cookie-secret
+        ports:
+        - name: http
+          containerPort: 4180
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: http
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: http
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-proxy
+  namespace: gateway
+spec:
+  selector:
+    app: oauth2-proxy
+  ports:
+  - name: http
+    port: 4180
+    targetPort: http
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: oauth2-proxy
+  namespace: gateway
+spec:
+  parentRefs:
+  - name: oke-gateway
+    namespace: gateway
+  hostnames:
+  - ##TF_VAR_dns_name##
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /oauth2
+    backendRefs:
+    - name: oauth2-proxy
+      port: 4180
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: require-oci-sso
+  namespace: gateway
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: oke-gateway
+  action: CUSTOM
+  provider:
+    name: oauth2-proxy
+  rules:
+  - to:
+    - operation:
+        notPaths:
+        - /oauth2/*
+        - /healthz
+        - /ready
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: oci-sso-browser-redirect
+  namespace: gateway
+spec:
+  workloadSelector:
+    labels:
+      gateway.networking.k8s.io/gateway-name: oke-gateway
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+            subFilter:
+              name: envoy.filters.http.ext_authz
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          default_source_code:
+            inline_string: |
+              local function encode(value)
+                return (value:gsub("([^%w%-_%.~])", function(character)
+                  return string.format("%%%02X", string.byte(character))
+                end))
+              end
+              function envoy_on_request(handle)
+                local headers = handle:headers()
+                local path = headers:get(":path") or "/"
+                if string.sub(path, 1, 8) == "/oauth2/" then return end
+                local accept = headers:get("accept") or ""
+                if not string.find(accept, "text/html", 1, true) then return end
+                local cookie = headers:get("cookie") or ""
+                -- oauth2-proxy splits large OCI sessions into _0, _1, ... cookies.
+                -- Treat either its normal cookie or any split session cookie as logged in.
+                if string.find(cookie, "__Host%-oracloud%-sso[_=]") then return end
+                local host = headers:get(":authority") or "##TF_VAR_dns_name##"
+                local return_url = "https://" .. host .. path
+                handle:respond({
+                  [":status"] = "302",
+                  ["location"] = "https://" .. host .. "/oauth2/start?rd=" .. encode(return_url),
+                  ["cache-control"] = "no-store"
+                }, "")
+              end

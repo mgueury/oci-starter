@@ -58,31 +58,26 @@ if [ ! -f $KUBECONFIG ]; then
     else
         echo "OKE Deploy: Skipping creation of Gateway" 
     fi  
-fi
 
-# Reconcile the shared Gateway and its certificate resources on every run.
-# This also updates clusters which already have a kubeconfig and Gateway.
-kubectl apply -f src/oke/gateway.yaml
-exit_on_error "Apply OKE Gateway"
+    if [ "${TF_VAR_tls}" == "new_http_01" ]; then
+        # The OKE CertManager add-on installs cert-manager with Gateway API support
+        # disabled. Enable it so HTTP-01 challenges can use the Istio Gateway above.
+        if ! kubectl get deployment cert-manager -n cert-manager -o jsonpath='{.spec.template.spec.containers[0].args[*]}' | grep -q -- '--enable-gateway-api'; then
+            kubectl patch deployment cert-manager -n cert-manager --type=json \
+                -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--enable-gateway-api=true"}]'
+            exit_on_error "Enable cert-manager Gateway API"
+            kubectl rollout status deployment/cert-manager -n cert-manager --timeout=180s
+            exit_on_error "Restart cert-manager with Gateway API enabled"
+        fi
+        cp src/oke/tls/gateway-tls.yaml ${TARGET_OKE}/gateway-tls.yaml
+        file_replace_variables${TARGET_OKE}/gateway-tls.yaml
+        kubectl apply -f ${TARGET_OKE}/gateway-tls.yaml
+        exit_on_error "Apply OKE TLS resources"
 
-if [ "${TF_VAR_tls}" == "new_http_01" ]; then
-    # The OKE CertManager add-on installs cert-manager with Gateway API support
-    # disabled. Enable it so HTTP-01 challenges can use the Istio Gateway above.
-    if ! kubectl get deployment cert-manager -n cert-manager -o jsonpath='{.spec.template.spec.containers[0].args[*]}' | grep -q -- '--enable-gateway-api'; then
-        kubectl patch deployment cert-manager -n cert-manager --type=json \
-            -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--enable-gateway-api=true"}]'
-        exit_on_error "Enable cert-manager Gateway API"
-        kubectl rollout status deployment/cert-manager -n cert-manager --timeout=180s
-        exit_on_error "Restart cert-manager with Gateway API enabled"
-    fi
-    cp src/oke/tls/gateway-tls.yaml ${TARGET_OKE}/gateway-tls.yaml
-    file_replace_variables${TARGET_OKE}/gateway-tls.yaml
-    kubectl apply -f ${TARGET_OKE}/gateway-tls.yaml
-    exit_on_error "Apply OKE TLS resources"
-
-    if [ "${TF_VAR_security:-false}" = "openid" ]; then
-        $BIN_DIR/config_oke_sso.sh
-        exit_on_error "Configure OCI SSO for OKE Gateway"
+        if [ "${TF_VAR_security:-false}" = "openid" ]; then
+            $BIN_DIR/config_oke_sso.sh
+            exit_on_error "Configure OCI SSO for OKE Gateway"
+        fi
     fi
 fi
 
