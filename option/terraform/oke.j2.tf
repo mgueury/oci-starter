@@ -580,7 +580,7 @@ resource "oci_identity_policy" "starter_oke_policy" {
 
 locals {
   local_oke_ocid = local.create_oke ? oci_containerengine_cluster.starter_oke[0].id : var.oke_ocid
-  local_oke_lb_subnet_ocid = local.create_oke ? oci_core_subnet.starter_lb_subnet[0].id : null
+  local_oke_lb_subnet_ocid = local.create_oke ? oci_core_subnet.starter_lb_subnet[0].id : ""
 }
 
 output "oke_ocid" {
