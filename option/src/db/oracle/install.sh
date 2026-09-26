@@ -4,5 +4,9 @@ cd $SCRIPT_DIR
 
 . $HOME/compute/shared_compute.sh
 install_instant_client
+
+# Create schema USER
+db_schema_create
+
 export TNS_ADMIN=$SCRIPT_DIR
 sqlplus -L $DB_USER/$DB_PASSWORD@DB @oracle.sql $DB_PASSWORD

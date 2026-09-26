@@ -957,14 +957,16 @@ export -f db_schema_get
 
 # -- db_schema_create --------------------------------------------------
 db_schema_create() {
-    db_schema_get
-    if [ "$TF_VAR_db_type" == "autonomous" ]; then
-        cat > $TARGET_DIR/create_user.sql << EOF
-        create user &1 identified by "&2";
-        grant connect, resource, unlimited tablespace to &1;
-        exit 
+    if [ $TF_VAR_deploy_type == "kubernetes" ]; then 
+        if [ "$TF_VAR_db_type" == "autonomous" ]; then
+            db_schema_get
+            cat > $TARGET_DIR/create_user.sql << EOF
+            create user &1 identified by "&2";
+            grant connect, resource, unlimited tablespace to &1;
+            exit 
 EOF
-        sqlplus $DB_USER/$DB_PASSWORD@DB "@$TARGET_DIR/create_user.sql" $DB_SCHEMA "$DB_PASSWORD" 
+            sqlplus $DB_USER/$DB_PASSWORD@DB "@$TARGET_DIR/create_user.sql" $DB_SCHEMA "$DB_PASSWORD" 
+        fi
     fi
 }
 export -f db_schema_create
