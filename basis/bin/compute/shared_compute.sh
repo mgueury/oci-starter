@@ -948,7 +948,7 @@ export -f has_to_fill_variables
 # -- db_schema_get --------------------------------------------------
 db_schema_get() {
     if [ "$TF_VAR_db_type" == "autonomous" ]; then
-        export DB_SCHEMA="${TF_VAR_prefix/-/_}"
+        export DB_SCHEMA="${TF_VAR_prefix//-/_}"
     else        
         export DB_SCHEMA="$DB_USER"
     fi
