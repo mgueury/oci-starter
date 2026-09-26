@@ -6,8 +6,11 @@ resource "oci_functions_function" "starter_fn_function" {
   #Required
   application_id = local.fnapp_ocid
   display_name   = "${var.prefix}-fn-function"
-  image          = local.fn_image
   memory_in_mbs  = "2048"
+  source_details {
+    source_type = "CONTAINER_IMAGE"
+    image = local.fn_image
+  }
   config = {
     {%- if db_family != "none" %}
     {%- if language == "java" %} 
@@ -29,6 +32,7 @@ resource "oci_functions_function" "starter_fn_function" {
   trace_config {
     is_enabled = true
   }
+
 
   freeform_tags = local.freeform_tags
 /*
