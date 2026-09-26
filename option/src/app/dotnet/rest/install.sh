@@ -3,6 +3,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
 # Install Dotnet
+sudo dnf install -y libicu 
 wget https://dot.net/v1/dotnet-install.sh
 sudo chmod +x ./dotnet-install.sh
 ./dotnet-install.sh --channel 8.0 --version latest
