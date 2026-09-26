@@ -125,7 +125,7 @@ import os
 import sys
 
 variables = {
-    name.removeprefix("TF_VAR_"): value
+    name[len("TF_VAR_"):]: value
     for name, value in os.environ.items()
     if name.startswith("TF_VAR_")
 }
