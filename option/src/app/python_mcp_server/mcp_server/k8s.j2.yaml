@@ -54,7 +54,7 @@ spec:
 {%- endif %}
         envFrom:
         - configMapRef:
-            name: tf-vars-configmap
+            name: ##TF_VAR_prefix##-tf-vars-configmap
       imagePullSecrets:
       - name: ocirsecret        
 ---
