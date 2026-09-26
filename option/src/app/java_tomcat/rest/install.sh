@@ -36,6 +36,7 @@ sudo tar -xvf /tmp/apache-tomcat-$LATEST_VERSION.tar.gz -C $TOMCAT_HOME --strip-
 # Copy the Application and the start script to $TOMCAT_HOME
 sudo cp /home/opc/app/rest/target/starter-1.0.war $TOMCAT_HOME/webapps
 sudo mv /home/opc/app/rest/start.sh $TOMCAT_HOME/bin/.
+sudo cp /home/opc/compute/tf_vars.sh $TOMCAT_HOME/bin/.
 sudo cp /home/opc/compute/tf_env.sh $TOMCAT_HOME/bin/.
 
 sudo chown -R tomcat: $TOMCAT_HOME
