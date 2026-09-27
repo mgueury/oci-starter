@@ -44,7 +44,7 @@ def get_dept() -> list[dict[str, Any]]:
     finally:
         connection.close()
 
-
+# deploy_type= {{deploy_type}}
 {%- if deploy_type=="hosted_app" %}
 
 # ---------------------------------------------------------------------------
