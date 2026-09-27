@@ -8,5 +8,7 @@ install_instant_client
 # Create schema USER
 db_schema_create
 
+echo "DB_USER=$DB_USER"
+echo "DB_SCHEMA=$DB_SCHEMA"
 export TNS_ADMIN=$SCRIPT_DIR
-sqlplus -L $DB_USER/$DB_PASSWORD@DB @oracle.sql $DB_PASSWORD
+sqlplus -L $DB_SCHEMA/$DB_PASSWORD@DB @oracle.sql $DB_PASSWORD
