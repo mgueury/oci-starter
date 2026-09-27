@@ -46,6 +46,8 @@ def get_dept() -> list[dict[str, Any]]:
 
 
 {%- if deploy_type=="hosted_app" %}
+
+# ---------------------------------------------------------------------------
 # Hosted App
 # Wrap MCP server in FastAPI to answer to health and ready URLs
 from fastapi import FastAPI, Response

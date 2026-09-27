@@ -222,9 +222,7 @@ build_option() {
     elif [ "$OPTION_INFRA_AS_CODE" == "from_resource_manager" ]; then
         NAME=${NAME}-frm
     fi  
-    NAME=${NAME/_/-}
-    NAME=${NAME/_/-}
-    NAME=${NAME/_/-}
+    NAME=${NAME//_/-}
     start_test $NAME
     if [ "$TEST_DIRECTORY_ONLY" != "" ]; then
         if [ "$TEST_DIRECTORY_ONLY" == "$TEST_DIR" ]; then
@@ -270,8 +268,8 @@ build_option() {
                 echo "ERROR: Existing target directory detected (/tmp/$TEST_DIR/target). Refresh failed."
                 exit 1
             else 
-                rm -Rf /tmp/$TEST_DIR
-                mv $TEST_DIR /tmp/$TEST_DIR
+                rm -Rf /tmp/$NAME
+                mv $TEST_DIR /tmp/$NAME
             fi
         fi
     fi
@@ -391,7 +389,7 @@ build_option() {
         mv $TEST_DIR/src/done.sh $TEST_DIR/src/done_orig.sh
         cp $SCRIPT_DIR/test_done.sh $TEST_DIR/src/done.sh
         if [ "$TEST_RERUN_REFRESH" != "" ]; then
-            mv /tmp/$TEST_DIR/target $TEST_DIR/.
+            mv /tmp/$NAME/target $TEST_DIR/.
             echo "Refresh done"
             exit 0
         fi

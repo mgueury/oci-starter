@@ -952,6 +952,8 @@ db_schema_get() {
     else        
         export DB_SCHEMA="$DB_USER"
     fi
+    echo "DB_USER=$DB_USER"
+    echo "DB_SCHEMA=$DB_SCHEMA"    
 }
 export -f db_schema_get
 
