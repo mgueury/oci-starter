@@ -85,6 +85,10 @@ elif [ "$ARG1" == "build" ]; then
     if [ "$ARG2" == "app" ] || [ ! -d "${PROJECT_DIR}/src/terraform" ]; then
         . ./starter.sh env -silent
         build_deploy_apps
+        # Done
+        if [ -f $PROJECT_DIR/src/done.sh ]; then
+            $PROJECT_DIR/src/done.sh
+        fi        
     else
         export LOG_NAME=$TARGET_DIR/logs/build.${DATE_POSTFIX}.log
         # Show the log and save it to target/build.log and target/logs
