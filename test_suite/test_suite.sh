@@ -46,11 +46,11 @@ loop_shape() {
 }
 
 loop_db() {
-    if [ "$OPTION_DEPLOY" != "instance_pool" ] && [ "$OPTION_DEPLOY" != "hosted_app" ] ; then
+    OPTION_DB=atp 
+    loop_shape
+    if [ "$OPTION_DEPLOY" != "instance_pool" ] && [ "$OPTION_DEPLOY" != "hosted_app" ]; then
         # OPTION_DB=database 
         # loop_ui  
-        OPTION_DB=atp 
-        loop_shape
         OPTION_DB=psql 
         loop_shape  
         OPTION_DB=mysql
@@ -62,9 +62,9 @@ loop_db() {
         OPTION_DB=nosql
         loop_shape
         fi 
+        OPTION_DB=none
+        loop_shape
     fi  
-    OPTION_DB=none
-    loop_shape
 
     # Build Host Bastion
     if [ "$OPTION_DEPLOY" == "public_compute" ] || [ "$OPTION_DEPLOY" == "kubernetes" ]; then
