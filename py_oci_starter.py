@@ -34,6 +34,7 @@ zip_dir = ""
 a_terraform_common = []
 fixed_params = []
 to_fill_params = []
+group_db_count = 0
 
 ## functions ################################################################
 
@@ -563,7 +564,10 @@ def env_sh_contents():
     tfvars.append(f'prefix="{prefix}"')
 
     for param in env_params:
-        if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filters", "your_public_ssh_key"]:
+        # In the test_suite, do not include db_user and db_type in terraform_common/target/tf_env.sh
+        if group_db_count>1 and param in ["db_user","db_type"]:
+            print( f"group_db_count>1 skipping ${param}" )
+        elif param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filters", "your_public_ssh_key"]:
             to_fill_params.append(param)
             tfvars.append('')
             tf_var_comment(tfvars, param)
@@ -1056,6 +1060,7 @@ def create_output_dir():
 # Create terraform_common Directory
 def create_terraform_common_dir():
     create_dir_shared()
+    group_db_count = 0
 
     # -- APP ----------------------------------------------------------------
     output_rm_tree("src/app")
@@ -1064,9 +1069,11 @@ def create_terraform_common_dir():
 
     # -- Common -------------------------------------------------------------
     if "atp" in a_terraform_common:
+        group_db_count += 1
         cp_terraform_existing("atp_ocid", "atp.j2.tf")
 
     if "database" in a_terraform_common:
+        group_db_count += 1
         cp_terraform_existing("db_ocid", "dbsystem.j2.tf")
         if 'db_ocid' not in params:
             output_replace_db_node_count()
@@ -1076,15 +1083,19 @@ def create_terraform_common_dir():
         output_copy_tree("option/src/db/db_free", "src/db")
 
     if "mysql" in a_terraform_common:
+        group_db_count += 1
         cp_terraform_existing("mysql_ocid", "mysql.j2.tf")
 
     if "psql" in a_terraform_common:
+        group_db_count += 1
         cp_terraform_existing("psql_ocid", "psql.j2.tf")
 
     if "opensearch" in a_terraform_common:
+        group_db_count += 1
         cp_terraform_existing("opensearch_ocid", "opensearch.j2.tf")
 
     if "nosql" in a_terraform_common:
+        group_db_count += 1
         cp_terraform_existing("nosql_ocid", "nosql.j2.tf")
 
     if 'oke' in a_terraform_common:

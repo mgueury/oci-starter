@@ -4,5 +4,5 @@
 if is_deploy_compute; then
     build_rsync .
 else
-    # No docker build
+    echo "No docker build needed".
 fi  
