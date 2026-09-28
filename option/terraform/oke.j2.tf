@@ -571,6 +571,7 @@ resource "oci_identity_policy" "starter_oke_policy" {
         "allow any-user to manage waf-family in compartment id ${local.lz_app_cmp_ocid}",
         "allow any-user to read cluster-family in compartment id ${local.lz_app_cmp_ocid}",
         "allow any-user to use tag-namespaces in compartment id ${local.lz_app_cmp_ocid}",
+        "allow any-user to manage repos in compartment id ${local.lz_serv_cmp_ocid} where request.principal.id='${data.oci_core_instance.starter_bastion.id}'",
     ]
     freeform_tags = local.freeform_tags
 }

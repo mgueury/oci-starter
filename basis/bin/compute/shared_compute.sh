@@ -963,7 +963,7 @@ db_schema_create() {
     db_schema_get
     if [ "$DB_USER" != "$DB_SCHEMA" ]; then 
         cat > $TARGET_DIR/create_user.sql << EOF
-        create user &1 identified by "&2";
+        create user if not exists &1 identified by "&2";
         grant connect, resource, unlimited tablespace to &1;
         exit 
 EOF

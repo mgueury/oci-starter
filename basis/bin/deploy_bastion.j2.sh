@@ -38,7 +38,11 @@ function setup_bastion_dir() {
     if [ "$TF_VAR_build_host" == "bastion" ]; then
         cp -R src/app $BASTION_DIR/.
         if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-            cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
+            if [ "$TERRAFORM_COMMON_DIR" != "" ]; then
+                cp $TERRAFORM_COMMON_DIR/target/kubeconfig_starter $BASTION_DIR/compute
+            else 
+                cp $TARGET_DIR/kubeconfig_starter $BASTION_DIR/compute
+            fi
         fi
     elif [ -d src/app/db ]; then
         cp -R src/app/db $BASTION_DIR/app/.
