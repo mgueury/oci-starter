@@ -41,6 +41,8 @@ else
     before_terraform
     terraform $1
     title "Done"
-    $PROJECT_DIR/src/done.sh
+    if [ -f $TARGET_DIR/done.txt ]; then
+        cat $TARGET_DIR/done.txt
+    fi
 fi
 
