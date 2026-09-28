@@ -3,7 +3,7 @@
 
 java_build_common
 
-mkdir src/main/resources
+mkdir -p src/main/resources
 cp application.properties.tmpl src/main/resources/application.properties
 replace_db_user_password_in_file src/main/resources/application.properties
 
