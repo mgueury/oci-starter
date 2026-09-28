@@ -947,11 +947,10 @@ export -f has_to_fill_variables
 
 # -- db_schema_get --------------------------------------------------
 db_schema_get() {
+    export DB_SCHEMA="$DB_USER"
     if [ $TF_VAR_deploy_type == "kubernetes" ]; then 
         if [ "$TF_VAR_db_type" == "autonomous" ]; then
             export DB_SCHEMA="${TF_VAR_prefix//-/_}"
-        else        
-            export DB_SCHEMA="$DB_USER"
         fi
     fi
     echo "DB_USER=$DB_USER"
