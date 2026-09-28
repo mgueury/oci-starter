@@ -21,6 +21,7 @@ loop_hosted_app_lang() {
 
 loop_deploy() {
     # HOSTED APP
+    OPTION_DEPLOY=hosted_app  
     OPTION_DB=atp 
     OPTION_GROUP_NAME=none
     OPTION_LANG=java
