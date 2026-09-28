@@ -66,6 +66,7 @@ else
     git clone https://github.com/mgueury/oci-starter
     touch inprogress_rerun.sh
     touch ok_rerun.sh
+    touch "${TEST_HOME}/terraform_common_env.sh"
 fi
 # generate_only
 cd $TEST_HOME
