@@ -59,7 +59,7 @@ if [ "$UI_URL" != "" ]; then
         sleep 5  
         x=$(( $x + 1 ))
     done
-    if [ "$x" == "20" ]; then
+    if [ "$x" == "21" ]; then
         echo -e "\u2705 deptno or department not detected in $UI_URL/app/dept"  
     fi
     echo "See $TMP_PATH/result_dept.json"
