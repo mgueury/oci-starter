@@ -56,6 +56,11 @@ EOT
     # Workaround : Force the ol10_oci_included (sometimes it is deactivated)
     sudo dnf config-manager --enable ol10_oci_included  
     sudo dnf install -y unzip  
+
+    # Allow High SSH concurency needed during test_suite
+    printf '%s\n' 'MaxStartups 60:30:100' | sudo tee /etc/ssh/sshd_config.d/99-maxstartups.conf
+    sudo sshd -t && sudo systemctl reload sshd
+    sudo sshd -T | grep -i maxstartups
 fi
 
 if ! grep -q "# Build Bastion" $HOME/.bashrc; then
