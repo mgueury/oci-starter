@@ -46,7 +46,7 @@ loop_shape() {
 }
 
 loop_db() {
-    if [ "$OPTION_DEPLOY" != "instance_pool" ] ; then
+    if [ "$OPTION_DEPLOY" != "instance_pool" ] && [ "$OPTION_DEPLOY" != "hosted_app" ] ; then
         # OPTION_DB=database 
         # loop_ui  
         OPTION_DB=atp 
@@ -252,6 +252,8 @@ loop_deploy() {
     loop_lang  
     OPTION_DEPLOY=kubernetes
     loop_lang
+    OPTION_DEPLOY=hosted_app 
+    loop_lang    
     OPTION_DEPLOY=instance_pool 
     OPTION_LANG=java
     OPTION_JAVA_FRAMEWORK=springboot
