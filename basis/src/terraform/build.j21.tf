@@ -139,8 +139,8 @@ resource "null_resource" "after_build" {
 
         $BIN_DIR/add_api_portal.sh
 
-        title "Done"
-        $PROJECT_DIR/src/done.sh          
+        # title "Done"
+        # $PROJECT_DIR/src/done.sh          
         EOT
   }
   depends_on = [
