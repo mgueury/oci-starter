@@ -714,6 +714,7 @@ k8s_create_db_secret() {
     kubectl delete secret ${TF_VAR_prefix}-db-secret --ignore-not-found=true
     db_schema_get
     kubectl create secret generic ${TF_VAR_prefix}-db-secret --from-literal=db_user=$DB_SCHEMA --from-literal=db_password=$TF_VAR_db_password --from-literal=db_url=$DB_URL --from-literal=jdbc_url=$JDBC_URL --from-literal=TF_VAR_compartment_ocid=$TF_VAR_compartment_ocid --from-literal=TF_VAR_nosql_endpoint=$TF_VAR_nosql_endpoint
+    exit_on_error "k8s_create_db_secret"
 }
 export -f k8s_create_db_secret
 
