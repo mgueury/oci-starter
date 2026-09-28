@@ -28,7 +28,6 @@ loop_deploy() {
     OPTION_JAVA_FRAMEWORK=springboot
     OPTION_UI=html
     OPTION_DB=atp 
-    OPTION_TLS=existing_dir
     loop_hosted_app_lang
 }
 
