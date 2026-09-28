@@ -718,9 +718,4 @@ build_deploy_apps() {
         $BIN_DIR/deploy_ci.sh
         exit_on_error "Deploy $TF_VAR_deploy_type"
     fi
-
-    # Done
-    if [ -f $PROJECT_DIR/src/done.sh ]; then
-        $PROJECT_DIR/src/done.sh
-    fi
 }
