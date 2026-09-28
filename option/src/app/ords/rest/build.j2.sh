@@ -4,5 +4,5 @@
 if is_deploy_compute; then
     echo "Nothing to deploy on compute"
 else
-    # No docker build
+    echo "No docker build needed."
 fi  
