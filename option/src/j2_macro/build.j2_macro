@@ -25,7 +25,4 @@ fi
 {% macro post_build_docker() -%}
     exit_on_error "docker build"
     ocir_docker_push_app ${APP_NAME}
-    if [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-        oke_deploy_app ${APP_NAME}
-    fi
 {%- endmacro -%}

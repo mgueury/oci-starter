@@ -627,15 +627,6 @@ docker_build() {
     fi    
     exit_on_error "Docker Build $APP"
     ocir_docker_push_app ${APP}
-
-    if [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
-        "$BIN_DIR/hosted_app_cli.sh" \
-            --app "$APP" \
-            --image "$(cat "$TARGET_DIR/docker_image_${APP}.txt")"
-        exit_on_error "Hosted App CLI deployment $APP"
-    elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
-        oke_deploy_app ${APP}
-    fi
 }
 export -f docker_build
 
@@ -731,6 +722,15 @@ ocir_docker_push_app() {
     docker push ${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:${DOCKER_IMG_VERSION}
     exit_on_error "docker push ${APP}"
     echo "${DOCKER_PREFIX}/${TF_VAR_prefix}-${APP}:${DOCKER_IMG_VERSION}" > $TARGET_DIR/docker_image_${APP}.txt
+
+    if [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
+        "$BIN_DIR/hosted_app_cli.sh" \
+            --app "$APP" \
+            --image "$(cat "$TARGET_DIR/docker_image_${APP}.txt")"
+        exit_on_error "Hosted App CLI deployment $APP"
+    elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
+        oke_deploy_app ${APP}
+    fi
 }
 export -f ocir_docker_push_app
 
