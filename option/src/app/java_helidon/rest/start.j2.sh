@@ -2,7 +2,6 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR/target
 . $HOME/compute/tf_env.sh
-export JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL=$JDBC_URL
 
 # Start Java with Native or JIT (JDK/GraalVM)
 if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then

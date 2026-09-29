@@ -22,7 +22,6 @@ resource oci_container_instances_container_instance starter_container_instance {
             "JDBC_URL" = local.local_jdbc_url
             "DB_USER" = var.db_user != null ? var.db_user : "{{ db_user }}"
             "DB_PASSWORD" = var.db_password
-            "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL" = local.local_jdbc_url
             {%- endif %} 
             {%- if db_type == "nosql" %} 
             "TF_VAR_compartment_ocid" = var.compartment_ocid
@@ -58,7 +57,6 @@ resource oci_container_instances_container_instance starter_container_instance {
             "JDBC_URL" = local.local_jdbc_url,
             "DB_USER" = var.db_user != null ? var.db_user : "{{ db_user }}",
             "DB_PASSWORD" = var.db_password,
-            "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL" = local.local_jdbc_url
             {%- endif %} 
             {%- if db_type == "nosql" %} 
             "TF_VAR_compartment_ocid" = var.compartment_ocid,

@@ -22,13 +22,6 @@ spec:
           name: app-port
         env:
 {%- if language == "java" %}
-{%- if java_framework == "helidon" or java_framework == "helidon4" %}
-        - name: JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL
-          valueFrom:
-            secretKeyRef:
-              name: ##TF_VAR_prefix##-db-secret
-              key: jdbc_url
-{%- endif %}
         - name: JDBC_URL
           valueFrom:
             secretKeyRef:

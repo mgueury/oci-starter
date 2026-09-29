@@ -3,13 +3,5 @@
 
 {% if db_family == "none" -%}
 # No database
-{% else -%}
-{% if db_family == "nosql" %}
-{%- elif language == "java" -%}
-{%- if java_framework == "helidon" or java_framework == "helidon4" %}
-# Helidon
-export JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL=$JDBC_URL
-{%- endif %}
-{%- endif %}
 {%- endif %}
 {% endmacro %}
