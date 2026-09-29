@@ -169,14 +169,14 @@ main() {
         --hosted-application-id "$application_id")
 
     if [ "$APP_SUFFIX" = "rest" ] || [ "$APP_SUFFIX" = "mcp" ]; then
-        if [ "$APP_SUFFIX" = "rest" ]; then
-            mcp_applications=$(oci_genai hosted-application-collection list-hosted-applications \
-                --compartment-id "$TF_VAR_compartment_ocid" \
-                --display-name "${TF_VAR_prefix}-mcp-hosted-app" \
-                --all)
-            mcp_application_id=$(single_active_id "$mcp_applications" "Hosted Application named ${TF_VAR_prefix}-mcp-hosted-app")
-            MCP_SERVER_URL="https://inference.generativeai.${TF_VAR_region}.oci.oraclecloud.com/20251112/hostedApplications/${mcp_application_id}/actions/invoke/mcp"
-        fi
+        # if [ "$APP_SUFFIX" = "rest" ]; then
+        #    mcp_applications=$(oci_genai hosted-application-collection list-hosted-applications \
+        #        --compartment-id "$TF_VAR_compartment_ocid" \
+        #        --display-name "${TF_VAR_prefix}-mcp-hosted-app" \
+        #        --all)
+        #    mcp_application_id=$(single_active_id "$mcp_applications" "Hosted Application named ${TF_VAR_prefix}-mcp-hosted-app")
+        #    MCP_SERVER_URL="https://inference.generativeai.${TF_VAR_region}.oci.oraclecloud.com/20251112/hostedApplications/${mcp_application_id}/actions/invoke/mcp"
+        # fi
         merge_runtime_environment "$application_details" > "$TEMP_DIR/environment-variables.json"
         oci_genai hosted-application update \
             --hosted-application-id "$application_id" \

@@ -252,6 +252,7 @@ locals {
   hosted_ui_invoke_url   = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_ui_hosted_application.id}/actions/invoke"
 {%- if python_framework in [ "langgraph", "responses" ] %}
   hosted_mcp_invoke_url  = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_mcp_hosted_application.id}/actions/invoke"
+  local_mcp_server_url = "${local.hosted_mcp_invoke_url}/mcp"
 {%- endif %}
 }
 
