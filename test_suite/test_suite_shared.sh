@@ -285,7 +285,7 @@ build_option() {
         echo "FOUND oci_starter_busy - Waiting"
         sleep 5
     done
-    touch $TEST_HOME/oci_starter_busy
+    echo $NAME > $TEST_HOME/oci_starter_busy
 
     cd $TEST_HOME/oci-starter
     if [ "$OPTION_GROUP_NAME" == "dummy" ]; then
