@@ -726,7 +726,8 @@ ocir_docker_push_app() {
     if [ "$TF_VAR_deploy_type" == "hosted_app" ]; then
         "$BIN_DIR/hosted_app_cli.sh" \
             --app "$APP" \
-            --image "$(cat "$TARGET_DIR/docker_image_${APP}.txt")"
+            --image "$(cat "$TARGET_DIR/docker_image_${APP}.txt")" \
+            --environment-file "$PROJECT_DIR/src/app/$APP/app.env"
         exit_on_error "Hosted App CLI deployment $APP"
     elif [ "$TF_VAR_deploy_type" == "kubernetes" ]; then
         oke_deploy_app ${APP}
@@ -972,5 +973,3 @@ EOF
     fi
 }
 export -f db_schema_create
-
-

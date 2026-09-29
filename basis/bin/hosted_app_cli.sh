@@ -7,10 +7,12 @@ APP_SUFFIX=""
 IMAGE=""
 CONTAINER_URI=""
 IMAGE_TAG=""
+ENVIRONMENT_FILE=""
+ENVIRONMENT_VARIABLES=()
 TEMP_DIR=""
 
 usage() {
-    echo "Usage: $0 --app {rest|ui|mcp_server} --image <fully-qualified-image:tag>" >&2
+    echo "Usage: $0 --app <app-name> --image <fully-qualified-image:tag> [--environment-file <path>]" >&2
 }
 
 error() {
@@ -37,15 +39,22 @@ parse_arguments() {
             --app)
                 [ "$#" -ge 2 ] || error "--app requires a value"
                 case "$2" in
-                    rest|ui) APP_SUFFIX=$2 ;;
                     mcp_server) APP_SUFFIX=mcp ;;
-                    *) error "Unsupported hosted application: $2" ;;
+                    *)
+                        [[ "$2" =~ ^[A-Za-z0-9_-]+$ ]] || error "Invalid hosted application name: $2"
+                        APP_SUFFIX=$2
+                        ;;
                 esac
                 shift 2
                 ;;
             --image)
                 [ "$#" -ge 2 ] || error "--image requires a value"
                 IMAGE=$2
+                shift 2
+                ;;
+            --environment-file)
+                [ "$#" -ge 2 ] || error "--environment-file requires a value"
+                ENVIRONMENT_FILE=$2
                 shift 2
                 ;;
             -h|--help)
@@ -60,6 +69,9 @@ parse_arguments() {
 
     [ -n "$APP_SUFFIX" ] || error "--app is required"
     [ -n "$IMAGE" ] || error "--image is required"
+    if [ -n "$ENVIRONMENT_FILE" ] && [ -e "$ENVIRONMENT_FILE" ] && [ ! -f "$ENVIRONMENT_FILE" ]; then
+        error "Environment file is not a regular file: $ENVIRONMENT_FILE"
+    fi
 }
 
 split_image() {
@@ -101,43 +113,63 @@ deployment_id_or_empty() {
     ' <<<"$json" || error "Expected at most one active Hosted Deployment"
 }
 
+parse_environment_file() {
+    local line line_number=0 variable_name
+    local -A declared_names=()
+
+    ENVIRONMENT_VARIABLES=()
+    # An app without app.env has no runtime variables to inject.
+    [ -n "$ENVIRONMENT_FILE" ] && [ -f "$ENVIRONMENT_FILE" ] || return 0
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        ((line_number += 1))
+        line=${line%%#*}
+        [[ "$line" =~ ^[[:space:]]*$ ]] && continue
+
+        if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*$ ]]; then
+            variable_name=${BASH_REMATCH[1]}
+            [ -z "${declared_names[$variable_name]+x}" ] \
+                || error "$ENVIRONMENT_FILE:$line_number: duplicate environment variable $variable_name"
+            declared_names[$variable_name]=true
+            ENVIRONMENT_VARIABLES+=("$variable_name")
+            continue
+        fi
+
+        error "$ENVIRONMENT_FILE:$line_number: expected one shell-safe environment variable name"
+    done < "$ENVIRONMENT_FILE"
+}
+
+validate_environment_variables() {
+    local variable_name
+    for variable_name in "${ENVIRONMENT_VARIABLES[@]}"; do
+        require_environment "$variable_name"
+    done
+}
+
+manifest_environment_json() {
+    local variable_name
+    local jq_arguments=(-n)
+
+    for variable_name in "${ENVIRONMENT_VARIABLES[@]}"; do
+        jq_arguments+=(--arg "$variable_name" "${!variable_name}")
+    done
+
+    jq "${jq_arguments[@]}" '
+        $ARGS.named
+        | to_entries
+        | map({name: .key, type: "PLAINTEXT", value: .value})
+    '
+}
+
 merge_runtime_environment() {
     local application_json=$1
-    jq --arg db_url "$DB_URL" --arg jdbc_url "$JDBC_URL" --arg javax_sql_datasource_url "$JDBC_URL" --arg project_ocid "$PROJECT_OCID" --arg mcp_server_url "${MCP_SERVER_URL:-}" '
-        def runtime_value($value): {
-            name: $value.name,
-            type: "PLAINTEXT",
-            value: $value.value
-        };
+    local manifest_environment=$2
+    jq --argjson manifest_environment "$manifest_environment" '
         (.data["environment-variables"] // .data.environmentVariables // []) as $variables
-        | reduce $variables[] as $variable (
-            {values: [], names: {}};
-            if $variable.name == "DB_URL" then
-                .values += [runtime_value({name: "DB_URL", value: $db_url})]
-                | .names.DB_URL = true
-            elif $variable.name == "JDBC_URL" then
-                .values += [runtime_value({name: "JDBC_URL", value: $jdbc_url})]
-                | .names.JDBC_URL = true
-            elif $variable.name == "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL" then
-                .values += [runtime_value({name: "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL", value: $javax_sql_datasource_url})]
-                | .names.JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL = true
-            elif $variable.name == "TF_VAR_project_ocid" then
-                .values += [runtime_value({name: "TF_VAR_project_ocid", value: $project_ocid})]
-                | .names.TF_VAR_project_ocid = true
-            elif $variable.name == "MCP_SERVER_URL" and $mcp_server_url != "" then
-                .values += [runtime_value({name: "MCP_SERVER_URL", value: $mcp_server_url})]
-                | .names.MCP_SERVER_URL = true
-            else
-                .values += [$variable]
-                | .names[$variable.name] = true
-            end
-        )
-        | .values
-          + (if .names.DB_URL then [] else [runtime_value({name: "DB_URL", value: $db_url})] end)
-          + (if .names.JDBC_URL then [] else [runtime_value({name: "JDBC_URL", value: $jdbc_url})] end)
-          + (if .names.JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL then [] else [runtime_value({name: "JAVAX_SQL_DATASOURCE_DS1_DATASOURCE_URL", value: $javax_sql_datasource_url})] end)
-          + (if .names.TF_VAR_project_ocid then [] else [runtime_value({name: "TF_VAR_project_ocid", value: $project_ocid})] end)
-          + (if $mcp_server_url == "" or .names.MCP_SERVER_URL then [] else [runtime_value({name: "MCP_SERVER_URL", value: $mcp_server_url})] end)
+        | ($manifest_environment | map(.name)) as $manifest_names
+        | [ $variables[]
+            | select(.name as $name | $manifest_names | index($name) | not)
+          ] + $manifest_environment
     ' <<<"$application_json"
 }
 
@@ -146,13 +178,8 @@ main() {
     require_environment TF_VAR_compartment_ocid
     require_environment TF_VAR_prefix
     require_environment TF_VAR_region
-    require_environment DB_URL
-    require_environment JDBC_URL
-    if [ "$TF_VAR_ui_type" == "langgraph" ]; then  
-        require_environment PROJECT_OCID
-    elif [[ -z ${PROJECT_OCID+x} ]]; then
-        export PROJECT_OCID=""
-    fi 
+    parse_environment_file
+    validate_environment_variables
     command -v oci >/dev/null 2>&1 || error "OCI CLI not found"
     command -v jq >/dev/null 2>&1 || error "jq not found"
     split_image
@@ -161,7 +188,7 @@ main() {
     trap cleanup EXIT
 
     local display_name="${TF_VAR_prefix}-${APP_SUFFIX}-hosted-app"
-    local applications application_id application_details mcp_applications mcp_application_id
+    local applications application_id application_details manifest_environment
     applications=$(oci_genai hosted-application-collection list-hosted-applications \
         --compartment-id "$TF_VAR_compartment_ocid" \
         --display-name "$display_name" \
@@ -170,16 +197,9 @@ main() {
     application_details=$(oci_genai hosted-application get \
         --hosted-application-id "$application_id")
 
-    if [ "$APP_SUFFIX" = "rest" ] || [ "$APP_SUFFIX" = "mcp" ]; then
-        # if [ "$APP_SUFFIX" = "rest" ]; then
-        #    mcp_applications=$(oci_genai hosted-application-collection list-hosted-applications \
-        #        --compartment-id "$TF_VAR_compartment_ocid" \
-        #        --display-name "${TF_VAR_prefix}-mcp-hosted-app" \
-        #        --all)
-        #    mcp_application_id=$(single_active_id "$mcp_applications" "Hosted Application named ${TF_VAR_prefix}-mcp-hosted-app")
-        #    MCP_SERVER_URL="https://inference.generativeai.${TF_VAR_region}.oci.oraclecloud.com/20251112/hostedApplications/${mcp_application_id}/actions/invoke/mcp"
-        # fi
-        merge_runtime_environment "$application_details" > "$TEMP_DIR/environment-variables.json"
+    if [ "${#ENVIRONMENT_VARIABLES[@]}" -gt 0 ]; then
+        manifest_environment=$(manifest_environment_json)
+        merge_runtime_environment "$application_details" "$manifest_environment" > "$TEMP_DIR/environment-variables.json"
         oci_genai hosted-application update \
             --hosted-application-id "$application_id" \
             --environment-variables "file://$TEMP_DIR/environment-variables.json" \

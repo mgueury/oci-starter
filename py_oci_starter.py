@@ -1043,6 +1043,8 @@ def create_output_dir():
         output_remove('src/app/nginx_app.conf')
     else:         
         output_remove('src/app/*/Dockerfile')
+    if params.get('deploy_type') != "hosted_app":        
+        output_remove('src/app/*/app.j2.env')
 
     # Remove empty directories in src/app
     app_src_dir= output_dir + "src/app"
