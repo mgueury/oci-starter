@@ -9,6 +9,7 @@ if [ "$TF_VAR_build_host" == "bastion" ]; then
     TARGET_OKE="$HOME/target/oke"
     mkdir -p $TARGET_OKE
     export DOCKER_LOGGED=false
+    export KUBECONFIG=$HOME/compute/kubeconfig_starter
 fi
 
 chmod +x */*.sh
