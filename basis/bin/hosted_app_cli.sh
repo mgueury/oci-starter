@@ -150,6 +150,8 @@ main() {
     require_environment JDBC_URL
     if [ "$TF_VAR_ui_type" == "langgraph" ]; then  
         require_environment PROJECT_OCID
+    elif [[ -z ${PROJECT_OCID+x} ]]; then
+        export PROJECT_OCID=""
     fi 
     command -v oci >/dev/null 2>&1 || error "OCI CLI not found"
     command -v jq >/dev/null 2>&1 || error "jq not found"
