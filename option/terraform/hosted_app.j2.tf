@@ -3,18 +3,11 @@ locals {
     local_genai_region = var.region == "eu-amsterdam-1" ? "eu-frankfurt-1" : local.home_region
 }
 
-provider "oci" {
-    alias  = "genai"
-    region = local.local_genai_region
-    config_file_profile = var.config_file_profile
-}
-
 ###############################################################################
 # REST hosted application
 ###############################################################################
 
 resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application" {
-  provider = "oci.genai"
   compartment_id = local.lz_app_cmp_ocid
   display_name   = "${var.prefix}-rest-hosted-app"
 
