@@ -9,13 +9,13 @@ loop_hosted_app_lang() {
     # Maybe remove one compute when all is working
     OPTION_LANG=java
     build_option  
-    OPTION_LANG=donet
+    OPTION_LANG=dotnet
     build_option  
     OPTION_LANG=go
     build_option  
     OPTION_LANG=python
     build_option  
-    OPTION_LANG=nodejs
+    OPTION_LANG=node
     build_option  
 }
 
