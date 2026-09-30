@@ -23,12 +23,7 @@ locals {
     cidr_vcn = "10.0.0.0/16"
     cidr_web_subnet = "10.0.1.0/24"
     cidr_app_subnet =  "10.0.2.0/24"
-    cidr_db_subnet =  "10.0.3.0/24"  
-    # Include the NAT gateway's egress address as a /32 source in public rules.
-    public_ip_filters_with_nat = setunion(
-        var.public_ip_filters,
-        toset(["${oci_core_nat_gateway.starter_nat_gateway[0].nat_ip}/32"])
-    )    
+    cidr_db_subnet =  "10.0.3.0/24"
 }
 
 resource "oci_core_vcn" "starter_vcn" {
@@ -119,10 +114,25 @@ resource "oci_core_security_list" "starter_security_list" {
     display_name   = "${var.prefix}-security-list"
 
     dynamic "ingress_security_rules" {
-        for_each = local.public_ip_filters_with_nat
+        for_each = var.public_ip_filters
         content {
             protocol  = "6" // tcp
             source    = ingress_security_rules.value
+            stateless = false
+
+            tcp_options {
+                min = 443
+                max = 443
+            }
+        }
+    }
+
+    # Add the NAT address only when this configuration creates the NAT gateway.
+    dynamic "ingress_security_rules" {
+        for_each = var.vcn_ocid == null ? [true] : []
+        content {
+            protocol  = "6" // tcp
+            source    = "${oci_core_nat_gateway.starter_nat_gateway[0].nat_ip}/32"
             stateless = false
 
             tcp_options {
@@ -144,10 +154,24 @@ resource "oci_core_security_list" "starter_security_list" {
     }
 
     dynamic "ingress_security_rules" {
-        for_each = local.public_ip_filters_with_nat
+        for_each = var.public_ip_filters
         content {
             protocol  = "6" // tcp
             source    = ingress_security_rules.value
+            stateless = false
+
+            tcp_options {
+                min = 3000
+                max = 3000
+            }
+        }
+    }
+
+    dynamic "ingress_security_rules" {
+        for_each = var.vcn_ocid == null ? [true] : []
+        content {
+            protocol  = "6" // tcp
+            source    = "${oci_core_nat_gateway.starter_nat_gateway[0].nat_ip}/32"
             stateless = false
 
             tcp_options {
@@ -170,10 +194,24 @@ resource "oci_core_security_list" "starter_security_list" {
 
 
     dynamic "ingress_security_rules" {
-        for_each = local.public_ip_filters_with_nat
+        for_each = var.public_ip_filters
         content {
             protocol  = "6" // tcp
             source    = ingress_security_rules.value
+            stateless = false
+
+            tcp_options {
+                min = 80
+                max = 80
+            }
+        }
+    }
+
+    dynamic "ingress_security_rules" {
+        for_each = var.vcn_ocid == null ? [true] : []
+        content {
+            protocol  = "6" // tcp
+            source    = "${oci_core_nat_gateway.starter_nat_gateway[0].nat_ip}/32"
             stateless = false
 
             tcp_options {
@@ -195,10 +233,24 @@ resource "oci_core_security_list" "starter_security_list" {
     }
 
     dynamic "ingress_security_rules" {
-        for_each = local.public_ip_filters_with_nat
+        for_each = var.public_ip_filters
         content {
             protocol  = "6" // tcp
             source    = ingress_security_rules.value
+            stateless = false
+
+            tcp_options {
+                min = 8080
+                max = 8080
+            }
+        }
+    }
+
+    dynamic "ingress_security_rules" {
+        for_each = var.vcn_ocid == null ? [true] : []
+        content {
+            protocol  = "6" // tcp
+            source    = "${oci_core_nat_gateway.starter_nat_gateway[0].nat_ip}/32"
             stateless = false
 
             tcp_options {
@@ -337,6 +389,7 @@ resource "oci_core_security_list" "starter_security_list" {
         max = 2025
         }
     }  
+
 
     freeform_tags = local.freeform_tags
 }
