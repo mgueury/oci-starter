@@ -1061,8 +1061,10 @@ def create_output_dir():
 #----------------------------------------------------------------------------
 # Create terraform_common Directory
 def create_terraform_common_dir():
+    global group_db_count
+
     create_dir_shared()
-    global group_db_count = 0
+    group_db_count=0
 
     # -- APP ----------------------------------------------------------------
     output_rm_tree("src/app")
