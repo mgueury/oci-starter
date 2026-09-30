@@ -115,7 +115,10 @@ deployment_id_or_empty() {
 
 parse_environment_file() {
     local line line_number=0 variable_name
-    local -A declared_names=()
+    # Bash 3.2 (the macOS system Bash) has no associative arrays. Environment
+    # variable names are shell-safe identifiers, so a space-delimited set is a
+    # portable way to retain the duplicate-name validation.
+    local declared_names=" "
 
     ENVIRONMENT_VARIABLES=()
     # An app without app.env has no runtime variables to inject.
@@ -128,9 +131,12 @@ parse_environment_file() {
 
         if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*$ ]]; then
             variable_name=${BASH_REMATCH[1]}
-            [ -z "${declared_names[$variable_name]+x}" ] \
-                || error "$ENVIRONMENT_FILE:$line_number: duplicate environment variable $variable_name"
-            declared_names[$variable_name]=true
+            case "$declared_names" in
+                *" $variable_name "*)
+                    error "$ENVIRONMENT_FILE:$line_number: duplicate environment variable $variable_name"
+                    ;;
+            esac
+            declared_names+="$variable_name "
             ENVIRONMENT_VARIABLES+=("$variable_name")
             continue
         fi
