@@ -181,6 +181,10 @@ if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
         # Generative AI Hosted Deployments only accept linux/amd64 artifacts.
         # This must not depend on the architecture of a Terraform compute shape.
         DOCKER_TARGET_PLATFORM="linux/amd64"
+        # docker_build consumes this value. Without it, its fallback selects the
+        # local machine architecture, which produces ARM64 images on Apple
+        # Silicon and leaves the Hosted Deployment in NEEDS_ATTENTION.
+        export DOCKER_DEFAULT_PLATFORM="$DOCKER_TARGET_PLATFORM"
         DESIRED_PLATFORM="X86_64"
         HOST_ARCHITECTURES="x86_64 amd64"
     elif [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
