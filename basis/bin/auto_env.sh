@@ -185,8 +185,6 @@ if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
         # local machine architecture, which produces ARM64 images on Apple
         # Silicon and leaves the Hosted Deployment in NEEDS_ATTENTION.
         export DOCKER_DEFAULT_PLATFORM="$DOCKER_TARGET_PLATFORM"
-        DESIRED_PLATFORM="X86_64"
-        HOST_ARCHITECTURES="x86_64 amd64"
     elif [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
         # Resource Manager run on ARM processor. So, docker is in ARM mode too...
         export TF_VAR_instance_shape="VM.Standard.A1.Flex"

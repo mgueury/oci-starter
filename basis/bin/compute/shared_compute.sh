@@ -620,6 +620,7 @@ docker_build() {
        # Used with build_host bastion
        export DOCKER_DEFAULT_PLATFORM=$(echo "linux/$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')")
     fi
+    echo "DOCKER_DEFAULT_PLATFORM=$DOCKER_DEFAULT_PLATFORM"
     if [ "$TF_VAR_java_vm" == "graalvm-native" ]; then
         docker build --platform $DOCKER_DEFAULT_PLATFORM -f Dockerfile.native -t ${TF_VAR_prefix}-${APP}:latest . 
     else
