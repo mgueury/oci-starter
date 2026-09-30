@@ -544,7 +544,7 @@ def env_param_list():
     return env_params
 
 def env_sh_contents():
-    global to_fill_params, fixed_params
+    global to_fill_params, fixed_params, group_db_count
     fixed_tfvars = []
     to_fill_params = []
 
@@ -1062,7 +1062,7 @@ def create_output_dir():
 # Create terraform_common Directory
 def create_terraform_common_dir():
     create_dir_shared()
-    group_db_count = 0
+    global group_db_count = 0
 
     # -- APP ----------------------------------------------------------------
     output_rm_tree("src/app")
