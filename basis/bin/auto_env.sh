@@ -188,6 +188,8 @@ if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
     elif [ "$TF_VAR_infra_as_code" == "from_resource_manager" ]; then
         # Resource Manager run on ARM processor. So, docker is in ARM mode too...
         export TF_VAR_instance_shape="VM.Standard.A1.Flex"
+        DOCKER_TARGET_PLATFORM="linux/arm64"
+        export DOCKER_DEFAULT_PLATFORM="$DOCKER_TARGET_PLATFORM"
     else
         if [ "$TF_VAR_instance_shape" == "VM.Standard.A1.Flex" ]; then
             DOCKER_TARGET_PLATFORM="linux/arm64"
@@ -228,6 +230,7 @@ if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
             echo "Exiting. Please use the right CPU Architecture."
             exit 1
         fi
+        export DOCKER_DEFAULT_PLATFORM="$DOCKER_TARGET_PLATFORM"
     fi
 fi
 

@@ -1,3 +1,4 @@
+
 import os
 from typing import Any
 
@@ -9,6 +10,7 @@ mcp = FastMCP("MCP Server")  # Initialize an MCP server instance with a descript
 def log( s ): 
     print( s, flush=True )
 
+# Dummy Send email tool
 @mcp.tool()
 def send_email(to: str, subject: str, body: str) -> dict[str, str]:
     """Email sender tool"""
@@ -20,6 +22,7 @@ def send_email(to: str, subject: str, body: str) -> dict[str, str]:
         "message": f"Email sent to {to} with subject '{subject}'",
     }
 
+# Get the departments from the database
 @mcp.tool()
 def get_dept() -> list[dict[str, Any]]:
     """Return all rows from the DEPT table."""
@@ -80,3 +83,4 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     mcp.run(transport="http", host="0.0.0.0", port=2025)
 {%- endif %}
+
