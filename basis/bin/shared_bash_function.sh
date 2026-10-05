@@ -12,12 +12,15 @@ fi
 
 #### Commmon functions
 
+# -- app_name_list_build ----------------------------------------------------
 # Used in for loop for APP_NAME
 app_name_list_build() {
     ls -d $PROJECT_DIR/src/app/*/build.sh | sort -g | sed "s#.*src/app/##g" | sed "s#/build\.sh##"
 }
 
-build_function() {
+# -- build_docker_function --------------------------------------------------
+build_docker_function() {
+    # See https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfirst.htm
     # Build the function
     get_docker_prefix
     fn create context ${TF_VAR_region} --provider oracle
@@ -55,13 +58,139 @@ build_function() {
     fi
 }
 
-# Create KUBECONFIG file
+# -- build_archive_function --------------------------------------------------
+build_archive_function() (
+    # See https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functions_creating-code-only.htm
+    local language="${1:-python}"
+    local source_dir="$SCRIPT_DIR"
+    local architecture="${TF_VAR_cpu_architecture:-amd64}"
+    local archive_root archive archive_size
+
+    mkdir -p "$TARGET_DIR" || return $?
+    archive="$(cd "$TARGET_DIR" && pwd)/function.zip" || return $?
+    archive_root=$(mktemp -d "${archive%.zip}_${APP_NAME:-app}.XXXXXX") || return $?
+    trap 'rm -rf -- "$archive_root"' EXIT
+
+    case "$language" in
+        python)
+            local python_minor=${BASH_REMATCH[1]}
+            mkdir -p "$archive_root/function" || return $?
+            cp -a "$source_dir/." "$archive_root/function/" || return $?
+            rm -f "$archive_root/function/build.sh" || return $?
+            if [ -f "$source_dir/requirements.txt" ]; then
+                local platform_arch
+                case "$architecture" in
+                    amd64) platform_arch=x86_64 ;;
+                    arm64) platform_arch=aarch64 ;;
+                    *) echo "Unsupported Function architecture: $architecture" >&2; return 1 ;;
+                esac
+                local platforms=() minor
+                for minor in $(seq 34 -1 17); do
+                    platforms+=(--platform "manylinux_2_${minor}_${platform_arch}")
+                done
+                platforms+=(--platform "manylinux2014_${platform_arch}")
+                python3 -m pip install -r "$source_dir/requirements.txt" -t "$archive_root/python" \
+                    --python-version "3.$python_minor" --implementation cp --abi "cp3$python_minor" \
+                    --only-binary=:all: "${platforms[@]}" || return $?
+            fi
+            ;;
+        nodejs|nodjs)
+            mkdir -p "$archive_root/function" || return $?
+            cp -a "$source_dir/." "$archive_root/function/" || return $?
+            rm -f "$archive_root/function/build.sh" || return $?
+            if [ -f "$source_dir/package.json" ]; then
+                cp "$source_dir/package.json" "$archive_root/" || return $?
+                if [ -f "$source_dir/package-lock.json" ]; then
+                    cp "$source_dir/package-lock.json" "$archive_root/" || return $?
+                    (cd "$archive_root" && npm ci --omit=dev) || return $?
+                else
+                    (cd "$archive_root" && npm install --omit=dev) || return $?
+                fi
+                rm -f "$archive_root/package.json" "$archive_root/package-lock.json" || return $?
+            elif [ -d "$archive_root/function/node_modules" ]; then
+                mv "$archive_root/function/node_modules" "$archive_root/node_modules" || return $?
+            fi
+            rm -rf "$archive_root/function/node_modules" || return $?
+            ;;
+        java)
+            local java_jar java_dir candidate
+            if [ -n "${FUNCTION_JAR:-}" ]; then
+                java_jar=$FUNCTION_JAR
+                [[ "$java_jar" = /* ]] || java_jar="$source_dir/$java_jar"
+            else
+                java_dir=$source_dir
+                if [ -f "$source_dir/pom.xml" ]; then
+                    (cd "$source_dir" && mvn -q -DskipTests package) || return $?
+                    java_dir="$source_dir/target"
+                elif [ -f "$source_dir/gradlew" ]; then
+                    (cd "$source_dir" && ./gradlew shadowJar) || return $?
+                    java_dir="$source_dir/build/libs"
+                elif [ -f "$source_dir/build.gradle" ] || [ -f "$source_dir/build.gradle.kts" ]; then
+                    (cd "$source_dir" && gradle shadowJar) || return $?
+                    java_dir="$source_dir/build/libs"
+                fi
+                shopt -s nullglob
+                local java_jars=("$java_dir"/*.jar)
+                shopt -u nullglob
+                java_jar=
+                for candidate in "${java_jars[@]}"; do
+                    case "${candidate##*/}" in original-*|*-plain.jar|*-sources.jar|*-javadoc.jar) continue ;; esac
+                    if [ -n "$java_jar" ]; then
+                        echo "Multiple Java JARs found; set FUNCTION_JAR to the fat JAR" >&2
+                        return 1
+                    fi
+                    java_jar=$candidate
+                done
+            fi
+            if [ ! -f "$java_jar" ]; then
+                echo "Java fat JAR not found; build one or set FUNCTION_JAR" >&2
+                return 1
+            fi
+            cp "$java_jar" "$archive_root/" || return $?
+            ;;
+        go)
+            case "$architecture" in
+                amd64|arm64) ;;
+                *) echo "Unsupported Function architecture: $architecture" >&2; return 1 ;;
+            esac
+            (cd "$source_dir" && CGO_ENABLED=0 GOOS=linux GOARCH="$architecture" go build -o "$archive_root/func" .) || return $?
+            ;;
+        *)
+            echo "Unsupported Function language: $language" >&2
+            return 1
+            ;;
+    esac
+
+    if [ -d "$source_dir/resources" ]; then
+        rm -rf "$archive_root/function/resources" || return $?
+        cp -a "$source_dir/resources" "$archive_root/resources" || return $?
+    fi
+
+    rm -f "$archive" || return $?
+    (cd "$archive_root" && zip -qr "$archive" .) || return $?
+
+    archive_size=$(wc -c < "$archive") || return $?
+    echo "Function archive: $archive ($archive_size bytes)"
+    unzip -l "$archive" || return $?
+    if (( archive_size > 25 * 1024 * 1024 )); then
+        echo "Function archive exceeds OCI's 25 MB direct-upload limit" >&2
+        return 1
+    fi
+
+    if [ -z "${CALLED_BY_TERRAFORM:-}" ]; then
+        cd "$PROJECT_DIR" || return $?
+        "$BIN_DIR/terraform_apply.sh" --auto-approve || return $?
+    fi
+)
+
+# -- create_kubeconfig ------------------------------------------------------
 create_kubeconfig() {
     oci ce cluster create-kubeconfig --cluster-id $OKE_OCID --file $KUBECONFIG --region $TF_VAR_region --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT
     exit_on_error "create_kubeconfig - $OKE_OCID / $TF_VAR_region"
     chmod 600 $KUBECONFIG
 }
 
+# -- set_if_not_null --------------------------------------------------------
 set_if_not_null () {
     if [ "$2" != "" ] && [ "$2" != "null" ]; then
         auto_echo "$1=$RESULT"

@@ -16,7 +16,9 @@
 # Then Work-around: terraforms is not able to create a APIGW with dynamic multiple backends
 {%- if language == "ords" %}
 # ORDS: OCI Function is not used. Nothing to do
+{%- elif language == "python" %}
+build_archive_function "{{ language }}"
 {%- else %}
-build_function
+build_docker_function
 {%- endif %}
 exit_on_error "build_function"

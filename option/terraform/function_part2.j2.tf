@@ -1,16 +1,52 @@
+{%- if language == "python" %}
+# OCI Function - Archive (zip file)
+variable "function_runtime_name" {
+  type        = string
+  default     = "python312.ol9"
+  description = "OCI managed runtime name for the code-only Function."
+}
+
+variable "function_handler" {
+  type        = string
+  default     = "func.handler"
+  description = "Function handler; leave empty for Go."
+}
+
+data "local_file" "starter_fn_archive" {
+  filename   = "${local.project_dir}/target/function.zip"
+  depends_on = [null_resource.build_deploy]
+}
+{%- else %}
+# OCI Function - Container (Docker file)
 locals {
   fn_image=data.external.env_part2.result.fn_image
 }
+{%- endif %}
 
 resource "oci_functions_function" "starter_fn_function" {
   #Required
   application_id = local.fnapp_ocid
   display_name   = "${var.prefix}-fn-function"
   memory_in_mbs  = "2048"
+{%- if language == "python" %}  
+  source_details {
+    source_type = "ARCHIVE"
+    archive_source_details {
+      archive_source_type = "DIRECT_ARCHIVE"
+      archive_file        = data.local_file.starter_fn_archive.content_base64
+    }
+    handler = var.function_handler != "" ? var.function_handler : null
+    runtime_config {
+      runtime_config_type    = "FUNCTION_UPDATE"
+      functions_runtime_name = var.function_runtime_name
+    }
+  }
+{%- else %}  
   source_details {
     source_type = "CONTAINER_IMAGE"
     image = local.fn_image
   }
+{%- endif %}  
   config = {
     {%- if db_family != "none" %}
     {%- if language == "java" %} 
