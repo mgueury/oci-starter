@@ -73,7 +73,7 @@ build_archive_function() (
 
     case "$language" in
         python)
-            local python_minor=${BASH_REMATCH[1]}
+            local python_minor=12
             mkdir -p "$archive_root/function" || return $?
             cp -a "$source_dir/." "$archive_root/function/" || return $?
             rm -f "$archive_root/function/build.sh" || return $?
