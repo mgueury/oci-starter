@@ -78,7 +78,9 @@ resource "oci_functions_function" "starter_fn_function" {
     count = 40
   }
 */    
+{%- if language != "python" %}  
    depends_on = [ local.fn_image ]
+{%- endif %}    
 }
 
 resource "oci_apigateway_deployment" "starter_apigw_deployment" {
@@ -138,5 +140,7 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
   }
   freeform_tags = local.api_tags
 
+{%- if language != "python" %}  
   depends_on = [ local.fn_image ]
+{%- endif %}    
 }
