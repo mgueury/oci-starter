@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_oci import ChatOCIGenAI
-from langgraph.prebuilt import create_react_agent
-from langgraph.graph import StateGraph
+from langchain.agents import create_agent
+from langchain_core.runnables import Runnable
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_mcp_adapters.interceptors import MCPToolCallRequest
 import asyncio
@@ -61,7 +61,7 @@ async def inject_user_context(
     pprint.pprint( request )
     runtime = request.runtime
     user_id = runtime.config["configurable"]["user_id"]
-    auth_user = runtime.config["configurable"]["langgraph_auth_user"]
+    auth_user = runtime.config["configurable"]["langchain_auth_user"]
     auth_header = auth_user.dict().get("auth_header")
     print( f"<inject_user_context> user_id={user_id}", flush=True )
     # print( f"<inject_user_context> auth_header={auth_header}", flush=True )
@@ -101,7 +101,7 @@ async def inject_user_context(
             "guidance": "Tool call failed. Adjust parameters based on this error and retry with corrected values.",
         }
 
-async def init( agent_name, prompt, callback_handler=None ) -> StateGraph:
+async def init( agent_name, prompt, callback_handler=None ) -> Runnable:
 
     # Build the graph once at process startup; app.py streams runs from this object.
     # Waiting is important, since after reboot the MCP server could start afterwards.
@@ -111,10 +111,10 @@ async def init( agent_name, prompt, callback_handler=None ) -> StateGraph:
     llm = build_llm()
     if not config("MCP_SERVER_URL"):
         print("MCP_SERVER_URL is not configured; starting agent without MCP tools")
-        return create_react_agent(
+        return create_agent(
             model=llm,
             tools=agent_tools,
-            prompt=prompt,
+            system_prompt=prompt,
             name=agent_name
         )
 
@@ -145,20 +145,20 @@ async def init( agent_name, prompt, callback_handler=None ) -> StateGraph:
     if client==None:
         raise RuntimeError("ERROR: connection to MCP Failed")
 
-    agent = create_react_agent(
+    agent = create_agent(
         model=llm,
         tools=agent_tools,
-        prompt=prompt,
+        system_prompt=prompt,
         name=agent_name
     ) 
     return agent    
 
-async def build_agent() -> StateGraph:
+async def build_agent() -> Runnable:
     return await init("agent", config("AGENT_PROMPT") or DEFAULT_AGENT_PROMPT)
 
 
 class AgentRuntime:
-    def __init__(self, graph: StateGraph):
+    def __init__(self, graph: Runnable):
         self._graph = graph
         self._reload_lock = asyncio.Lock()
 

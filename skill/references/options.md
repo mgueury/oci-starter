@@ -33,7 +33,7 @@ Apply these values unless the user explicitly overrides them:
 | `java_framework` | `springboot`, `helidon`, `helidon4`, `tomcat`, `micronaut` |
 | `java_vm` | `jdk`, `graalvm`, `graalvm-native` |
 | `java_version` | `8`, `11`, `17`, `21`, `25` |
-| `python_framework` | `fastapi`, `langgraph`, `responses` |
+| `python_framework` | `fastapi`, `langchain`, `responses` |
 | `ui_type` | `html`, `jet`, `angular`, `reactjs`, `jsp`, `php`, `api`, `apex`, `none` |
 | `db_type` | `atp`, `autonomous`, `database`, `dbsystem`, `rac`, `db_free`, `pluggable`, `pdb`, `mysql`, `psql`, `opensearch`, `nosql`, `none` |
 | `license_model` | `LICENSE_INCLUDED`, `BRING_YOUR_OWN_LICENSE` |

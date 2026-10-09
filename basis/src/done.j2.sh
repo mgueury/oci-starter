@@ -18,7 +18,7 @@ if [ "$UI_URL" != "" ]; then
     if [ "$UI_HTTP" != "" ]; then
         append_done "- HTTP : $UI_HTTP/"
     fi
-    if [ "$TF_VAR_ui_type" == "langgraph" ]; then
+    if [ "$TF_VAR_ui_type" == "langchain" ]; then
         append_done "- REST: $UI_URL/app/threads"
     else
         append_done "- REST: $UI_URL/app/dept"

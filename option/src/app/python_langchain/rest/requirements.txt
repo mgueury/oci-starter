@@ -1,4 +1,4 @@
-# Langgraph
+# LangChain agents
 # Issue with 0.2.2 version with openai-gpt-oss
 # langchain_oci==0.2.1
 langchain_oci
@@ -6,7 +6,7 @@ langchain_openai
 openai
 httpx
 oci-openai
-langgraph
+langchain>=1,<2
 langchain_mcp_adapters
 
 # FastAPI

@@ -79,6 +79,17 @@ Treat a request to run `./starter.sh build` or `./starter.sh destroy` as a reque
 3. For `./starter.sh build`, request one combined elevated sandbox approval for `./starter.sh build --auto-approve`. The approval question must state both that it performs the cloud operation described above and that it needs outbound network access to OCI using the user's locally configured credentials. State that Terraform changes will be applied noninteractively. Treat approval of this single escalation as the user's explicit permission for the build; do not ask a separate, sequential cloud-operation confirmation. Run it with `require_escalated`; do not first run it in the restricted sandbox, including as a connectivity check. Elevated execution is required so OCI and provider-registry connectivity uses the user's available network access.
 4. For `./starter.sh destroy`, ask for explicit cloud-operation permission immediately before running it. Do not run `terraform destroy` or another command that removes OCI resources until the user grants that permission. Then request elevated sandbox permission for the exact `./starter.sh destroy` command, explaining that it needs outbound internet access to OCI. Run the relevant command with `require_escalated` only after its required approval or approvals are granted; do not first attempt it in the restricted sandbox. Report its result and any resource changes it reports.
 
+## Kubernetes cluster access
+
+For projects with `deploy_type=kubernetes`, `./starter.sh env` prepares the local environment for access to the OCI Starter-managed Kubernetes cluster, including `kubectl`. When the user asks to inspect or operate the cluster, run it before the requested `kubectl` command:
+
+```bash
+./starter.sh env
+kubectl get pods
+```
+
+Follow the generated README if it specifies different cluster-access steps. Do not use `kubectl` to change cluster resources without the user's explicit instruction.
+
 ## Redeploy application changes
 
 After the project has been successfully created and deployed, use the application-only redeploy path when the only changes since the last deployment are under `src/app/`:

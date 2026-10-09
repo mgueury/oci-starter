@@ -23,7 +23,7 @@ if [ "$UI_URL" != "" ]; then
     while [ $x -le 20 ]
     do
         rm -f $TMP_PATH/cookie.txt
-        if [ "$TF_VAR_ui_type" == "langgraph" ]; then
+        if [ "$TF_VAR_ui_type" == "langchain" ]; then
             echo "Testsuite - LangGraph"
             curl -sS -c "$TMP_PATH/cookie.txt" -b "$TMP_PATH/cookie.txt" \
                 -H 'Content-Type: application/json' \

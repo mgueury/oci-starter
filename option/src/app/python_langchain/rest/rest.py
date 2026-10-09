@@ -17,7 +17,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from agent import agent, reload_agent_config
 from config import config, config_router, require_config, set_agent_reload_callback
 
-app = FastAPI(title="LangGraph Agent")
+app = FastAPI(title="LangChain Agent")
 set_agent_reload_callback(reload_agent_config)
 app.include_router(config_router)
 
@@ -38,7 +38,7 @@ class AuthUser:
         }
 
 
-# In-memory thread store used by the FastAPI replacement for langgraph dev.
+# In-memory thread store used by the FastAPI replacement for langchain dev.
 @dataclass
 class ThreadState:
     messages: list[Any] = field(default_factory=list)
@@ -176,7 +176,7 @@ def agent_config(auth_user: AuthUser) -> dict[str, Any]:
     return {
         "configurable": {
             "user_id": auth_user.identity,
-            "langgraph_auth_user": auth_user,
+            "langchain_auth_user": auth_user,
         }
     }
 

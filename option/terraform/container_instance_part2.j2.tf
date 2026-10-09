@@ -1,7 +1,7 @@
 locals {
     docker_image_ui=data.external.env_part2.result.docker_image_ui
     docker_image_rest=data.external.env_part2.result.docker_image_rest
-    {%- if python_framework in [ "langgraph", "responses" ] %}
+    {%- if python_framework in [ "langchain", "responses" ] %}
     docker_image_mcp_server=data.external.env_part2.result.docker_image_mcp_server
     {%- endif %}    
 }
@@ -28,12 +28,12 @@ resource oci_container_instances_container_instance starter_container_instance {
             # XXX Ideally it should be nosql.${region}.oci.${regionDomain}
             "TF_VAR_nosql_endpoint" = "nosql.${var.region}.oci.oraclecloud.com"
             {%- endif %} 
-            {%- if python_framework in [ "langgraph", "responses" ] %}
+            {%- if python_framework in [ "langchain", "responses" ] %}
             "TF_VAR_region" = var.region
             "TF_VAR_compartment_ocid" = var.compartment_ocid
             "AUTH_TYPE" = "RESOURCE_PRINCIPAL"
             {%- endif %}
-            {%- if python_framework == "langgraph" %}
+            {%- if python_framework == "langchain" %}
             "MCP_SERVER_URL" = "http://localhost:2025/mcp"
             {%- elif python_framework == "responses" %}
             "TF_VAR_project_ocid" = local.local_project_ocid
@@ -46,7 +46,7 @@ resource oci_container_instances_container_instance starter_container_instance {
         image_url = local.docker_image_ui
         is_resource_principal_disabled = "false"
     }  
-    {%- if python_framework in [ "langgraph", "responses" ] %}
+    {%- if python_framework in [ "langchain", "responses" ] %}
     containers {
         display_name = "mcp_server"
         image_url = local.docker_image_mcp_server
@@ -113,7 +113,7 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
                 url    = "##APP_URL##"
             }
         }     
-        {%- if python_framework in [ "langgraph", "responses" ] %}       
+        {%- if python_framework in [ "langchain", "responses" ] %}       
         routes {
             path    = "/mcp_server/{pathname*}"
             methods = [ "ANY" ]

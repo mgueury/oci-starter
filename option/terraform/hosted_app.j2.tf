@@ -43,7 +43,7 @@ resource "oci_generative_ai_hosted_application" "starter_rest_hosted_application
   }
 {%- endif %}
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
+{%- if python_framework in [ "langchain", "responses" ] %}
   environment_variables {
     name  = "TF_VAR_region"
     type  = "PLAINTEXT"
@@ -162,7 +162,7 @@ resource "oci_generative_ai_hosted_application" "starter_ui_hosted_application" 
 # MCP hosted application/deployment
 ###############################################################################
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
+{%- if python_framework in [ "langchain", "responses" ] %}
 
 resource "oci_generative_ai_hosted_application" "starter_mcp_hosted_application" {
   compartment_id = local.lz_app_cmp_ocid
@@ -243,7 +243,7 @@ locals {
   hosted_application_base_url = "https://inference.generativeai.${var.region}.oci.oraclecloud.com/20251112/hostedApplications"
   hosted_rest_invoke_url = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_rest_hosted_application.id}/actions/invoke"
   hosted_ui_invoke_url   = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_ui_hosted_application.id}/actions/invoke"
-{%- if python_framework in [ "langgraph", "responses" ] %}
+{%- if python_framework in [ "langchain", "responses" ] %}
   hosted_mcp_invoke_url  = "${local.hosted_application_base_url}/${oci_generative_ai_hosted_application.starter_mcp_hosted_application.id}/actions/invoke"
   local_mcp_server_url = "${local.hosted_mcp_invoke_url}/mcp"
 {%- endif %}
@@ -295,7 +295,7 @@ resource "oci_apigateway_deployment" "starter_apigw_deployment" {
       }
     }
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
+{%- if python_framework in [ "langchain", "responses" ] %}
 
     #########################################################################
     # MCP
@@ -388,7 +388,7 @@ resource "oci_logging_log" "starter_ui_hosted_app_log" {
   }
 }
 
-{%- if python_framework in [ "langgraph", "responses" ] %}
+{%- if python_framework in [ "langchain", "responses" ] %}
 
 resource "oci_logging_log" "starter_mcp_hosted_app_log" {
   display_name = "${var.prefix}-mcp-hosted-app_genai-hosted-deployment-log"
