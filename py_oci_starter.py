@@ -564,17 +564,13 @@ def env_sh_contents():
     tfvars.append(f'prefix="{prefix}"')
 
     for param in env_params:
-        print( f"XXXXX: debug {param} {group_db_count}")
         # In the test_suite, do not include db_user and db_type in terraform_common/target/tf_env.sh
-        if group_db_count>1 and param in ["db_user","db_type"]:
-            print( f"group_db_count>1 skipping ${param}" )
-        elif param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filters", "your_public_ssh_key"]:
+        if param.endswith("_ocid") or param in ["db_password", "auth_token", "license_model", "certificate_email", "dns_name","dns_zone_name", "tls", "public_ip_filters", "your_public_ssh_key"]:
             to_fill_params.append(param)
             tfvars.append('')
             tf_var_comment(tfvars, param)
             tfvars.append(f'{param}="{params[param]}"')
         else:
-            print( f"XXXXX: fixed {param}")
             fixed_params.append(param)
             tf_var_comment(fixed_tfvars, param)
             fixed_tfvars.append(f'# {param}="{params[param]}"')
@@ -1137,7 +1133,11 @@ def create_terraform_common_dir():
         cp_terraform("object_storage.tf")
 
     cp_terraform("container_instance_policy.tf")
-    print( f"group_db_count={group_db_count}" )
+    if group_db_count>1:
+        global fixed_param
+        print( f"group_db_count>1" )    
+        fixed_param.pop('db_user')
+        fixed_param.pop('db_password')        
     # cp_terraform("hosted_app_policy.tf")
 
 #----------------------------------------------------------------------------
