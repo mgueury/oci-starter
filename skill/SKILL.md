@@ -111,6 +111,7 @@ The helper applies defaults, sends every resolved allowed option as a starter en
 
 ## Failure handling
 
+- If an automated destroy is blocked by sandbox or approval review, report the rejection and whether any resources were changed. Do not retry or bypass the rejection through another tool or command. Provide a manual, user-controlled teardown handoff: tell the user to open Terminal, show `cd` with the actual absolute project root safely shell-quoted, run `./starter.sh destroy`, and type `yes` when prompted. Identify the resource prefix and the resources and database data that will be deleted. Keep the interactive confirmation; do not suggest `--auto-approve` for this handoff. Providing these instructions does not mean destruction has run or succeeded.
 - If the endpoint download fails, show the HTTP error and retain the intended URL; do not substitute a different template.
 - If the generated layout differs from expectations, follow its README and report the difference.
 - If an option needed by the desired architecture has no endpoint mapping, state that limitation and inspect the generated README before setting it manually.

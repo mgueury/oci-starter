@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ##TF_VAR_prefix##-dep
+  name: ##TF_VAR_prefix##-rest-dep
   labels:
       app: ##TF_VAR_prefix##-rest
 spec:

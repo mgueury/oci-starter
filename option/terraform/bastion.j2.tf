@@ -76,6 +76,11 @@ resource "oci_core_instance" "starter_bastion" {
     hostname_label            = "${var.prefix}-bastion"
   }
 
+  # Disable IDMS V1
+  instance_options {
+    are_legacy_imds_endpoints_disabled = true
+  }
+
   metadata = {
     ssh_authorized_keys = local.ssh_public_key
   }

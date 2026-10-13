@@ -489,6 +489,11 @@ resource "oci_containerengine_node_pool" "starter_node_pool" {
     source_type = "IMAGE"
   }
 
+  # Disable IDMS V1
+  node_metadata = {
+    "areLegacyImdsEndpointsDisabled" = "true"
+  }
+
   node_config_details {
     #Required
     placement_configs {
