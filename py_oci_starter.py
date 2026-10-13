@@ -564,6 +564,7 @@ def env_sh_contents():
     tfvars.append(f'prefix="{prefix}"')
 
     for param in env_params:
+        print( f"XXXXX: debug {param}")
         # In the test_suite, do not include db_user and db_type in terraform_common/target/tf_env.sh
         if group_db_count>1 and param in ["db_user","db_type"]:
             print( f"group_db_count>1 skipping ${param}" )
