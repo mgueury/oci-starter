@@ -1137,6 +1137,7 @@ def create_terraform_common_dir():
         cp_terraform("object_storage.tf")
 
     cp_terraform("container_instance_policy.tf")
+    print( f"group_db_count={group_db_count}" )
     # cp_terraform("hosted_app_policy.tf")
 
 #----------------------------------------------------------------------------
