@@ -1134,10 +1134,10 @@ def create_terraform_common_dir():
 
     cp_terraform("container_instance_policy.tf")
     if group_db_count>1:
-        global fixed_param
+        global fixed_params
         print( f"group_db_count>1" )    
-        fixed_param.pop('db_user')
-        fixed_param.pop('db_password')        
+        fixed_params.pop('db_user')
+        fixed_params.pop('db_password')        
     # cp_terraform("hosted_app_policy.tf")
 
 #----------------------------------------------------------------------------
