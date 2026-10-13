@@ -983,11 +983,11 @@ def create_output_dir():
             cp_terraform_existing("fnapp_ocid", "function.j2.tf")
             if 'fnapp_ocid' not in params:
                 cp_terraform("log_group.tf")
-                cp_terraform("object_storage.tf")
             if params['language'] == "ords":
                 apigw_append = "apigw_fn_ords_append.j2.tf"
             else:
                 cp_terraform("function_part2.j2.tf")
+                cp_terraform("object_storage.tf")                
                 apigw_append = None
             cp_terraform_existing("apigw_ocid", "apigw.j2.tf", apigw_append)
 
