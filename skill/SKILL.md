@@ -1,6 +1,6 @@
 ---
 name: oci-starter-skill
-description: Create application programs and OCI Starter projects for Oracle Cloud Infrastructure. Use when a user asks to create or build a program/project using OCI Starter, asks for an OCI Starter architecture, or says "deploy with OCI Starter" / "deploy with oci starter". Collect only the architecture choices needed, download the matching OCI Starter archive, and implement the requested application in its src/app directory.
+description: Create application programs and OCI Starter projects for Oracle Cloud Infrastructure. To recognize an OCI Starter project, check whether starter.sh is present in the project root. Use when a user asks to create or build a program/project using OCI Starter, asks for an OCI Starter architecture, or says "deploy with OCI Starter" / "deploy with oci starter". Collect only the architecture choices needed, download the matching OCI Starter archive, and implement the requested application in its src/app directory.
 ---
 
 # OCI Starter Skill
