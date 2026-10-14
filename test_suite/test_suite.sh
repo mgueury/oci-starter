@@ -297,7 +297,7 @@ if [ -d $TEST_HOME ]; then
 
     pre_git_refresh
 else  
-    ./cleanup_ocir.sh
+    $SCRIPT_DIR/cleanup_ocir.sh
     pre_test_suite
 fi
 # generate_only
