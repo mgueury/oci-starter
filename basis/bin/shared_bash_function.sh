@@ -97,10 +97,14 @@ build_archive_function() (
                 PYTHONPATH="$pip_dir" python3 -m pip download -r "$source_dir/requirements.txt" -d "$archive_root/wheels" \
                     --implementation cp --abi "cp3$python_minor" \
                     --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
-                PYTHONPATH="$pip_dir" python3 -m pip install "$archive_root/wheels/"*.whl -t "$archive_root/python" \
-                    --no-index --no-deps --ignore-requires-python --no-compile \
-                    --implementation cp --abi "cp3$python_minor" \
-                    --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
+                local wheels=("$archive_root/wheels/"*.whl)
+                # Empty requirements produce no wheels; do not pass a literal glob to pip.
+                if [ -f "${wheels[0]}" ]; then
+                    PYTHONPATH="$pip_dir" python3 -m pip install "${wheels[@]}" -t "$archive_root/python" \
+                        --no-index --no-deps --ignore-requires-python --no-compile \
+                        --implementation cp --abi "cp3$python_minor" \
+                        --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
+                fi
                 rm -rf "$archive_root/wheels" || return $?
             fi
             ;;
