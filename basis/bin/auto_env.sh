@@ -171,6 +171,17 @@ complete -F _starter_completions ./starter.sh
 # Check the SHAPE
 unset MISMATCH_PLATFORM
 if [ "$DEPLOY_WITH_DOCKER" == "true" ]; then
+    # Check the selected engine before Buildx can turn a connection failure into a
+    # misleading architecture error. This must be a separate compound command so
+    # Bash expands the docker=podman alias established above.
+    if ! docker info >/dev/null 2>&1; then
+        if docker --version 2>/dev/null | grep -qi podman; then
+            error_exit "Podman engine is unavailable. For a local Podman machine, run 'podman machine start', then retry."
+        else
+            error_exit "Docker daemon is unavailable. Start Docker or check its configured connection, then retry."
+        fi
+    fi
+
     if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
         export TF_VAR_cpu_architecture="arm64"
     else

@@ -90,8 +90,9 @@ build_archive_function() (
                 done
                 platforms+=(--platform "manylinux2014_${platform_arch}")
                 python3 -m pip install -r "$source_dir/requirements.txt" -t "$archive_root/python" \
-                    --python-version "3.$python_minor" --implementation cp --abi "cp3$python_minor" \
+                    --implementation cp --abi "cp3$python_minor" \
                     --only-binary=:all: "${platforms[@]}" || return $?
+                    # --python-version "3.$python_minor"
             fi
             ;;
         nodejs|nodjs)
