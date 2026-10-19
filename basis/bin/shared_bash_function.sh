@@ -97,14 +97,10 @@ build_archive_function() (
                 PYTHONPATH="$pip_dir" python3 -m pip download -r "$source_dir/requirements.txt" -d "$archive_root/wheels" \
                     --implementation cp --abi "cp3$python_minor" \
                     --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
-                local wheels=("$archive_root/wheels/"*.whl)
-                # Empty requirements produce no wheels; do not pass a literal glob to pip.
-                if [ -f "${wheels[0]}" ]; then
-                    PYTHONPATH="$pip_dir" python3 -m pip install "${wheels[@]}" -t "$archive_root/python" \
-                        --no-index --no-deps --ignore-requires-python --no-compile \
-                        --implementation cp --abi "cp3$python_minor" \
-                        --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
-                fi
+                PYTHONPATH="$pip_dir" python3 -m pip install "$archive_root/wheels/"*.whl -t "$archive_root/python" \
+                    --no-index --no-deps --ignore-requires-python --no-compile \
+                    --implementation cp --abi "cp3$python_minor" \
+                    --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
                 rm -rf "$archive_root/wheels" || return $?
             fi
             ;;
@@ -186,10 +182,28 @@ build_archive_function() (
     archive_size=$(wc -c < "$archive") || return $?
     echo "Function archive: $archive ($archive_size bytes)"
     unzip -l "$archive" || return $?
-    if (( archive_size > 25 * 1024 * 1024 )); then
-        echo "Function archive exceeds OCI's 25 MB direct-upload limit" >&2
+    if (( archive_size > 250 * 1024 * 1024 )); then
+        echo "Function archive exceeds OCI's 250 MB Object Storage limit" >&2
         return 1
     fi
+
+    # Read this after the build in Terraform, rather than evaluating filesha256
+    # during planning (the archive may not exist yet or may still be stale).
+    python3 - "$archive" "$TARGET_DIR/function-archive.json" <<'PY' || return $?
+import hashlib
+import json
+import os
+import sys
+
+digest = hashlib.sha256()
+with open(sys.argv[1], "rb") as archive:
+    for chunk in iter(lambda: archive.read(1024 * 1024), b""):
+        digest.update(chunk)
+metadata = sys.argv[2]
+with open(metadata + ".tmp", "w") as output:
+    json.dump({"sha256": digest.hexdigest(), "path": os.path.abspath(sys.argv[1])}, output)
+os.replace(metadata + ".tmp", metadata)
+PY
 
     if [ -z "${CALLED_BY_TERRAFORM:-}" ]; then
         cd "$PROJECT_DIR" || return $?

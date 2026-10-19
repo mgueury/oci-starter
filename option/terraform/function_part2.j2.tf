@@ -12,10 +12,37 @@ variable "function_handler" {
   description = "Function handler; leave empty for Go."
 }
 
+data "external" "starter_fn_archive" {
+  program    = ["cat", "${local.project_dir}/target/function-archive.json"]
+  depends_on = [null_resource.build_deploy]
+}
+
 data "local_file" "starter_fn_archive" {
   filename   = "${local.project_dir}/target/function.zip"
   depends_on = [null_resource.build_deploy]
 }
+
+resource "oci_objectstorage_bucket" "starter_fn_archives" {
+  compartment_id = local.lz_serv_cmp_ocid
+  namespace      = var.namespace
+  name           = "${var.prefix}-function-archives"
+  access_type    = "NoPublicAccess"
+  freeform_tags  = local.freeform_tags
+}
+
+resource "oci_objectstorage_object" "starter_fn_archive" {
+  namespace = oci_objectstorage_bucket.starter_fn_archives.namespace
+  bucket    = oci_objectstorage_bucket.starter_fn_archives.name
+  object    = "function-${data.external.starter_fn_archive.result.sha256}.zip"
+  # Defer the path too: the OCI provider includes the file mtime in its plan.
+  source       = data.external.starter_fn_archive.result.path
+  content_type = "application/zip"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 {%- else %}
 # OCI Function - Container (Docker file)
 locals {
@@ -32,8 +59,10 @@ resource "oci_functions_function" "starter_fn_function" {
   source_details {
     source_type = "ARCHIVE"
     archive_source_details {
-      archive_source_type = "DIRECT_ARCHIVE"
-      archive_file        = data.local_file.starter_fn_archive.content_base64
+      archive_source_type = "OBJECT_STORAGE_ARCHIVE"
+      namespace           = oci_objectstorage_object.starter_fn_archive.namespace
+      bucket              = oci_objectstorage_object.starter_fn_archive.bucket
+      object              = oci_objectstorage_object.starter_fn_archive.object
     }
     handler = var.function_handler != "" ? var.function_handler : null
     runtime_config {
