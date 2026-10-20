@@ -65,6 +65,24 @@ build_archive_function() (
     local source_dir="$SCRIPT_DIR"
     local architecture="${TF_VAR_cpu_architecture:-amd64}"
     local archive_root archive archive_size
+    local build_python=python3
+
+    if [ "$language" == "python" ]; then
+        local candidate
+        build_python=
+        for candidate in python3 python python3.12; do
+            if command -v "$candidate" >/dev/null 2>&1 &&
+                "$candidate" -c 'import sys; sys.exit(sys.version_info < (3, 12))' 2>/dev/null; then
+                build_python=$candidate
+                break
+            fi
+        done
+        if [ -z "$build_python" ]; then
+            echo "Python 3.12+ is required to build a Python Function archive (checked python3, python, python3.12)" >&2
+            return 1
+        fi
+        echo "Building Python Function with $build_python ($("$build_python" --version 2>&1))"
+    fi
 
     mkdir -p "$TARGET_DIR" || return $?
     archive="$(cd "$TARGET_DIR" && pwd)/function.zip" || return $?
@@ -73,16 +91,20 @@ build_archive_function() (
 
     case "$language" in
         python)
+            # Wheel compatibility must still match the deployed python312.ol9 runtime.
             local python_minor=12
             mkdir -p "$archive_root/function" || return $?
             cp -a "$source_dir/." "$archive_root/function/" || return $?
             rm -f "$archive_root/function/build.sh" || return $?
             if [ -f "$source_dir/requirements.txt" ]; then
-                local pip_dir="$TARGET_DIR/function-build-pip"
-                if ! PYTHONPATH="$pip_dir" python3 -c 'import pip; assert tuple(int(part) for part in pip.__version__.split(".")[:2]) >= (21, 3)' 2>/dev/null; then
-                    python3 -m pip install --disable-pip-version-check --no-deps --upgrade \
-                        --target "$pip_dir" 'pip==21.3.1' || return $?
+                local build_version
+                build_version=$("$build_python" -c 'import sys; print("{}.{}".format(*sys.version_info[:2]))') || return $?
+                local pip_dir="$TARGET_DIR/function-build-python$build_version"
+                if [ ! -x "$pip_dir/bin/python" ]; then
+                    "$build_python" -m venv "$pip_dir" || return $?
                 fi
+                local pip_python="$pip_dir/bin/python"
+                "$pip_python" -m pip install --disable-pip-version-check --upgrade pip || return $?
                 local platform_arch
                 case "$architecture" in
                     amd64) platform_arch=x86_64 ;;
@@ -94,14 +116,14 @@ build_archive_function() (
                     platforms+=(--platform "manylinux_2_${minor}_${platform_arch}")
                 done
                 platforms+=(--platform "manylinux2014_${platform_arch}")
-                PYTHONPATH="$pip_dir" python3 -m pip download -r "$source_dir/requirements.txt" -d "$archive_root/wheels" \
+                "$pip_python" -m pip download -r "$source_dir/requirements.txt" -d "$archive_root/wheels" \
                     --implementation cp --abi "cp3$python_minor" \
                     --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
                 local wheels=("$archive_root/wheels/"*.whl)
                 # Empty requirements produce no wheels; do not pass a literal glob to pip.
                 if [ -f "${wheels[0]}" ]; then
-                    PYTHONPATH="$pip_dir" python3 -m pip install "${wheels[@]}" -t "$archive_root/python" \
-                        --no-index --no-deps --ignore-requires-python --no-compile \
+                    "$pip_python" -m pip install "${wheels[@]}" -t "$archive_root/python" \
+                        --no-index --no-deps --no-compile \
                         --implementation cp --abi "cp3$python_minor" \
                         --only-binary=:all: --python-version "3.$python_minor" "${platforms[@]}" || return $?
                 fi
@@ -193,7 +215,7 @@ build_archive_function() (
 
     # Read this after the build in Terraform, rather than evaluating filesha256
     # during planning (the archive may not exist yet or may still be stale).
-    python3 - "$archive" "$TARGET_DIR/function-archive.json" <<'PY' || return $?
+    "$build_python" - "$archive" "$TARGET_DIR/function-archive.json" <<'PY' || return $?
 import hashlib
 import json
 import os
