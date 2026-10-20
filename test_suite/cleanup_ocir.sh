@@ -6,4 +6,4 @@ echo "-- Cleanup OCIR ----------------------------------------------------------
 python3 cleanup_ocir.py
 
 echo "-- Docker System Prune ------------------------------------------------------"
-docker system prune
+docker system prune --force
